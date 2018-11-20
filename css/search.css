@@ -1,0 +1,22 @@
+.search {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    margin: 0.5em;
+}
+.search, #search {
+    width: 20em;
+}
+.ui-menu .ui-menu-item-wrapper {
+    padding: 0;
+}
+.ui-menu li.ui-menu-item {
+    margin: 0.3em 0.5em;
+}
+.ui-menu li.ui-menu-item > * {
+    vertical-align: middle;
+}
+.ui-menu li.ui-menu-item img {
+    margin: 0 0.5em 0 0;
+}

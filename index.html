@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Melody's Maps</title>
+    
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
+    integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
+    integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
+    crossorigin=""></script>
+    
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    
+    <link rel="stylesheet" href="css/melodysmaps.css" />
+    
+    <!-- Select-ables -->
+    <script src="js/Selectable.js"></script>
+    <script src="js/Selectable.Item.js"></script>
+    
+    <!-- api -->
+    <script src="js/api.js"></script>
+    
+    <!-- search -->
+    <link rel="stylesheet" href="css/search.css" />
+    <script src="js/Category.js"></script>
+    <script src="js/Search.js"></script>
+    
+    <!-- lightboxes -->
+    <link rel="stylesheet" href="css/lightbox.css" />
+    <link rel="stylesheet" href="css/lightbox.item.css" />
+    <script src="js/Lightbox.js"></script>
+    <script src="js/Lightbox.Item.js"></script>
+</head>
+<body>
+    <div class="search"><input type="text" name="search" id="search" placeholder="Search..." /></div>
+    <div id="item"></div>
+    <div id="map"></div>
+    <script>
+    $(document).ready(function() {
+        $('#search').Search();
+        $('#item').ItemBox();
+    
+        var map = L.map('map', {
+            attributionControl: true,
+            maxBounds: [[-8, 35.14], [67.18, 135.63]],
+            minZoom: 4,
+            maxZoom: 10,
+            zoomControl: false
+        }).setView([55, 85], 4);
+        
+        var attri = "With data from <a href=\"https://na.finalfantasyxiv.com/lodestone/playguide/db/\">The Lodestone</a>, <a href=\"http://en.ff14angler.com/\">Cat became hungry</a>, friends and Melody's Sweat, Blood & Tears";
+        // Low res tiles
+        var eorzea = L.tileLayer('http://melodysmaps.com/eorzea/{z}/{x}/{y}.png', {
+            minZoom: 4,
+            maxZoom: 5,
+            tms: false,
+            zoomControl: false,
+            attribution: attri,
+            inLegend: true,
+            name: "Eorzea"
+        });
+        // High res tiles
+        var hrtiles = L.tileLayer('http://melodysmaps.com/zones/{z}/{x}/{y}.png', {
+            minZoom: 6,
+            maxZoom: 10,
+            tms: false,
+            inLegend: false,
+			name: "Eorzea Details"
+        });
+        eorzea.addTo(map);
+        hrtiles.addTo(map);
+    });
+    </script>
+</body>
+</html>

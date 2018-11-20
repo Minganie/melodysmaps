@@ -1,0 +1,61 @@
+.melsmaps-item-container h1 img {
+	margin: 0 0.5em;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.melsmaps-item-container li img {
+    margin: 0;
+    vertical-align: middle;
+}
+
+.melsmaps-item-title {
+	display: flex;
+	font-size: 1.5em;
+	text-align: left;
+    border-radius: 5px;
+    border: 1px solid #272727;
+    background-color: #302f30;
+    padding: 0.5em;
+	margin: 1em;
+}
+.melsmaps-item-title>* {
+	flex: 0 0 auto;
+	vertical-align: middle;
+}
+.melsmaps-item-title>.melsmaps-item-title-stretch {
+	flex: 1 0 auto;
+}
+.melsmaps-item-title button {
+	background-color: rgba(0,0,0,0);
+	background-image: url("http://www.melodysmaps.com/icons/inactivetab.png");
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	padding: 0.7em 2em;
+    text-align: center;
+	border: none;
+	color: #d7d7d7;
+}
+.melsmaps-item-sources {
+	display: flex;
+}
+.melsmaps-item-sources > div {
+	flex: 1;
+    padding: 0.5em;
+}
+.melsmaps-item-sources h2 {
+	margin: 1em 0 0 0.5em;
+	font-size: 1em;
+}
+.melsmaps-item-sources h2 img {
+    margin: 0;
+    float: left;
+    position: relative;
+    top: 0.2em;
+    left: -0.5em;
+}
+.melsmaps-item-sources a {
+    text-decoration: none;
+    color: #f0e4cb;
+    padding: 0 0 0 1em;
+}
