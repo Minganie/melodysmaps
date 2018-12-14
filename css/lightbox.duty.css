@@ -1,0 +1,81 @@
+.melsmaps-lightbox-container>* {
+    vertical-align: top;
+}
+
+.melsmaps-duty-map {
+    width: 70%;
+    height: 100%;
+    float: left;
+}
+.melsmaps-duty-info {
+    width: 30%;
+    height: 100%;
+    /* padding: 19px 0 0 0.75em; */
+    float: right;
+}
+
+.melsmaps-duty-info ul {
+    padding: 0;
+    margin: 0;
+} 
+.melsmaps-duty-info li {
+    list-style: none;
+}
+
+.melsmaps-duty-boss-tooltip {
+	border: 1px solid #3c3c3c;
+    background-color: #333333;
+    color: #E5992E;
+    font-weight: 600;
+    font-size: 1.1em;
+}
+
+.leaflet-tooltip-left.melsmaps-duty-boss-tooltip::before {
+    border-left-color: #3c3c3c;
+}
+
+.leaflet-tooltip-right.melsmaps-duty-boss-tooltip::before {
+    border-right-color: #3c3c3c;
+}
+
+.melsmaps-duty-boss-tooltip * {
+    vertical-align: middle;
+}
+
+.melsmaps-duty-info-header {
+	background-image: url("http://www.melodysmaps.com/icons/inactivetab.png");
+	background-repeat: no-repeat;
+	background-size: 90% 100%;
+	padding: 0.7em 2em;
+    font-size: 0.8em;
+    text-align: center;
+}
+
+.melsmaps-duty-coi {
+    background-color: rgba(0,0,0,0.2);
+    margin: 0.3em 1em 0.3em 0;
+    padding: 0.5em 0.1em 0.5em 0.5em;
+    border-radius: 5px;
+}
+
+.melsmaps-duty-coi img,
+.melsmaps-duty-trash li img {
+    margin: 0 0.7em 0 0;
+}
+
+.melsmaps-duty-coi ul * {
+    vertical-align: middle;
+}
+
+.melsmaps-duty-coi ul li,
+.melsmaps-duty-trash li {
+    margin: 0.3em 0 0.3em 1em;
+}
+
+.melsmaps-duty-info li * {
+    vertical-align: middle;
+}
+
+.melsmaps-duty-trash li {
+    margin: 0.3em 0 0.3em 1em;
+}

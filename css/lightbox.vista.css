@@ -1,0 +1,25 @@
+.melsmaps-vista-container h1 {
+    text-align: center;
+}
+.melsmaps-vista-container img {
+	margin: 0 1em 0 0;
+	vertical-align: middle;
+}
+.melsmaps-vista-container p {
+	text-align: left;
+	margin: 1em;
+}
+.melsmaps-vista-container p button {
+	width: 6em;
+	margin: 0 1em 0 0;
+}
+.melsmaps-vista-container .melsmaps-vista-button {
+	position: absolute;
+	right: 0;
+	top: 0;
+	margin: 0.5em;
+}
+.melsmaps-vista-icon,
+.leaflet-popup-content img.melsmaps-vista-icon {
+    margin: 0 1em 0 0;
+}

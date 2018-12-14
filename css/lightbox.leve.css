@@ -1,0 +1,132 @@
+.melsmaps-leve-tooltip-wrapper {
+	width: 600px;
+	background-color: #434243;
+	color: #d7d7d7;
+	border: 3px solid #9d8355;
+	border-radius: 5px;
+	padding: 1em;
+    margin: 0 19px 0 0;
+}
+
+.melsmaps-lightbox-container .melsmaps-leve-tooltip-wrapper {
+    border: none;
+    margin: 0;
+}
+
+.melsmaps-lightbox-container.melsmaps-leve-tooltip-container {
+    width: auto;
+    height: auto;
+}
+
+.melsmaps-lightbox-container.melsmaps-leve-tooltip-container .melsmaps-lightbox-close {
+    margin: 1em 1em 1em -1em;
+}
+
+.melsmaps-leve-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+#leve-tooltip .melsmaps-leve-tooltip-container {
+    max-height: 98vh;
+    overflow: hidden;
+    max-width: 50vw;
+}
+
+#leve .melsmaps-leve-tooltip-container {
+    max-height: 98%;
+    overflow: auto;
+}
+
+.melsmaps-levemete tr:nth-child(2n+1) {
+	background-color: #2a292a;
+}
+
+.melsmaps-levemete td:last-child {
+	padding: 0.5em 2em 0.5em 0.5em;
+}
+
+.leaflet-popup-content .melsmaps-levemete td:nth-child(even),
+.leaflet-popup-content .melsmaps-levemete th:nth-child(even) {
+    background-color: inherit;
+}
+
+.leaflet-popup-content .melsmaps-levemete td,
+.leaflet-popup-content .melsmaps-levemete th {
+    border: none;
+}
+
+.leaflet-popup-content .melsmaps-levemete td:nth-child(3) {
+	text-align: right;
+}
+
+.leaflet-popup-content .melsmaps-levemete td:nth-child(2) {
+	text-align: left;
+}
+
+.melsmaps-leve-tooltip-rewards:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.melsmaps-leve-tooltip-wrapper h1 {
+    font-size: 1.5em;
+    margin: 0em 0 1em 0;
+}
+.melsmaps-leve-tooltip-main {
+    display: flex;
+    align-items: center;
+}
+.melsmaps-leve-tooltip-main > img {
+    width: 150px;
+    height: 256px;
+}
+.melsmaps-leve-tooltip-main-wrapper {
+    flex-grow: 1;
+}
+.melsmaps-leve-tooltip-rewards > div {
+    float: left;
+}
+
+.melsmaps-npc-link {
+    cursor: pointer;
+    color: white;
+    text-decoration: underline;
+}
+.melsmaps-levemete-link {
+    cursor: pointer;
+    color: white;
+    text-decoration: underline;
+}
+
+.melsmaps-leve-tooltip-section {
+	border-top: 2px solid #262626;
+    margin: 1em 0;
+}
+.melsmaps-leve-tooltip-section * {
+    vertical-align: middle;
+}
+.melsmaps-leve-tooltip-section h2 {
+    margin: 0.2em 0;
+    font-size: 1em;
+    color: #ccbca1;
+}
+.melsmaps-leve-tooltip-section h2 img {
+    margin: 0 0.5em 0 0;
+}
+.melsmaps-leve-tooltip-section ul>li {
+    list-style: circle inside;
+    margin: 0.3em 0;
+}
+.melsmaps-leve-tooltip-currencies span {
+    margin: 0 1em 0 0;
+}
+.melsmaps-leve-tooltip-section.melsmaps-leve-tooltip-rewards {
+    margin: 0;
+}
+.melsmaps-leve-tooltip-section.melsmaps-leve-tooltip-rewards h2 {
+    margin: 0.2em 0 0.5em 0;
+}

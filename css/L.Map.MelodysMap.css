@@ -1,0 +1,291 @@
+/* div#map */
+.leaflet-container {
+    background-color:rgba(255,0,0,0.0);
+}
+
+/* tooltips */
+.melsmaps-tooltip {
+    font-size: 1em;
+    padding: 0.5em 1.5em 0.5em 1em;
+    background-color: rgba(59, 57, 59, 0.7);
+    color: #ffffff;
+    border-radius: 5px;
+    border: none;
+}
+.melsmaps-tooltip.leaflet-tooltip-right:before {
+    border-right-color: rgba(59, 57, 59, 0.7);
+}
+.melsmaps-tooltip.leaflet-tooltip-left:before {
+    border-left-color: rgba(59, 57, 59, 0.7);
+}
+.melsmaps-tooltip .melsmaps-tooltip {
+    background: none;
+    padding: 0;
+}
+.melsmaps-tooltip img {
+    display: inline-block;
+    vertical-align: middle;
+}
+.melsmaps-tooltip span {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 1em;
+}
+
+/* ----------------------------------*/
+/*            POPUPS                 */
+/* ----------------------------------*/
+.leaflet-popup-content-wrapper  {
+	background-color: #434243;
+	color: #d7d7d7;
+	border: 3px solid #9d8355;
+	border-radius: 5px;
+}
+.leaflet-popup-tip {
+	background-color: #434243;
+	border: 3px solid #9d8355;
+}
+.leaflet-popup-content {
+	max-height: 90vh;
+	overflow: auto;
+	padding: 13px 26px 13px 13px;
+	white-space: nowrap;
+	margin:0;
+}
+.leaflet-popup-content img {
+	vertical-align: middle;
+	margin: 0;
+}
+.leaflet-popup-content img.discipline {
+    vertical-align: baseline;
+}
+.leaflet-popup-content span {
+	display: inline-block;
+}
+.leaflet-popup-content h1 {
+	font-size: 1em;
+	color: #a2a2a2;
+	margin: 0;
+	padding: 0;
+}
+.leaflet-popup-content h2 {
+	font-size: 0.8em;
+	color: #a2a2a2;
+	margin: 0;
+	padding: 0;
+}
+.leaflet-popup-content ul img {
+	margin: 0;
+	padding: 0;
+	vertical-align: middle;
+}
+.leaflet-popup-content ul li {
+	margin: 0.5em 0;
+}
+/* gathering */
+.melsmaps-popup-gathering-container {
+    display: flex;
+    align-items: center;
+    margin: 0.2em 0;
+}
+.melsmaps-popup-gathering-fixed {
+    flex: 0 0 auto;
+}
+.melsmaps-popup-gathering-stretch {
+    flex: 1 0 auto;
+}
+.melsmaps-popup-gathering-grade {
+    background: linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.1) 20%, rgba(0,0,0,0.3) 45%, rgba(0,0,0,0.4));
+	flex: 1 0 auto;
+    min-width: 6em;
+    text-align: right;
+	padding: 0 1em 0 0;
+}
+.melsmaps-popup-gathering-container img {
+    margin: 0 0.5em 0 0;
+}
+div.req {
+	border: 1px solid #f4d588;
+	color: #f4d588;
+	border-radius: 5px;
+    margin: 0.5em 0.1em;
+}
+div.req span {
+	margin: 1em 0.5em;
+}
+/* fishing */
+.leaflet-popup-content {
+    width: auto !important;
+    max-width: 800px !important;
+}
+.leaflet-popup-content table {
+    border-collapse: collapse;
+    text-align: center;
+    vertical-align: middle;
+}
+.leaflet-popup-content table tr:nth-child(even) {
+    background-color: rgba(0,255,255,0.0.5);
+}
+.leaflet-popup-content table td:nth-child(even),
+.leaflet-popup-content table th:nth-child(even) {
+    background-color: rgba(255,255,255,0.05);
+}
+.leaflet-popup-content table td,
+.leaflet-popup-content table th {
+    padding: 3px;
+    border: 1px solid #3d3b3d;
+}
+/* duties */
+.melsmaps-duties-link {
+	background-color: transparent;
+	color: #d7d7d7;
+	border: none;
+	cursor: pointer;
+    display: block;
+    margin: 0.7em 0;
+}
+.melsmaps-duties-link span.duty-name {
+    text-decoration: underline;
+    margin: 0 0 0 0.5em;
+}
+.div-as-list {
+    
+}
+ul.duty.trial {
+	display: flex;
+	vertical-align: top;
+}
+ul.duty.trial img {
+	margin: 0 0.5em 0 0.2em;
+}
+ul.duty.trial h2 {
+	font-size: 1.2em;
+	font-weight: 600;
+	color: white;
+}
+ul.duty.trial li.mode {
+	padding: 1em;
+	flex: 1 1 auto;
+}
+ul.duty.trial li.mode:nth-child(even) {
+	background-color: #2a292a;
+}
+/* Fishing */
+.fishing_data {
+	text-align: center;
+	border-collapse: collapse;
+}
+.fishing_data tr td {
+	border: 1px solid grey;
+}
+.fishing_data tr:first-child td:first-child {
+	border: none;
+}
+.fishing_data tr:first-child td {
+	border: 1px solid grey;
+}
+/* Merchant */
+.melsmaps-merchant-popup {
+	padding: 1em;
+	background-color: #1c1c1c;
+	border-radius: 5px;
+	margin: 1em 0 0 0;
+	min-width: 400px;
+}
+.melsmaps-merchant-popup ul {
+	display: flex;
+	padding: 0 0.2em;
+	margin: 0 0 1em 0;
+}
+.melsmaps-merchant-popup ul li {
+	flex: 1;
+	text-align: center;
+	margin: 0 0.2em;
+	border-radius: 5px;
+	padding: 0.2em;
+}
+.melsmaps-merchant-popup ul li.available {
+	background-image: linear-gradient(#4d4d4d 0%,#333333 100%);
+	color: #ccc;
+}
+.melsmaps-merchant-popup ul li.unavailable {
+	background-image: linear-gradient(#333333 0%,#2222 100%);
+	color: #888888;
+}
+.melsmaps-merchant-popup ul li.available.active {
+	background: #33260a;
+	box-shadow: 0px 1px 0px #1a1203 inset,0px -1px 0px #403113 inset;
+	color: #ffd966;
+}
+
+.melsmaps-merchant-popup .tab-content {
+	display: none;
+}
+.melsmaps-merchant-popup .tab-content.active {
+	display: block;
+}
+
+.melsmaps-merchant-popup table {
+	min-width: 100%;
+}
+
+.melsmaps-merchant-popup table td {
+	padding: 0.5em;
+}
+
+.melsmaps-merchant-popup table,
+.melsmaps-merchant-popup tr,
+.melsmaps-merchant-popup td {
+	border: 0px;
+	border-width: 0px;
+	border-style: none;
+	border-collapse: collapse;
+	border-spacing: 0px;
+    margin: 1em 0 0 0;
+}
+
+.melsmaps-merchant-popup tr,
+.melsmaps-merchant-popup tr td {
+	height: 100%;
+}
+
+.melsmaps-merchant-popup table td ul {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	height: 100%;
+	justify-content: space-around;
+}
+.melsmaps-merchant-popup table td ul li,
+.melsmaps-merchant-popup table td ul li * {
+	padding: 0;
+	margin: 0;
+	flex: 0 0 auto;
+}
+
+.melsmaps-merchant-popup table tr:nth-child(2n+1) {
+	background-color: #2a292a;
+}
+
+.melsmaps-merchant-popup table td:last-child {
+	padding: 0.5em 2em 0.5em 0.5em;
+}
+
+.leaflet-popup-content .melsmaps-merchant-popup table td:nth-child(even),
+.leaflet-popup-content .melsmaps-merchant-popup table th:nth-child(even) {
+    background-color: inherit;
+}
+
+.leaflet-popup-content .melsmaps-merchant-popup table td,
+.leaflet-popup-content .melsmaps-merchant-popup table th {
+    border: none;
+}
+
+.leaflet-popup-content .melsmaps-merchant-popup table td:nth-child(3) {
+	text-align: right;
+}
+
+.leaflet-popup-content .melsmaps-merchant-popup table td:nth-child(5),
+.leaflet-popup-content .melsmaps-merchant-popup table td:nth-child(6) {
+	text-align: left;
+}

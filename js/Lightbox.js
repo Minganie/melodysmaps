@@ -1,4 +1,4 @@
-$.widget('melsmaps.Lightbox', {
+$.widget('melsmaps.lightbox', {
     options: {},
     
     _create: function() {

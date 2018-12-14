@@ -1,4 +1,4 @@
-$.widget('melsmaps.Search', $.ui.autocomplete, {
+$.widget('melsmaps.search', $.ui.autocomplete, {
     
     options: {
         minLength: 2,

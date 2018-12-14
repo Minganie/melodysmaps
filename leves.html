@@ -60,7 +60,6 @@
     <script src="js/Selectable.NPC.js"></script>
     <script src="js/Selectable.Levemete.js"></script>
     <script src="js/Selectable.Leve.js"></script>
-    <script src="js/Selectable.Recipe.js"></script>
     
     <!-- api -->
     <script src="js/api.js"></script>
@@ -87,54 +86,89 @@
     <link rel="stylesheet" href="css/tooltip.leve.css" />
 </head>
 <body>
-    <div class="search"><input type="text" name="search" id="search" placeholder="Search..." /></div>
-    <div id="item"></div>
-    <div id="duty"></div>
-    <div id="vista"></div>
-    <div id="leve"></div>
-    <div id="map"></div>
-    <div id="item-tooltip"></div>
+    <div id="map">
+    <ul></ul>
+    </div>
     <div id="leve-tooltip"></div>
     <script>
     $(document).ready(function() {
-        $('#search').search();
-        $('#item').itemBox();
-        $('#duty').dutyBox();
-        $('#vista').vistaBox();
-        $('#leve').leveBox();
+var lids = ["Your Mother Is Medicine and Your Father Is the Wild", "You Spin Me Round", "You Cannot Kill the Metal", "Yummy in the Tummy", "Wonders Don't Cease, They're Discontinued", "What Peistes Crave", "Yellow Is the New Black", "Walk Like a Mandragora", "Your Courtesy Wake-up Call", "We Can Dismember It for You Wholesale", "Where the Fur's At", "You Dropped Something", "Valuing the Vintage (L)", "Woodcross Busydeal", "Zelkova, My Love", "You Are NOT a Pirate", "What's Yours Is Mine", "This Old Fort", "Wail of a Tale", "You're a Liar, Mansel Black", "We Do This the Hard Way", "You Look Good Enough to Eat", "Necrologos: Whispers of the Gem"];
+for(var i in lids) {
+    var lid = lids[i];
+    var li = $('<li></li>')
+        .attr('data-melsmaps-leve-lid', lid)
+        .addClass('melsmaps-is-a-leve-tooltip')
+        .html(lid);
+    $('#map>ul').append(li);
+}
+
+// TOOLTIP HANDLERS
+function setTooltipText(evt, id) {
+    // console.log(evt);
+    var tt = evt.currentTarget.attributes['data-melsmaps-tooltip'].nodeValue;
+    // console.log(tt);
+    $(id).html(tt);
+}
+
+function moveTooltip(evt, id) {
+    var pos = getPos(evt, id);
+    var trans = "translate(" + pos.x + "px, " + pos.y + "px)";
+    $(id)
+        .css("transform", trans)
+        .css("display", "block");
+}
+
+function getPos(evt, id) {
+    function isMouseInX(x, left, right) {
+        return left < x && x < right;
+    }
+    function isMouseInY(y, top, bottom) {
+        return top < y && y < bottom;
+    }
+    var x = evt.originalEvent.clientX;
+    var y = evt.originalEvent.clientY;
+    var maxx = $(document).width();
+    var maxy = $(document).height();
+    var twidth = $(id).width();
+    var theight = $(id).height();
     
-        // Global 'cause select-able things need to put themselves on the map
-        melsmap = L.melodysMap('map', {
-            attributionControl: true,
-            maxBounds: [[-8, 35.14], [67.18, 135.63]],
-            minZoom: 4,
-            maxZoom: 10,
-            zoomControl: false
-        }).setView([55, 85], 4);
-        
-        var attri = "With data from <a href=\"https://na.finalfantasyxiv.com/lodestone/playguide/db/\">The Lodestone</a>, <a href=\"http://en.ff14angler.com/\">Cat became hungry</a>, friends and Melody's Sweat, Blood & Tears";
-        // Low res tiles
-        var eorzea = L.tileLayer('http://melodysmaps.com/eorzea/{z}/{x}/{y}.png', {
-            minZoom: 4,
-            maxZoom: 5,
-            tms: false,
-            zoomControl: false,
-            attribution: attri,
-            inLegend: true,
-            name: "Eorzea"
-        });
-        // High res tiles
-        var hrtiles = L.tileLayer('http://melodysmaps.com/zones/{z}/{x}/{y}.png', {
-            minZoom: 6,
-            maxZoom: 10,
-            tms: false,
-            inLegend: false,
-			name: "Eorzea Details"
-        });
-        eorzea.addTo(melsmap);
-        hrtiles.addTo(melsmap);
-        
-        init(melsmap);
+    // Is the tooltip going to overflow the window? push right and down
+    var truex = Math.min(x, maxx - twidth);
+    var truey = Math.min(y, maxy - theight);
+    
+    var left = false;
+    var above = false;
+    
+    if(isMouseInX(x, truex, truex+twidth)) {
+        // console.log("Moving the tooltip to the left of the cursor");
+        truex = Math.max(0, x-twidth-10);
+        left = true;
+    }
+    if(isMouseInY(y, truey, truey+theight)) {
+        // console.log("Moving the tooltip to above the cursor");
+        truey = Math.max(0, y-theight-10);
+        above = true;
+    }
+    // console.log("Final position: (" + truex + ", " + truey + ")");
+    return {
+        x: truex + (left ? -10 : 10),
+        y: truey + (above ? -10 : 10)
+    }
+}
+$('#map').on('mouseenter', '.melsmaps-is-a-leve-tooltip', function(evt) {
+    var lid = evt.currentTarget.attributes['data-melsmaps-leve-lid'].nodeValue;
+    api("leves", lid).then(function(leve) {
+        console.log("got a leve");
+        var tt = Selectable.getFull(leve).getTooltip(leve);
+        console.log(tt);
+        $('#leve-tooltip').html(tt);
+        moveTooltip(evt, '#leve-tooltip');
+    });
+});
+$('#map').on('mouseleave', '.melsmaps-is-a-leve-tooltip', function(evt) {
+    $('#leve-tooltip')
+        .css("display", "none");
+});
     });
     </script>
 </body>

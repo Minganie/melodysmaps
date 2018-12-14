@@ -1,0 +1,50 @@
+/* Named polygon layers */
+.region-names {
+	background: none;
+	border: none;
+	box-shadow: none;
+	font-size: 1.5em;
+	white-space: pre-wrap;
+	text-align: center;
+}
+.zone-names {
+    font-size: 1em;
+    background-color: rgba(230,230,230,0.6);
+}
+.area-names {
+    font-size: 1em;
+    background-color: rgba(200,255,255,0.6);
+    color: #000022;
+	padding: 0.2em 0.4em;
+	border: none;
+}
+.aetheryte-names {
+	padding: 0.2em 0.4em;
+	margin: 0;
+	background-color: rgba(59, 57, 59, 0.7);
+	color: #d1cbb3;
+	border: none;
+	font-size: 0.9em;
+	text-align: center;
+}
+.aetheryte-names::before {
+    border: none;
+}
+.aetheryte-names {
+	padding: 0.2em 0.4em;
+	margin: 0;
+	font-size: 0.9em;
+}
+
+.duty-names {
+	padding: 0.2em 0.4em;
+	margin: 0;
+	background-color: rgba(59, 57, 59, 0.8);
+	color: #d1cbb3;
+	border: none;
+	font-size: 0.9em;
+	text-align: center;
+}
+.duty-names::before {
+    border: none;
+}

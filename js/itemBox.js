@@ -1,4 +1,4 @@
-$.widget('melsmaps.ItemBox', $.melsmaps.Lightbox, {
+$.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
     _initLayout: function() {
         this.container.addClass('melsmaps-item-container');
         this.title = $('<h1></h1>')
@@ -21,6 +21,11 @@ $.widget('melsmaps.ItemBox', $.melsmaps.Lightbox, {
 			.addClass('melsmaps-item-sources')
 			.appendTo(this.container);
 		this._setSubtitles(sourcesContainer);
+        this.container.on('click', 'li.melsmaps-item-source-link', $.proxy(function(evt) {
+            var selectable = $(evt.currentTarget).data('selectable');
+            selectable.onSelect();
+            this.hide();
+        }, this));
     },
     
     _setSubtitles: function(sourcesContainer) {
@@ -52,7 +57,7 @@ $.widget('melsmaps.ItemBox', $.melsmaps.Lightbox, {
         // HG
 		var hunting_grounds = $('<div></div>')
 			.appendTo(middle);
-		this._setSubtitle(hunting_grounds, 'http://melodysmaps.com/icons/sections/hunted.png', 'drop off');
+		this._setSubtitle(hunting_grounds, 'http://melodysmaps.com/icons/sections/hunted.png', 'dropped off');
 		this.hunting_grounds = $('<ul></ul>').appendTo(hunting_grounds);
         
         // DUTIES
@@ -131,62 +136,71 @@ $.widget('melsmaps.ItemBox', $.melsmaps.Lightbox, {
     
     _setSources: function() {
         var that = this;
-        this.item._sources.then(function(srcs) {
-            // console.log(srcs);
+        $.when.apply($, [this.item._info, this.item._sources]).done(function(info, sources) {
             
             // GATHERING
-            for(var i in srcs.nodes) {
-                // var node = MelsMaps.Selectable.getFull(srcs.nodes[i]);
-                // that.nodes.append(node.getListLink());
+            for(var i in sources.nodes) {
+                var li = Selectable.getSourceLine(sources.nodes[i], info);
+                that.nodes.append(li);
             }
             // merchants
-            for(var i in srcs.merchants) {
-                // var merchant = MelsMaps.Selectable.getFull(srcs.merchants[i]);
-                // that.merchants.append(merchant.getListLink());
+            for(var i in sources.merchants) {
+                var li = Selectable.getSourceLine(sources.merchants[i], info);
+                that.merchants.append(li);
             }
             // crafters
-            for(var i in srcs.crafters) {
-                // var crafter = MelsMaps.Selectable.getFull(srcs.crafters[i]);
-                // that.crafters.append(crafter.getListLink());
+            for(var i in sources.crafters) {
+                sources.crafters[i].category = {
+                    getName: function() {
+                        return 'Recipe';
+                    }
+                };
+                var li = Selectable.getSourceLine(sources.crafters[i]);
+                that.crafters.append(li);
             }
             // hg
-            for(var i in srcs.hunting) {
-                // var hg = MelsMaps.Selectable.getFull(srcs.hunting[i].hg);
-                // that.hunting_grounds.append(hg.getListLink(srcs.hunting[i].hq, srcs.hunting[i].nq));
+            for(var i in sources.hunting) {
+                var li = Selectable.getSourceLine(sources.hunting[i].hg, info, sources.hunting[i].hq, sources.hunting[i].nq);
+                that.hunting_grounds.append(li);
             }
             // duties
-            for(var i in srcs.duties) {
-                // var duty = MelsMaps.Selectable.getFull(srcs.duties[i]);
-                // that.duties.append(duty.getListLink());
+            for(var i in sources.duties) {
+                var li = Selectable.getSourceLine(sources.duties[i]);
+                that.duties.append(li);
             }
             // treasure maps
-            for(var i in srcs.maps) {
-                // var map = srcs.maps[i];
+            for(var i in sources.maps) {
+                var map = sources.maps[i];
                 
-                // var img = $('<img />')
-                    // .attr('src', 'http://melodysmaps.com/icons/gold/treasure.png')
-                    // .attr('width', 24)
-                    // .attr('height', 24);
-                // var li = $('<li></li>')
-                    // .append(img)
-                    // .append(map.map);
-                // var ul = $('<ul></ul>')
-                    // .appendTo(li);
-                // for(var i in map.nodes) {
-                    // var node = MelsMaps.Selectable.getFull(map.nodes[i]);
-                    // ul.append(node.getListLink());
-                // }
-                // that.maps.append(li);
+                var img = $('<img />')
+                    .attr('src', 'http://melodysmaps.com/icons/gold/treasure.png')
+                    .attr('width', 24)
+                    .attr('height', 24);
+                var li = $('<li></li>')
+                    .append(img)
+                    .append(map.map);
+                var ul = $('<ul></ul>')
+                    .appendTo(li);
+                for(var i in map.nodes) {
+                    var nli = Selectable.getSourceLine(map.nodes[i]);
+                    ul.append(nli);
+                }
+                that.maps.append(li);
             }
             // recipe
-            for(var i in srcs.uses) {
-                // var recipe = MelsMaps.Selectable.getFull(srcs.uses[i]);
-                // that.uses.append(recipe.getListLink());
+            for(var i in sources.uses) {
+                sources.uses[i].category = {
+                    getName: function() {
+                        return 'Recipe';
+                    }
+                };
+                var li = Selectable.getSourceLine(sources.uses[i]);
+                that.uses.append(li);
             }
             // leves
-            for(var i in srcs.leves) {
-                // var leve = MelsMaps.Selectable.getFull(srcs.leves[i]);
-                // that.leves.append(leve.getListLink());
+            for(var i in sources.leves) {
+                var li = Selectable.getSourceLine(sources.leves[i]);
+                that.leves.append(li);
             }
             
         });
@@ -194,22 +208,22 @@ $.widget('melsmaps.ItemBox', $.melsmaps.Lightbox, {
     
     _showAll: function() {
         var selectables = [];
-        var name = this.item._resolvedInfo.name;
-        this.nodes.find('li').each(function(i, li) {
-            $(li).data('selectable')._addToMap(name);
-        });
-		this.merchants.find('li').each(function(i, li) {
-            $(li).data('selectable')._addToMap(name);
-        });
-		this.hunting_grounds.find('li').each(function(i, li) {
-            $(li).data('selectable')._addToMap(name);
-        });
-		this.duties.find('li').each(function(i, li) {
-            $(li).data('selectable')._addToMap(name);
-        });
-        this.maps.find('li.melsmaps-item-source-link').each(function(i, li) {
-            $(li).data('selectable')._addToMap(name);
-        });
+        // var name = this.item._resolvedInfo.name;
+        // this.nodes.find('li').each(function(i, li) {
+            // $(li).data('selectable')._addToMap(name);
+        // });
+		// this.merchants.find('li').each(function(i, li) {
+            // $(li).data('selectable')._addToMap(name);
+        // });
+		// this.hunting_grounds.find('li').each(function(i, li) {
+            // $(li).data('selectable')._addToMap(name);
+        // });
+		// this.duties.find('li').each(function(i, li) {
+            // $(li).data('selectable')._addToMap(name);
+        // });
+        // this.maps.find('li.melsmaps-item-source-link').each(function(i, li) {
+            // $(li).data('selectable')._addToMap(name);
+        // });
         this.hide();
 	}
 });

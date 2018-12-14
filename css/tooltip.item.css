@@ -1,0 +1,125 @@
+#item-tooltip, #leve-tooltip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    display: none;
+}
+.melsmaps-item-tooltip-wrapper {
+	width: 400px;
+	background-color: #434243;
+	color: #d7d7d7;
+	border: 3px solid #9d8355;
+	border-radius: 5px;
+	padding: 1em;
+}
+.melsmaps-item-tooltip-wrapper>* {
+	margin: 0.7em 0;
+}
+.melsmaps-item-tooltip-wrapper * {
+	padding: 0;
+}
+.melsmaps-item-tooltip-wrapper p {
+	margin: 0;
+	padding: 0.2em;
+}
+.melsmaps-item-tooltip-wrapper table {
+	width: 100%;
+}
+.melsmaps-weapon-header * {
+	vertical-align: middle;
+}
+.melsmaps-weapon-header>div:first-child {
+	display: inline-block;
+}
+.melsmaps-weapon-header>div:last-child {
+	display: inline-block;
+}
+.melsmaps-item-unique {
+	font-size: 0.7em;
+}
+.melsmaps-item-name {
+	font-size: 0.9em;
+	font-weight: 600;
+}
+.melsmals-item-lcat3 {
+	font-size: 0.7em;
+}
+.melsmaps-item-ilvl {
+	background-color: #303030;
+	border-top: 2px solid #262626;
+	border-bottom: 2px solid #515151;
+	padding: 0.2em;
+}
+.melsmaps-item-phys {
+	text-align: right;
+	border-spacing: 10px;
+}
+.melsmaps-item-phys td {
+	width: 32%;
+}
+.melsmaps-item-label {
+	color: #ccbca1;
+}
+.melsmaps-item-phys tr:first-child {
+	font-size: 0.8em;
+}
+.melsmaps-item-phys tr:last-child {
+	color: white;
+	font-weight: 600;
+}
+.melsmaps-item-phys tr:last-child td {
+	border-bottom: 5px solid #575757;
+}
+.melsmaps-item-users {
+	border-bottom: 1px solid #262626;
+	box-shadow: 0px 1px #515151;
+	padding: 0 0 0.7em 0;
+}
+.melsmaps-item-users p {
+	font-size: 0.8em;
+	padding: 0.1em;
+}
+.melsmaps-item-bonuses p,
+.melsmaps-item-repair p,
+.melsmaps-item-materia p,
+.melsmaps-item-effects p:first-child,
+.melsmaps-item-req p:first-child {
+	font-size: 0.8em;
+	color: #919191;
+	border-bottom: 1px solid #262626;
+	box-shadow: 0px 1px #515151;
+}
+.melsmaps-item-bonuses td,
+.melsmaps-item-repair td {
+	width: 49%;
+	font-size: 0.8em;
+}
+.melsmals-item-stat {
+	color: #ccbca1;
+}
+.melsmaps-item-slot {
+	width: 16px;
+	height: 16px;
+	border-radius: 8px;
+	border: 2px solid #83a832;
+	box-shadow: inset 2px 2px #131313;
+	margin: 0.3em 0 0.3em 1em;
+}
+.melsmaps-item-repair {
+	/* padding: 0 0 0.7em 0; */
+	/* border-bottom: 1px solid #262626; */
+	/* box-shadow: 0px 1px #515151; */
+}
+.melsmaps-item-market {
+	font-size: 0.8em;
+	border-top: 1px solid #262626;
+	box-shadow: inset 0px 1px #515151;
+	padding: 0.7em 0 0 0;
+}
+.melsmaps-label-pink {
+	color: #d98298;
+}
+.melsmaps-item-req p:not(first-child) {
+	font-size: 0.8em;
+}

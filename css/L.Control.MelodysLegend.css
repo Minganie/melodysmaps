@@ -1,0 +1,54 @@
+.melsmaps-legend.leaflet-control-layers {
+	background-color: #434243;
+	color: #d7d7d7;
+	border: 3px solid #9d8355;
+	border-radius: 5px;
+}
+.melsmaps-legend.leaflet-control-layers * {
+	background: none;
+    border: none;
+    vertical-align: middle;
+}
+
+.melsmaps-legend.leaflet-control-layers .melsmaps-legend-separator {
+	width: auto;
+	top: 0;
+	height: 1px;
+	border-top: 1px solid #212121;
+	background-color: #5d585d;
+	border-bottom: 1px solid #666566;
+	padding: 0;
+	margin: 5px 0px;
+}
+
+.melsmaps-legend.leaflet-control-layers input {
+    margin: 0.2 em;
+}
+
+.melsmaps-legend.leaflet-control-layers .image,
+.melsmaps-legend.leaflet-control-layers .square {
+    margin: 0 0.5em 0 0;
+}
+
+.melsmaps-legend.leaflet-control-layers .square {
+    height: 1em;
+    width: 1em;
+    display: inline-block;
+    text-align: center;
+	border: 1px solid;
+}
+/* Layers in a group have a left margin */
+.melsmaps-legend.leaflet-control-layers .leaflet-control-layers-group>div {
+	margin: 0 0 0 1em;
+	line-height: 1.5em;
+}
+/*
+.melsmaps-legend.leaflet-control-layers .leaflet-control-layers-overlays label div span span {
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+	margin: 0 0.3em 0 0;
+	position: relative;
+	top: 2px;
+	border: 2px solid;
+}*/
