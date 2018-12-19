@@ -207,23 +207,25 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
 	},
     
     _showAll: function() {
-        var selectables = [];
-        // var name = this.item._resolvedInfo.name;
-        // this.nodes.find('li').each(function(i, li) {
-            // $(li).data('selectable')._addToMap(name);
-        // });
-		// this.merchants.find('li').each(function(i, li) {
-            // $(li).data('selectable')._addToMap(name);
-        // });
-		// this.hunting_grounds.find('li').each(function(i, li) {
-            // $(li).data('selectable')._addToMap(name);
-        // });
-		// this.duties.find('li').each(function(i, li) {
-            // $(li).data('selectable')._addToMap(name);
-        // });
-        // this.maps.find('li.melsmaps-item-source-link').each(function(i, li) {
-            // $(li).data('selectable')._addToMap(name);
-        // });
+        var that = this;
+        this.item._info.then(function(item) {
+            var name = item.name;
+            that.nodes.find('li').each(function(i, li) {
+                $(li).data('selectable')._addToMap(name);
+            });
+            that.merchants.find('li').each(function(i, li) {
+                $(li).data('selectable')._addToMap(name);
+            });
+            that.hunting_grounds.find('li').each(function(i, li) {
+                $(li).data('selectable')._addToMap(name);
+            });
+            that.duties.find('li').each(function(i, li) {
+                $(li).data('selectable')._addToMap(name);
+            });
+            that.maps.find('li.melsmaps-item-source-link').each(function(i, li) {
+                $(li).data('selectable')._addToMap(name);
+            });
+        });
         this.hide();
 	}
 });

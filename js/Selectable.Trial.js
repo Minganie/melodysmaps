@@ -4,6 +4,19 @@ Selectable.Trial = function(searchable) {
         this._full = api("duties", searchable.real_name);
 };
 Selectable.Trial.prototype = $.extend({}, Selectable.HasPopup.prototype, {
+    _addToMap: function(group) {
+        this._full.then(function(full) {
+            var layer = melsmap.getDutyLayer(full.name);
+            layer.options.inLegend = true;
+            layer.getLegendGroup = function() {return group;};
+            layer.getLegendLabel = function() {
+                return '<span><img src="http://melodysmaps.com/icons/map/trial.png" width="16" height="16" alt="' +
+                (name || '') + ' icon" class="melsmaps-legend-image" />' + 
+                (name || '') + '</span>';
+            };
+            layer.addTo(melsmap);
+        });
+    },
     onSelect: function() {
         this._full.then(function(full) {
 			melsmap.flyToBounds(full.bounds);

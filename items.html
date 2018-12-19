@@ -89,17 +89,18 @@
     <div id="map">
     <ul></ul>
     </div>
-    <div id="leve-tooltip"></div>
+    <div id="item-tooltip"></div>
     <script>
     $(document).ready(function() {
-var lids = ["Your Mother Is Medicine and Your Father Is the Wild", "You Spin Me Round", "You Cannot Kill the Metal", "Yummy in the Tummy", "Wonders Don't Cease, They're Discontinued", "What Peistes Crave", "Yellow Is the New Black", "Walk Like a Mandragora", "Your Courtesy Wake-up Call", "We Can Dismember It for You Wholesale", "Where the Fur's At", "You Dropped Something", "Valuing the Vintage (L)", "Woodcross Busydeal", "Zelkova, My Love", "You Are NOT a Pirate", "What's Yours Is Mine", "This Old Fort", "Wail of a Tale", "You're a Liar, Mansel Black", "We Do This the Hard Way", "You Look Good Enough to Eat", "Necrologos: Whispers of the Gem"];
+var lids = ["fffc4e40644", "ff64db94fce", "fe184c7b6e2", "ffe527ffb78", "ff028de882e", "ffa84141658", "ff685e53937", "ffdbb6da652", "e03b11ff284"];
 for(var i in lids) {
     var lid = lids[i];
-    var li = $('<li></li>')
-        .attr('data-melsmaps-leve-lid', lid)
-        .addClass('melsmaps-is-a-leve-tooltip')
-        .html(lid);
-    $('#map>ul').append(li);
+    api("items", lid).then(function(item) {
+        <!-- console.log("got an item"); -->
+        <!-- console.log(item); -->
+        var li = Selectable.getItemTooltippedImage(item);
+        $('#map>ul').append(li);
+    });
 }
 
 // TOOLTIP HANDLERS
@@ -155,18 +156,12 @@ function getPos(evt, id) {
         y: truey + (above ? -10 : 10)
     }
 }
-$('#map').on('mouseenter', '.melsmaps-is-a-leve-tooltip', function(evt) {
-    var lid = evt.currentTarget.attributes['data-melsmaps-leve-lid'].nodeValue;
-    api("leves", lid).then(function(leve) {
-        <!-- console.log("got a leve"); -->
-        var tt = Selectable.getLeveTooltip(leve);
-        <!-- console.log(tt); -->
-        $('#leve-tooltip').html(tt);
-        moveTooltip(evt, '#leve-tooltip');
-    });
+$('#map').on('mouseenter', '.melsmaps-is-a-tooltip', function(evt) {
+    setTooltipText(evt, '#item-tooltip');
+    moveTooltip(evt, '#item-tooltip');
 });
-$('#map').on('mouseleave', '.melsmaps-is-a-leve-tooltip', function(evt) {
-    $('#leve-tooltip')
+$('#map').on('mouseleave', '.melsmaps-is-a-tooltip', function(evt) {
+    $('#item-tooltip')
         .css("display", "none");
 });
     });

@@ -4,6 +4,22 @@ Selectable.MappedDuty = function(searchable) {
         this._full = api("duties", searchable.real_name);
 };
 Selectable.MappedDuty.prototype = $.extend({}, Selectable.HasPopup.prototype, {
+    _addToMap: function(group) {
+        this._full.then(function(full) {
+            var name = full.name;
+            var icon = full.category.getName().toLowerCase();
+            var layer = melsmap.getDutyLayer(name);
+            layer.options.inLegend = true;
+            layer.getLegendGroup = function() {return group;};
+            layer.getLegendLabel = function() {
+                return '<span><img src="http://melodysmaps.com/icons/map/' + icon 
+                + '.png" width="16" height="16" alt="' +
+                (name || '') + ' icon" class="melsmaps-legend-image" />' + 
+                (name || '') + '</span>';
+            };
+            layer.addTo(melsmap);
+        });
+    },
     onSelect: function() {
 		var that = this;
         $('#duty').dutyBox('instance').setDuty(that);
