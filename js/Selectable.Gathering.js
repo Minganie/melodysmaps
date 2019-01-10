@@ -33,7 +33,7 @@ Selectable.Gathering.Source = {
             .append(img)
             .append(a)
             .attr('title', 'Click to pan to the node');
-        li.data('selectable', Selectable.getFull(node));
+        li.data('selectable', Selectable.get(node));
         return li;
     }
 };

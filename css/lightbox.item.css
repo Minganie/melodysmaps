@@ -36,11 +36,33 @@
 	border: none;
 	color: #d7d7d7;
 }
+.melsmaps-item-fish-info,
 .melsmaps-item-sources {
 	display: flex;
 }
-.melsmaps-item-sources > div {
+.melsmaps-item-sources > div,
+.melsmaps-item-fish-info > div {
 	flex: 1;
+    padding: 0.5em;
+}
+.melsmaps-item-fish-info table.melsmaps-fish-hours * {
+    text-align: center;
+    vertical-align: bottom;
+}
+.melsmaps-item-fish-info table.melsmaps-fish-weather * {
+    vertical-align: middle;
+}
+.melsmaps-item-fish-info table.melsmaps-fish-weather td:first-child{
+    text-align: right;
+}
+.melsmaps-item-fish-info table.melsmaps-fish-weather td:nth-child(2){
+    text-align: center;
+}
+.melsmaps-item-fish-info table.melsmaps-fish-weather td:nth-child(3){
+    text-align: left;
+}
+.melsmaps-item-fish-info > div:first-child {
+    flex: 2;
     padding: 0.5em;
 }
 .melsmaps-item-sources h2 {
@@ -58,4 +80,21 @@
     text-decoration: none;
     color: #f0e4cb;
     padding: 0 0 0 1em;
+}
+.melsmaps-fishing-hour {
+    display: inline-block;
+    width: 1em;
+    background-color: #f0e4cb;
+    padding: 0;
+    margin: 0.2em;
+}
+.melsmaps-fishing-weather {
+    display: inline-block;
+    height: 1em;
+    background-color: #f0e4cb;
+    padding: 0;
+    margin: 0.2em;
+}
+caption {
+    font-weight: 400;
 }

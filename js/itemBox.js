@@ -17,6 +17,9 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
 			.html('Show all on map')
 			.appendTo(this.title)
 			.on('click', $.proxy(this._showAll, this));
+		this.fishContainer = $('<div></div>')
+			.addClass('melsmaps-item-fish-info')
+			.appendTo(this.container);
 		var sourcesContainer = $('<div></div>')
 			.addClass('melsmaps-item-sources')
 			.appendTo(this.container);
@@ -113,6 +116,7 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
     },
     
     _reset: function() {
+        this.fishContainer.empty();
         this.nodes.empty();
         this.merchants.empty();
         this.crafters.empty();
@@ -136,7 +140,45 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
     
     _setSources: function() {
         var that = this;
-        $.when.apply($, [this.item._info, this.item._sources]).done(function(info, sources) {
+        var hoursDiv = $('<div></div>').appendTo(that.fishContainer).html('Loading...');
+        $.when.apply($, [this.item._info, this.item._sources])
+        .fail(function(x, t, e) {
+            var hoursDiv = $('<div></div>').appendTo(that.fishContainer).html('There was a problem loading data... Sorry!');
+        })
+        .done(function(info, sources) {
+            that._reset();
+            
+            // SPECIAL SUPPLEMENTARY INFO FOR FISHES
+            var fishConditions = info.fish_conditions;
+            if(fishConditions && fishConditions.hours && fishConditions.weathers) {
+                // HOURS
+                var hoursDiv = $('<div></div>').appendTo(that.fishContainer);
+                var table = $('<table class="melsmaps-fish-hours"></table>').appendTo(hoursDiv);
+                $('<caption>Catches per hour</caption>').appendTo(table);
+                var blockTr = $('<tr></tr>').appendTo(table);
+                var txTr = $('<tr></tr>').appendTo(table);
+                var maxHeight = Math.max(...fishConditions.hours);
+                var pixels = 100;
+                for(var i = 0; i < fishConditions.hours.length; i++) {
+                    var height = Math.round(fishConditions.hours[i] / maxHeight * pixels);
+                    $('<td><div class="melsmaps-fishing-hour" style="height: ' + height + 'px;"></div></td>').appendTo(blockTr);
+                    $('<td>' + i + '</td>').appendTo(txTr);
+                }
+                
+                // WEATHERS
+                var weatherDiv = $('<div></div>').appendTo(that.fishContainer);
+                var wTable = $('<table class="melsmaps-fish-weather"></table>').appendTo(weatherDiv);
+                $('<caption>Weather conditions</caption>').appendTo(wTable);
+                var maxWidth = Math.max.apply(Math, fishConditions.weathers.map(function(w) { return w.catches; }));
+                for(var i = 0; i < fishConditions.weathers.length; i++) {
+                    var weather = fishConditions.weathers[i];
+                    var width = Math.round(weather.catches / maxWidth * pixels);
+                    var tr = $('<tr></tr>').appendTo(wTable);
+                    $('<td>' + weather.weather + '</td>').appendTo(tr);
+                    $('<td><img src="http://melodysmaps.com/icons/weather/' + weather.weather + '.png" alt="" width=24 height=24 /></td>').appendTo(tr);
+                    $('<td><div class="melsmaps-fishing-weather" style="width: ' + width + 'px;"></div></td>').appendTo(tr);
+                }
+            }
             
             // GATHERING
             for(var i in sources.nodes) {

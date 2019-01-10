@@ -39,7 +39,7 @@ Selectable.Fishing.prototype = $.extend({}, Selectable.Gathering.prototype, {
 				for(var j in popupable.fishes) {
 					var rate = popupable.fishing_table[i][j];
                     $('<td></td>')
-                        .html(rate ? rate : '')
+                        .html(rate && rate != '0.00' && rate != '0,00' ? rate : '')
                         .appendTo(tr);
 				}
 			}
@@ -48,18 +48,24 @@ Selectable.Fishing.prototype = $.extend({}, Selectable.Gathering.prototype, {
 	}
 });
 Selectable.Fishing.Source = {
-    getLine: function(node, fish) {
-        // console.log("Getting line for fish " + fish.name + " @ " + node.name);
+    getLine: function(node) {
+        // console.log("Getting line for node " + node.name);
+        var baitname = '?';
+        var rate = '?';
+        if(node && node.trail && node.rate) {
+            baitname = (node.trail.length > 1 ? 'mooching' : node.trail[0].name);
+            rate = node.rate;
+        }
         node.category.iconSize = 24;
         var img = node.category.getGoldIcon();
         var a = $('<a></a>')
-            .html(node.name + ' (lvl ' + node.level + ')');
+            .html(node.name + ' (' + rate + '% with ' + baitname + ') (lvl ' + node.level + ')');
         var li = $('<li></li>')
             .addClass('melsmaps-item-source-link')
             .append(img)
             .append(a)
             .attr('title', 'Click to pan to the node');
-        li.data('selectable', Selectable.getFull(node));
+        li.data('selectable', Selectable.get(node));
         return li;
     }
 };
