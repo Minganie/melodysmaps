@@ -111,7 +111,9 @@ Selectable.Trial.prototype = $.extend({}, Selectable.HasPopup.prototype, {
                     }
                 }
             }
-        }
+        } else {
+			rm = $('<p>Waiting on Mel to generate content...</p>');
+		}
         return html.append(rm).append(hm).append(xm);
 	}
 });

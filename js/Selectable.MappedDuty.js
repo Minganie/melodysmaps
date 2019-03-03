@@ -76,6 +76,8 @@ Selectable.MappedDuty.prototype = $.extend({}, Selectable.HasPopup.prototype, {
 			html.append(rm)
                 .append(hm)
                 .append(xm);
+		} else {
+			html.append($('<p>Waiting on Mel to generate content...</p>'));
 		}
 		return html;
 	}

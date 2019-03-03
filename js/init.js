@@ -108,7 +108,7 @@ function init(map) {
         }).addTo(map);
     });
 
-    api("duties").then(function(duties) {
+    api("duties").then(function(duties) {		
         L.dutyLayer(duties, {
             name: 'Duties', 
             icons: {
