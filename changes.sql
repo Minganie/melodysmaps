@@ -101,14 +101,16 @@ create table mobiles (
 	lid text primary key,
 	name text not null,
 	category text not null references mobile_types(name),
-	geom geometry(Point, 4326) not null,
-	unique(name, geom)
+	geom geometry(Point, 4326) not null
 );
 grant select on mobiles to ffxivro;
 grant insert, update, delete on mobiles to ffxivrw;
 comment on table mobiles IS 'Counterpart to Lodestone''s NPC: enemies and npc (i.e. quest giver, etc)';
 
 alter table duty_bosses rename to duty_encounters;
+-- make duty encounters recognizable from Lodestone to Mel's Maps db
+alter table duty_encounters add column boss_names_ctrl text;
+alter table duty_encounters add column encounter_index integer check (encounter_index >= 0);
 alter table duty_encounters add constraint duty_encounters_ukey unique (duty, encounter_index);
 create table duty_encounter_bosses (
 	encounter int references duty_encounters (gid),
@@ -120,7 +122,6 @@ grant insert, update, delete on duty_encounter_bosses to ffxivrw;
 
 alter table duty_boss_loot rename to duty_encounter_loot;
 alter table duty_boss_tokens rename to duty_encounter_tokens;
+alter table duty_encounter_loot rename column boss to encounter;
 
--- make duty encounters recognizable from Lodestone to Mel's Maps db
-alter table duty_encounters add column boss_names_ctrl text;
-alter table duty_encounters add column encounter_index integer check (encounter_index >= 0);
+-- Duty maps... they suck.
