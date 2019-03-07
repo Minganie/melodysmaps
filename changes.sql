@@ -124,4 +124,52 @@ alter table duty_boss_loot rename to duty_encounter_loot;
 alter table duty_boss_tokens rename to duty_encounter_tokens;
 alter table duty_encounter_loot rename column boss to encounter;
 
--- Duty maps... they suck.
+-- Duty maps... now sucking less!
+CREATE TABLE duty_map_rasters(
+	rid serial primary key,
+	rast raster,
+	filename text,
+	dutylid text
+);
+GRANT SELECT ON duty_map_rasters TO ffxivro;
+GRANT INSERT, UPDATE, DELETE ON duty_map_rasters TO ffxivrw;
+
+CREATE OR REPLACE FUNCTION find_which_duty()
+	RETURNS trigger
+	LANGUAGE 'plpgsql'
+AS $BODY$
+	DECLARE difficulty text;
+	BEGIN
+		SELECT regexp_replace(NEW.filename, '_georeferenced.png', '') INTO STRICT NEW.filename;
+		CASE
+			WHEN position('Hard' in NEW.filename) IS NOT NULL AND position('Hard' in NEW.filename) <> 0 THEN difficulty = 'Hard';
+			WHEN position('Extreme' in NEW.filename) IS NOT NULL AND position('Extreme' in NEW.filename) <> 0 THEN difficulty = 'Extreme';
+			WHEN position('Savage' in NEW.filename) IS NOT NULL AND position('Savage' in NEW.filename) <> 0 THEN difficulty = 'Savage';
+			WHEN position('Ultimate' in NEW.filename) IS NOT NULL AND position('Ultimate' in NEW.filename) <> 0 THEN difficulty = 'Ultimate';
+			ELSE difficulty = 'Regular';
+		END CASE;
+		SELECT lid INTO STRICT NEW.dutylid FROM duties_each WHERE mode=difficulty AND NEW.filename LIKE '%' || name || '%';
+		RETURN NEW;
+	END;
+$BODY$;
+CREATE TRIGGER set_duty_lid
+	BEFORE INSERT
+	ON duty_map_rasters
+	FOR EACH ROW
+	EXECUTE PROCEDURE find_which_duty();
+
+
+CREATE OR REPLACE FUNCTION add_xtent_to_o()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+AS $BODY$
+    BEGIN
+		INSERT INTO rtestext (rid, st_envelope) values (NEW.rid, st_envelope(NEW.rast));
+		RETURN NEW;
+    END;
+$BODY$;
+CREATE TRIGGER add_xtent
+    AFTER insert
+    ON rtest
+    FOR EACH ROW
+    EXECUTE PROCEDURE add_xtent_to_o();
