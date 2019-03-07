@@ -72,7 +72,7 @@ update duty_maps as dm set duty_ref = de.lid
   from duties_each as de
   where dm.duty = de.name and dm.mode = de.mode;
 alter table duty_maps alter column duty_ref set not null;
-alter table duty_maps add constraint duty_maps_ukey unique (duty_ref, name);
+alter table duty_maps add constraint duty_maps_ukey unique (name);
 alter table duty_maps drop constraint duty_maps_duty_mode_name_key;
 alter table duty_maps drop constraint duty_maps_duty_fkey;
 alter table duty_maps drop column duty, drop column mode;
@@ -157,19 +157,113 @@ CREATE TRIGGER set_duty_lid
 	ON duty_map_rasters
 	FOR EACH ROW
 	EXECUTE PROCEDURE find_which_duty();
-
-
-CREATE OR REPLACE FUNCTION add_xtent_to_o()
+    
+-- TEMP TRIGGER : update geom when inputing rasters
+CREATE OR REPLACE FUNCTION fix_duty_map_geom()
     RETURNS trigger
     LANGUAGE 'plpgsql'
 AS $BODY$
     BEGIN
-		INSERT INTO rtestext (rid, st_envelope) values (NEW.rid, st_envelope(NEW.rast));
-		RETURN NEW;
+        UPDATE duty_maps SET geom=st_transform(st_envelope(NEW.rast), 4326) WHERE name=NEW.filename;
+        RETURN NEW;
     END;
 $BODY$;
-CREATE TRIGGER add_xtent
-    AFTER insert
-    ON rtest
+CREATE TRIGGER update_duty_map_geom
+    AFTER INSERT ON duty_map_rasters
     FOR EACH ROW
-    EXECUTE PROCEDURE add_xtent_to_o();
+    EXECUTE PROCEDURE fix_duty_map_geom();
+    
+-- RENAME RASTER FILES IN THEIR FOLDERS: add _georeferenced to the Bahamut coils
+-- add "The" to wod and lota
+
+-- FIX GEOMETRY on raster Haukke hard cellar?
+
+-- RUN rastertosql.bat : will take .png's and make .sql
+-- input the .sql into db with psql -U postgres -d ffxiv -f file.sql
+
+-- VERIFY NAME EQUALITY
+select dm.name as duty_maps, dmr.filename as duty_map_rasters
+from duty_maps as dm
+  full outer join duty_map_rasters as dmr on dm.name=dmr.filename
+order by dm.name;
+-- VERIFY GEOM EQUALITY
+select dm.name as mapname, 
+  st_xmin(dm.geom) - st_xmin( st_transform(st_envelope(dmr.rast), 4326)) as left_diff,
+  st_xmax(dm.geom) - st_xmax(st_transform(st_envelope(dmr.rast), 4326)) as right_diff,
+  st_ymin(dm.geom) - st_ymin( st_transform(st_envelope(dmr.rast), 4326)) as bottom_diff,
+  st_ymax(dm.geom) - st_ymax(st_transform(st_envelope(dmr.rast), 4326)) as top_diff
+from duty_maps as dm
+  full outer join duty_map_rasters as dmr on dm.name = dmr.filename
+where st_xmin(dm.geom) - st_xmin( st_transform(st_envelope(dmr.rast), 4326)) > 0.01
+  or st_xmax(dm.geom) - st_xmax(st_transform(st_envelope(dmr.rast), 4326)) > 0.01
+  or st_ymin(dm.geom) - st_ymin( st_transform(st_envelope(dmr.rast), 4326)) > 0.01
+  or st_ymax(dm.geom) - st_ymax(st_transform(st_envelope(dmr.rast), 4326)) > 0.01
+order by dm.name
+
+-- Now, duty_map_rasters = duty_maps, constraint that
+ALTER TABLE duty_maps ADD CONSTRAINT duty_map_raster_fkey (name) REFERENCES duty_map_rasters (filename);
+-- I would constraint-check the geom, but you can only constraint-check within the same table, so let's rely on these permanent triggers:
+DROP TRIGGER update_duty_map_geom ON duty_map_rasters;
+DROP FUNCTION fix_duty_map_geom;
+    
+-- make automatic insert on duty_maps
+CREATE OR REPLACE FUNCTION add_duty_map()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+AS $BODY$
+    BEGIN
+        INSERT INTO duty_maps (name, geom, duty) VALUES (NEW.filename, st_transform(st_envelope(NEW.rast), 4326), NEW.dutylid);
+        RETURN NEW;
+    END;
+$BODY$;
+CREATE TRIGGER add_duty_map_from_raster
+    AFTER INSERT ON duty_map_rasters
+    FOR EACH ROW
+    EXECUTE PROCEDURE add_duty_map();
+-- and now fix the fact that all the geom measurements and transform coefficients are just computations...
+-- MEASUREMENTS AND COEFFICIENTS CANNOT BE NULL
+-- defaults for game measurements
+ALTER TABLE duty_maps ALTER COLUMN i SET NOT NULL SET DEFAULT 0;
+ALTER TABLE duty_maps ALTER COLUMN i SET NOT NULL SET DEFAULT 0;
+ALTER TABLE duty_maps ALTER COLUMN i SET NOT NULL SET DEFAULT 0;
+ALTER TABLE duty_maps ALTER COLUMN i SET NOT NULL SET DEFAULT 0;
+-- geom measurements in 4326
+ALTER TABLE duty_maps ALTER COLUMN i SET NOT NULL;
+ALTER TABLE duty_maps ALTER COLUMN i SET NOT NULL;
+ALTER TABLE duty_maps ALTER COLUMN i SET NOT NULL;
+ALTER TABLE duty_maps ALTER COLUMN i SET NOT NULL;
+-- coefficients
+ALTER TABLE duty_maps ALTER COLUMN mxge SET NOT NULL;
+ALTER TABLE duty_maps ALTER COLUMN nxge SET NOT NULL;
+ALTER TABLE duty_maps ALTER COLUMN mxeg SET NOT NULL;
+ALTER TABLE duty_maps ALTER COLUMN nxeg SET NOT NULL;
+ALTER TABLE duty_maps ALTER COLUMN myge SET NOT NULL;
+ALTER TABLE duty_maps ALTER COLUMN nyge SET NOT NULL;
+ALTER TABLE duty_maps ALTER COLUMN myeg SET NOT NULL;
+ALTER TABLE duty_maps ALTER COLUMN nyeg SET NOT NULL;
+-- update geom measurements and coefficients automatically
+CREATE OR REPLACE FUNCTION compute_coefficients()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+AS $BODY$
+    BEGIN
+        SELECT st_xmin(NEW.geom) INTO NEW.;
+        SELECT st_xmax(NEW.geom) INTO NEW.;
+        SELECT st_ymin(NEW.geom) INTO NEW.;
+        SELECT st_ymax(NEW.geom) INTO NEW.;
+        SELECT 3+4 INTO NEW.mxge;
+        SELECT 3+4 INTO NEW.nxge;
+        SELECT 3+4 INTO NEW.mxeg;
+        SELECT 3+4 INTO NEW.nxeg;
+        SELECT 3+4 INTO NEW.myge;
+        SELECT 3+4 INTO NEW.nyge;
+        SELECT 3+4 INTO NEW.myeg;
+        SELECT 3+4 INTO NEW.nyeg;
+        RETURN NEW;
+    END;
+$BODY$;
+CREATE TRIGGER compute_coefficients
+    BEFORE INSERT OR UPDATE
+    ON duty_maps
+    FOR EACH ROW
+    EXECUTE PROCEDURE compute_coefficients();
