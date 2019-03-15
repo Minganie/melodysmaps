@@ -49,10 +49,10 @@ $.widget("melsmaps.dutyBox", $.melsmaps.lightbox, {
 		duty._full.then(function(full) {
             // console.log(full);
 			// var duty = full.modes[mode];
-			that._addBosses(full.bosses || full.modes[mode].bosses);
-			that._addChests(full.chests || full.modes[mode].chests);
-			that._addChestsOfInterest(full.chests || full.modes[mode].chests);
-			that._addTrash(full.drops || full.modes[mode].trash_drops);
+			that._addEncounters(full.modes[mode].encounters);
+			that._addChests(full.modes[mode].chests);
+			that._addChestsOfInterest(full.modes[mode].chests);
+			that._addTrash(full.modes[mode].trash_drops);
 		});
         this.show();
         this.map.invalidateSize();
@@ -74,7 +74,7 @@ $.widget("melsmaps.dutyBox", $.melsmaps.lightbox, {
     
     _setTiles: function(name, mode) {
         // console.log("Requesting " + name + " (" + mode + ")");
-        var modname = name.replace(/[\s-\(\)']/g, '').toLowerCase();
+        var modname = name.replace(/[\s-\(\)\.']/g, '').toLowerCase();
         if(mode != 'Regular' && mode != 'Savage')
             modname += mode.toLowerCase();
     
@@ -87,16 +87,16 @@ $.widget("melsmaps.dutyBox", $.melsmaps.lightbox, {
         tiles.addTo(this.map);
     },
     
-    _addBosses: function(bosses) {
-        // console.log(bosses);
+    _addEncounters: function(encounters) {
+        // console.log(encounters);
         var points = [];
-        for(var i in bosses) {
-            var boss = bosses[i];
-            // console.log(boss);
-            if(boss && boss.items && boss.geom && boss.boss) {
-                var popup = this._makeItemList(boss.items)[0];
-                var p = L.marker(boss.geom[0][0], { icon: mapIcons.boss });
-                p.bindTooltip(this._makeBossTooltip(boss.boss)[0], {
+        for(var i in encounters) {
+            var encounter = encounters[i];
+            // console.log(encounter);
+            if(encounter && encounter.items && encounter.geom && encounter.encounter) {
+                var popup = this._makeItemList(encounter.items)[0];
+                var p = L.marker(encounter.geom[0][0], { icon: mapIcons.boss });
+                p.bindTooltip(this._makeEncounterTooltip(encounter.encounter)[0], {
                     permanent: true,
                     className: 'melsmaps-duty-boss-tooltip'
                 });
@@ -107,7 +107,7 @@ $.widget("melsmaps.dutyBox", $.melsmaps.lightbox, {
         L.layerGroup(points).addTo(this.map);
     },
     
-    _makeBossTooltip: function(name) {
+    _makeEncounterTooltip: function(name) {
         var icon = $('<img />')
             .attr({
                 src: 'http://www.melodysmaps.com/icons/monster/agressive/elite.png',

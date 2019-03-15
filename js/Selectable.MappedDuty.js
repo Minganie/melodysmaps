@@ -34,21 +34,43 @@ Selectable.MappedDuty.prototype = $.extend({}, Selectable.HasPopup.prototype, {
 	_getPopupContent: function(popupable) {
 		var html = $('<div></div>')
             .addClass('div-as-list');
-		var rm = $('<button></button>')
-                    .addClass('melsmaps-duties-link');
-		var hm = $('<button></button>')
-                    .addClass('melsmaps-duties-link');
-		var xm = $('<button></button>')
-                    .addClass('melsmaps-duties-link');
+		var rm = null;
+		var hm = null;
+		var xm = null;
+		var sm = null;
+		var um = null;
 		if(popupable && popupable.modes) {
 			for(var i in popupable.modes) {
 				var duty = popupable.modes[i];
-				if(i == 'Regular')
-					var btn = rm;
-				else if(i == 'Hard')
-					var btn = hm;
-				else
-					var btn = xm;
+				switch(i) {
+					case 'Regular':
+						rm = $('<button></button>')
+							.addClass('melsmaps-duties-link');
+						var btn = rm;
+						break;
+					case 'Hard':
+						hm = $('<button></button>')
+							.addClass('melsmaps-duties-link');
+						var btn = hm;
+						break;
+					case 'Extreme':
+						rm = $('<button></button>')
+							.addClass('melsmaps-duties-link');
+						var btn = xm;
+						break;
+					case 'Savage':
+						sm = $('<button></button>')
+							.addClass('melsmaps-duties-link');
+						var btn = sm;
+						break;
+					case 'Ultimate':
+						um = $('<button></button>')
+							.addClass('melsmaps-duties-link');
+						var btn = um;
+						break;
+					default:
+						console.error('Unknown mapped duty difficulty: ' + i);
+				}
                 $('<span></span>')
                     .html('See the map for ')
                     .appendTo(btn);
@@ -75,7 +97,9 @@ Selectable.MappedDuty.prototype = $.extend({}, Selectable.HasPopup.prototype, {
 			}
 			html.append(rm)
                 .append(hm)
-                .append(xm);
+                .append(xm)
+				.append(sm)
+				.append(um);
 		} else {
 			html.append($('<p>Waiting on Mel to generate content...</p>'));
 		}

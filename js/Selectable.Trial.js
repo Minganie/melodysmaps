@@ -36,34 +36,36 @@ Selectable.Trial.prototype = $.extend({}, Selectable.HasPopup.prototype, {
 		var rm = null;
         var hm = null;
         var xm = null;
+		var sm = null;
+		var um = null;
         var duties = (popupable && popupable.modes ? popupable.modes : null);
         if(duties) {
             for(var mode in duties) {
                 var duty = duties[mode];
-                var boss = duty.bosses[0];
+                var encounter = duty.encounters[0];
                 
-                if(boss && boss.boss) {
+                if(encounter && encounter.encounter) {
                     switch(mode) {
                         case 'Regular':
-                            var boss_li = $('<li></li>')
+                            var encounter_li = $('<li></li>')
                                 .addClass('mode');
-                            rm = boss_li;
+                            rm = encounter_li;
                             break;
                         case 'Hard':
-                            var boss_li = $('<li></li>')
+                            var encounter_li = $('<li></li>')
                                 .addClass('mode');
-                            hm = boss_li;
+                            hm = encounter_li;
                             break;
                         case 'Extreme':
-                            var boss_li = $('<li></li>')
+                            var encounter_li = $('<li></li>')
                                 .addClass('mode');
-                            xm = boss_li;
+                            xm = encounter_li;
                             break;
                         default:
                             console.error("Can't find which trial mode '" + mode + "' is");
                     }
                     var h2 = $('<h2></h2>')
-                        .appendTo(boss_li);
+                        .appendTo(encounter_li);
                     $('<img />')
                         .attr({
                             src: 'http://www.melodysmaps.com/icons/map/boss.png',
@@ -73,14 +75,14 @@ Selectable.Trial.prototype = $.extend({}, Selectable.HasPopup.prototype, {
                         })
                         .appendTo(h2);
                     $('<span></span>')
-                        .html(boss.boss + ' (' + mode + ') (level ' + duty.level + ')')
+                        .html(encounter.encounter + ' (' + mode + ') (level ' + duty.level + ')')
                         .appendTo(h2);
-                    var boss_ul = $('<ul></ul>')
-                        .appendTo(boss_li);
+                    var encounter_ul = $('<ul></ul>')
+                        .appendTo(encounter_li);
                     
-                    if(boss.tokens) {
-                        for(var i in boss.tokens) {
-                            var token = boss.tokens[i];
+                    if(encounter.tokens) {
+                        for(var i in encounter.tokens) {
+                            var token = encounter.tokens[i];
                             var li = $('<li></li>');
                             $('<span></span>')
                                 .html(token.qty + ' ')
@@ -97,15 +99,15 @@ Selectable.Trial.prototype = $.extend({}, Selectable.HasPopup.prototype, {
                                 .html(token.token.name)
                                 .appendTo(li);
                             
-                            boss_ul.append(li);
+                            encounter_ul.append(li);
                         }
                     }
                     
-                    if(boss.items) {
-                        for(var j in boss.items) {
-                            var item = boss.items[j];
+                    if(encounter.items) {
+                        for(var j in encounter.items) {
+                            var item = encounter.items[j];
 							if(item){
-                                boss_ul.append(Selectable.getItemTooltippedLi(item));
+                                encounter_ul.append(Selectable.getItemTooltippedLi(item));
                             }
                         }
                     }
@@ -114,7 +116,7 @@ Selectable.Trial.prototype = $.extend({}, Selectable.HasPopup.prototype, {
         } else {
 			rm = $('<p>Waiting on Mel to generate content...</p>');
 		}
-        return html.append(rm).append(hm).append(xm);
+        return html.append(rm).append(hm).append(xm).append(sm).append(um);
 	}
 });
 Selectable.Duty = {
