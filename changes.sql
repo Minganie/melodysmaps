@@ -155,7 +155,7 @@ CREATE TRIGGER adjust_to_new_marker
     FOR EACH ROW EXECUTE PROCEDURE adjust_to_new_marker();
 
 -- WHEN REMOVING MARKERS, cascade too
-CREATE OR REPLACE FUNCTION adjust_to_less_marker()
+CREATE OR REPLACE FUNCTION adjust_geom_to_less_marker()
     RETURNS trigger
     LANGUAGE 'plpgsql'
     SECURITY DEFINER
@@ -164,6 +164,8 @@ AS $BODY$
         old_hull_id integer;
         old_cluster_id integer;
         n_markers integer;
+        n_mmumob_markers integer;
+        n_mm_mmumobs integer;
         new_cluster geometry(MultiPolygon, 4326);
         new_hull geometry(Polygon, 4326);
     BEGIN
@@ -177,7 +179,7 @@ AS $BODY$
         from xivdb_mobs as m
         where m.mmumob=OLD.mmumob AND m.gid<>OLD.gid AND st_contains((select ms.geom from mob_spawns as ms where gid=old_hull_id), m.geom);
         -- was it the only marker for this mmumob AT THIS LOCATION? if so, delete from mc and ms
-        IF n_markers <= 1 THEN
+        IF n_markers < 1 THEN
             DELETE FROM mobs_clustered WHERE mmumob=OLD.mmumob;
             DELETE FROM mob_spawns WHERE mmumob=OLD.mmumob;
         ELSE
@@ -200,17 +202,54 @@ AS $BODY$
         RETURN OLD;
     END;
 $BODY$;
+COMMENT ON FUNCTION adjust_geom_to_less_marker IS 'Adjust clustered and hull geometries when deleting a marker; shrink if one marker will be left after delete; delete if no marker will be left. Must be followed by foreign key cleanup, see adjust_ref_to_less_marker';
 
-CREATE TRIGGER adjust_to_less_marker
+CREATE TRIGGER adjust_geom_to_less_marker
     BEFORE DELETE ON xivdb_mobs
-    FOR EACH ROW EXECUTE PROCEDURE adjust_to_less_marker();
+    FOR EACH ROW EXECUTE PROCEDURE adjust_geom_to_less_marker();
+
+CREATE OR REPLACE FUNCTION adjust_ref_to_less_marker()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    SECURITY DEFINER
+AS $BODY$
+    DECLARE
+        n_mmumob_markers integer;
+        n_mm_mmumobs integer;
+        old_name text;
+    BEGIN
+        SELECT name INTO STRICT old_name
+        FROM mm_unique_mobiles AS m
+        WHERE id=OLD.mmumob;
+        -- was it the last marker for this mmumob? if so, delete from mm_unique_mobiles
+        SELECT count(gid) INTO STRICT n_mmumob_markers
+        FROM xivdb_mobs AS m 
+        WHERE m.mmumob=OLD.mmumob AND m.gid<>OLD.gid;
+        IF n_mmumob_markers < 1 THEN
+            DELETE FROM mm_unique_mobiles WHERE id=OLD.mmumob;
+        END IF;
+        -- and the last marker for this mob name? (i.e. no other mmumob for this mmob)
+        SELECT count(id) INTO n_mm_mmumobs
+        FROM mm_unique_mobiles AS m
+        WHERE m.name=old_name;
+        IF n_mm_mmumobs IS NULL OR n_mm_mmumobs < 1 THEN
+            DELETE FROM mm_mobiles WHERE name=old_name;
+        END IF;
+        RETURN OLD;
+    END;
+$BODY$;
+COMMENT ON FUNCTION adjust_ref_to_less_marker IS 'Foreign key reference cleanup; must be done after delete to avoid key violation. Preceded by adjust_geom_to_less_marker. If no marker is left for a mob+level+requires, delete from mm_unique_mobiles. In addition, if no marker is left for a mob name, delete from mm_mobiles.';
+    
+CREATE TRIGGER adjust_ref_to_less_marker
+    AFTER DELETE ON xivdb_mobs
+    FOR EACH ROW EXECUTE PROCEDURE adjust_ref_to_less_marker();
 
 -- Now smoosh nondropping and hunting_grounds to mm_mobiles and mm_unique_mobiles and mob_spawns...
 
 -- nondropping and hg DO NOT intersect, good!
 -- Nondropping: most of them are either eqv in mob_spawns, or invalid, or hunts I have to document properly.
 --For clarity, remove invalids...
-delete from nondropping where name = any('{"\u0003","Ac","Ace","Alisae","Alphinaud","Anala De La Steppe","Anala Infernal","Anila De Sel","Angrybird","Assaillant Kojin Rouge","Avogatto","Avril","Axs","Braconnier Olkund","Batmobil","Beebo","Blazea","Bob","Bobbycorwen","Borat","Bucca-Boo","Bukan Rouge","Calimero","Captain Jacke","Cazer","Chapo","Chapuli Ailes-Hautes","Chasseuse Des M","Chevelle","Choco","Choci","Chocie","Chocobotox","Chocobro","Chocolli","Chocomian","Chocomouth","Chocoprince","Chocuru","Chokokwak","Chooky","Cid","Clemintine","Cobo","Coba","Coco","Coquorail","Cordulie","Crest","Crispy","Crossmarian","Croustillon","Crozzo","Dhole De La Steppe","Dhruva De Sel","Dindofeu","Dresseuse Vira","Edila Rampante","Edoiks","Elisa","Elgala","Eliza","Elpollo","Eruca Des Hauteurs","Fenice","Fesoj","Fezo","Fiamma","Fileuse","Flake","Flash","Fopar","Forevermore","Fourmi Royale","Foutu","Frelon Gazelle","Fritz","Furet Domien","Gaei Le Vertueux","Gagana Mineur","Gardien Bestial","Gauki La Lame Forte","Gelbervogel","Gillian","Ginko","Glitch","Gold","Goldchocobo","Greyfeather","Grizzli De Montagne","Guetteur Namazu","Gusty","Gyorai Le Vif","Halonefury","Hannibal","Happy","Herbie","Heolis","Hestia","Hisashi","Holly","Honkan Rouge","Horus","Hyoe Rouge", "Ichigo","Igneel","Igor","Ikaru","Ikumi","Iltschi","Indian","Inkwehsition","Jajanzo","Jamesbond","Jeune Mammouth","Jimble","Jiromaru","Jorah","Kain","Kairos","Kamoulox","Kanaria","Kanfohyaller","Katsperch", "Kaze","Kazumi","Keira","Kemobo","Ki","Kiinazuma","Kiki","Kikolo","Kikuhope","Kincho","Kinder","Kittahsmash","Kiwii","Knuschlersmom","Krax","Krillin","Krokmou","Kurczak","Kurisu","Kweh","Kwehfka","Kwehninya", "Kwehsleysnipes","Kwey","Kyubi","Langhals","Lara","Lauburu","Laz","Lefquene The Mystic","Lemy","Leon","Ligart","Lightning","Lillith","Loot","Lucie","Luna","Lyse","M Tribe Ranger","Maaloxan","Maat","Mac", "Magatsu","Magni","Mammouth","Manji","Marie","Maro Roggo","Marshmallow","Mauci Of The Seven And Seven Swords","Maximus","Mcnugget","Mead-Porting Midlander","Melchiorre","Melody","Memeroon","Mervin","Meteorite", "Mewtwo","Mianne Thousandmalm","Mielke","Mikuzume","Minotaure D''abalathia","Misaki","Misty","Mockingbird Totem","Modish Moogle","Mogpo The Magnificent","Mojojojo","Mol Shepherd","Morgen","Mortified Moogle", "Mossy Peak","Moudsoud","Moussemousse","Musa","Myrskytuuli","Na''toth","Nanka Des Lacs","Nat''leii Zundu","Needle","Neela","Neri","Nimo","Nirvash","Nogri","Norman","Nova","Nuddles","Nyx","O''adebh Whitemane", "O''sanuwa Vundu","Oarf","Off-Duty Porter","Oisillon","Olkund Dzotamer","Olyxen","Onyxthefortuitous","Orphaned Sylph","Osskur","Otacon","Outlawstar","Oyster Hunter","Oz","Pack Chocobo","Pain''o''choco","Panko", "Payetabiere","Peanutallergy","Penpen","Perimu Haurimu Underfoot","Pewpew","Phinri","Phoenix''shadow","Pikachu","Pikorin","Pipi","Poisson-Bombo","Pollaster","Pooc","Porter","Poussin","Pow","Pretorius", "Proceratosaurus","Promachos","Pruina","Pugil De La Velodyna","Punky","Pupsi","Pure Black Crystal","Pusheen","Qiqirn Croque-Viande","Qiqirn Tranche-Viande","Quicky","Ranger Of The Drake","Raphi","Rascal", "Rasputin","Rasty","Red Rooster Tiller","Redemption","Regulus","Reispufferchen","Repede","Requin Volant","Rex","Reykios","Rgrenbow","Rhea","Rhoe","Riam","Richard","Ricky","Riesenflausch","Rin","Roadrunner", "Robert","Rose","Rose Knight","Rosseforp","Roudsoud","Rugged Researcher","Ruin","Rukia","Rumo","Rumor","Rururaji","Rygar","Saillot","Sangsue Des Lacs","Sarcosuchus De La Velodyna","Satan","Schattenfell", "Scourge","Seasoned Adventurer","Seishiro","Senshi","Serein","Seyoung","Shadow","Shenron","Shiba","Shifty-Eyed Prospector","Shipment Of Brass Cogs","Shirogane","Shokobon","Sid","Sinon","Sitta","Skenderbeu", "Skep","Skliropouli","Slaine","Sleepless Citizen","Sleipnir","Slicktrix The Gobnanimous","Sliph","Smoke","Sokhatai","Soldat Des Immortels","Son Of Saint Coinach","Spartaco","Spazz","Spector","Speedie","Speedy", "Speedygonzales","Spyro","Star","Stardust","Starfighter","Striking Dummy","Sunzie","Supply Troop","Surveillance Module","Tailfeather Hunter","Tardis","Taro","Tequila","Terabyte","Thechariotofthegods","Thundaga", "Tila","Tina","Toffy","Tokepi","Tolkien","Tomikayuma","Tomoe","Tomoya","Tonio","Triceratops","Troubles","Tsurara","Twitter","U''kahmuli","U''konelua","U''lolamo","U''ralka","Urolithe De Marbre","Ursa", "V''kebbe The Stray","Valentines''arrow","Valkyrie","Valor","Vanna","Verification Node","Vikturi","Vira Beadmaid","Vira Bowmaid","Void","Vombrellule","Vrai Griffon","Wary Merchant","Whitelighting","Whizzer", "Widget","Wiggles","Wipkipje","Woho","Wood Wailer Lance","Wood Wailer Sentry","Worried Worker","Wounded Confederate","Xela","Xlll","Yamini La Nocturne","Yato","Yojimbo","Yokou","Yoshi","Yourdaughter''sname", "Z''hotchoco","Zeuglodon","Zeus","Zezeroon Stickyfingers"}');
+-- done on server
 
 -- Ignored nondropping can be seen with
 select nd.agressive, nd.elite, nd.requires, nd.name as ndname, m.name as mname
@@ -282,27 +321,34 @@ FROM nondropping AS nd
 WHERE lower(mm_mobiles.name)=lower(nd.name);
 
 -- requires
--- FIX COHESION HERE
-with nd as (select nd.gid, zone, nd.name as ndname, mm.name, 
-			nd.minlvl, nd.maxlvl, mm.level, nd.requires
-from nondropping as nd
-	join mm_unique_mobiles as mm ON lower(nd.name)=lower(mm.name)
-where nd.requires is not null AND not (nd.minlvl=mm.level OR nd.maxlvl=mm.level)
-)
-select gid, zone, nd.name, minlvl, maxlvl, nd.level, requires, icon
-from nd
-	join requirements as r on nd.requires=r.name
-order by zone, requires, level;
-UPDATE nondropping SET minlvl=43, maxlvl=43 WHERE gid=251; -- Dapper zombie
---Leafbleed Slug, I made an error there, it's not linked to listed fate?
-DELETE FROM nondropping WHERE gid=1107;
-UPDATE nondropping SET minlvl=2, maxlvl=2 WHERE gid=300; -- Cane toad
-UPDATE nondropping SET minlvl=12, maxlvl=12 WHERE gid=383; -- Aurochs
-UPDATE nondropping SET minlvl=42, maxlvl=42 WHERE gid=348; -- Sahagin Skirmisher
-UPDATE nondropping SET minlvl=45, maxlvl=45 WHERE gid=880; -- Mouu The Puller
-UPDATE nondropping SET minlvl=20, maxlvl=20 WHERE gid=206 OR gid=593 OR gid=594; -- Juggernaut Down
-UPDATE nondropping SET minlvl=12, maxlvl=12 WHERE gid=80; --Steelquill Tuco-Tuco
-UPDATE nondropping SET minlvl=35, maxlvl=35 WHERE gid=307; -- Thrustaevis
+DELETE FROM xivdb_mobs WHERE mmumob=2071; -- No lvl 34 thrustaevis i can find
+-- check problems with 
+with joined as (select *
+FROM (select *
+	from nondropping as nd
+	WHERE requires is not null
+ ) nd
+	join mm_unique_mobiles as m ON lower(nd.name)=lower(m.name)
+		AND m.zone=(select name from zones as z where st_contains(z.geom, nd.geom))
+		AND nd.minlvl=nd.maxlvl AND nd.minlvl=m.level
+		AND fate_id!='0'
+), problematic as 
+(select gid, count(id)
+from joined
+group by gid
+having count(id)<>1)
+select *
+from problematic as p
+	join nondropping as nd ON p.gid=nd.gid;
+-- if there's duplicates of spitfire, well, I didn't do it.
+UPDATE mm_unique_mobiles AS m SET requires=nd.requires
+FROM nondropping AS nd
+WHERE nd.requires IS NOT NULL
+    AND lower(nd.name)=lower(m.name)
+    AND m.zone=(select name from zones as z where st_contains(z.geom, nd.geom))
+    AND nd.minlvl=nd.maxlvl AND nd.minlvl=m.level
+    AND fate_id <> '0';
+
 
 -- Hunting grounds
 -- After fixing my human mistakes, all hg's are in mob_spawns
@@ -341,6 +387,7 @@ from missing as m
 	join hgg on m.name=hgg.namepart;
 
 -- +markers
+----------------------ERRROR HERE
 with hgg as
 (select gid, level, name, 
 	case when substring(name from '^(.+?)\(.+') is null then name else trim(substring(name from '^(.+)\(.+')) end as namepart, 
@@ -372,14 +419,16 @@ from mob_spawns as ms
 (select hgg.gid, count(ms.gid)
 from hgg
 	left join ms ON lower(hgg.namepart)=lower(ms.name) 
-		AND hgg.level=ms.level and st_intersects(hgg.geom, ms.geom)
+		AND hgg.level=ms.level 
+        and ((hgg.requires IS NOT NULL AND ms.fate_id <> '0') OR (hgg.requires IS NULL AND ms.fate_id = '0'))
+        and st_intersects(hgg.geom, ms.geom)
 group by hgg.gid
 having count(ms.gid)<>1
 order by hgg.gid)
 select *
 from hgg
 	join wrong on hgg.gid=wrong.gid;
--- Move Daddy Longlegs
+
 DELETE FROM xivdb_mobs WHERE gid=23351;
 DELETE FROM xivdb_mobs WHERE gid=23949;
 DELETE FROM xivdb_mobs WHERE gid=24546;
