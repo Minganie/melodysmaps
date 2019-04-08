@@ -283,13 +283,26 @@ WHERE lower(mm_mobiles.name)=lower(nd.name);
 
 -- requires
 -- FIX COHESION HERE
-with nd as (select *
+with nd as (select nd.gid, zone, nd.name as ndname, mm.name, 
+			nd.minlvl, nd.maxlvl, mm.level, nd.requires
 from nondropping as nd
 	join mm_unique_mobiles as mm ON lower(nd.name)=lower(mm.name)
 where nd.requires is not null AND not (nd.minlvl=mm.level OR nd.maxlvl=mm.level)
 )
-select * from nd
-order by gid;
+select gid, zone, nd.name, minlvl, maxlvl, nd.level, requires, icon
+from nd
+	join requirements as r on nd.requires=r.name
+order by zone, requires, level;
+UPDATE nondropping SET minlvl=43, maxlvl=43 WHERE gid=251; -- Dapper zombie
+--Leafbleed Slug, I made an error there, it's not linked to listed fate?
+DELETE FROM nondropping WHERE gid=1107;
+UPDATE nondropping SET minlvl=2, maxlvl=2 WHERE gid=300; -- Cane toad
+UPDATE nondropping SET minlvl=12, maxlvl=12 WHERE gid=383; -- Aurochs
+UPDATE nondropping SET minlvl=42, maxlvl=42 WHERE gid=348; -- Sahagin Skirmisher
+UPDATE nondropping SET minlvl=45, maxlvl=45 WHERE gid=880; -- Mouu The Puller
+UPDATE nondropping SET minlvl=20, maxlvl=20 WHERE gid=206 OR gid=593 OR gid=594; -- Juggernaut Down
+UPDATE nondropping SET minlvl=12, maxlvl=12 WHERE gid=80; --Steelquill Tuco-Tuco
+UPDATE nondropping SET minlvl=35, maxlvl=35 WHERE gid=307; -- Thrustaevis
 
 -- Hunting grounds
 -- After fixing my human mistakes, all hg's are in mob_spawns
