@@ -24,6 +24,8 @@ Selectable = {
             .html(npc.name + ' in ' + npc.zone.name);
     },
     getSourceLine: function(source, item, hq, nq) {
+        if(!source.category.getName)
+            source.category = new Category(source.category);
         switch(source.category.getName()) {
             case 'Logging':
             case 'Harvesting':
@@ -36,8 +38,8 @@ Selectable = {
                 return Selectable.Merchant.Source.getLine(source, item);
             case 'Recipe':
                 return Selectable.Recipe.Source.getLine(source);
-            case 'Hunting':
-                return Selectable.LootableMob.Source.getLine(source, item, hq, nq);
+            case 'Spawn':
+                return Selectable.Spawn.Source.getLine(source, item, hq, nq);
 			case 'Trial':
 			case 'Dungeon':
 			case 'Raid':
@@ -70,10 +72,8 @@ Selectable = {
                 return new Selectable.Gathering(searchable);
             case 'Fishing':
                 return new Selectable.Fishing(searchable);
-            case 'Hunting':
-                return new Selectable.LootableMob(searchable);
             case 'Monster':
-                return new Selectable.AnyOneMob(searchable);
+                return new Selectable.Mob(searchable);
             case 'Merchant':
                 return new Selectable.Merchant(searchable);
 			case 'Sightseeing':
@@ -133,8 +133,8 @@ Selectable = {
             case 'Fishing':
                 t = new Selectable.Fishing(null);
                 break;
-            case 'Hunting':
-                t = new Selectable.LootableMob(null);
+            case 'Spawn':
+                t = new Selectable.Spawn(null);
                 break;
             case 'Merchant':
                 t = new Selectable.Merchant(null);

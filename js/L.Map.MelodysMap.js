@@ -19,7 +19,7 @@ L.Map.MelodysMap = L.Map.extend({
             
             // DUTIES HANDLER
             $('.leaflet-popup-pane').on('click', '.melsmaps-duties-link', function(evt) {
-                var el = evt.target;
+                var el = evt.currentTarget;
                 var name = $(el).find('span.duty-name').html();
                 var mode = $(el).find('span.duty-mode').html();
                 var cat = $(el).find('span.duty-cat').html();

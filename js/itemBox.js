@@ -202,7 +202,7 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
             }
             // hg
             for(var i in sources.hunting) {
-                var li = Selectable.getSourceLine(sources.hunting[i].hg, info, sources.hunting[i].hq, sources.hunting[i].nq);
+                var li = Selectable.getSourceLine(sources.hunting[i].ms, info, sources.hunting[i].hq, sources.hunting[i].nq);
                 that.hunting_grounds.append(li);
             }
             // duties

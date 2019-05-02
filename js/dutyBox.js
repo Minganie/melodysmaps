@@ -48,11 +48,10 @@ $.widget("melsmaps.dutyBox", $.melsmaps.lightbox, {
 		var that = this;
 		duty._full.then(function(full) {
             // console.log(full);
-			// var duty = full.modes[mode];
-			that._addEncounters(full.modes[mode].encounters);
-			that._addChests(full.modes[mode].chests);
-			that._addChestsOfInterest(full.modes[mode].chests);
-			that._addTrash(full.modes[mode].trash_drops);
+            that._addEncounters(full.modes[mode].encounters);
+            that._addChests(full.modes[mode].chests);
+            that._addChestsOfInterest(full.modes[mode].chests);
+            that._addTrash(full.modes[mode].trash_drops);
 		});
         this.show();
         this.map.invalidateSize();

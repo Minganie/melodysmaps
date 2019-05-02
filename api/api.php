@@ -222,18 +222,18 @@ if($conn = conn())
     }
     
     // HUNTING GROUND
-    if(isset($_GET['lootable_mob']) && !empty($_GET['lootable_mob']))
-    {
-        $lootable_mob = $_GET['lootable_mob'];
-        $stmt = $conn->prepare("SELECT get_lootable_mob(?)");
-        $worked = $stmt->execute(array($lootable_mob));
-        $result = format_response($worked, $stmt);
-    }
+    // if(isset($_GET['lootable_mob']) && !empty($_GET['lootable_mob']))
+    // {
+        // $lootable_mob = $_GET['lootable_mob'];
+        // $stmt = $conn->prepare("SELECT get_lootable_mob(?)");
+        // $worked = $stmt->execute(array($lootable_mob));
+        // $result = format_response($worked, $stmt);
+    // }
     
     // MOB
-    if(isset($_GET['mob']) && !empty($_GET['mob']))
+    if(isset($_GET['monster']) && !empty($_GET['monster']))
     {
-        $mob = $_GET['mob'];
+        $mob = $_GET['monster'];
         $stmt = $conn->prepare("SELECT get_mob(?)");
         $worked = $stmt->execute(array($mob));
         $result = format_response($worked, $stmt);

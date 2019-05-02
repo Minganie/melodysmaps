@@ -1021,36 +1021,46 @@ $BODY$;
 CREATE OR REPLACE FUNCTION ffxiv.get_mob_spawn(
 	msgid integer)
     RETURNS json
-    LANGUAGE 'sql'
+    LANGUAGE 'plpgsql'
 AS $BODY$
-SELECT json_build_object(
-	'id', ms.gid,
-    'lid', ms.gid,
-	'level', (select level from mm_unique_mobiles as mu where mu.id=ms.mmumob),
-	'name', (select name from mm_unique_mobiles as mu where mu.id=ms.mmumob),
-    'label', (select name from mm_unique_mobiles as mu where mu.id=ms.mmumob) || '(' || get_zone_abbrev((select name from zones as z where st_contains(z.geom, ms.geom))) || ' lvl ' || (select level from mm_unique_mobiles as mu where mu.id=ms.mmumob) || ')',
-	'category', get_category('Hunting'),
-	'requirement', get_requirement(ms.requires),
-	'geom', get_vertices(ms.geom),
-	'bounds', get_bounds(ms.geom),
-	'centroid', get_centroid_coords(ms.geom),
-	'nkilled', ms.nkilled,
-	'elite', ms.elite,
-	'agressive', ms.agressive,
-	'drops', get_hunting_drops(ms.gid)
-)
-FROM mob_spawns AS ms
-WHERE ms.gid=msgid
+DECLARE
+    ms RECORD;
+    mmumob RECORD;
+    mmob RECORD;
+    res json;
+BEGIN
+    SELECT * INTO STRICT ms FROM mob_spawns WHERE gid=msgid;
+    SELECT * INTO STRICT mmumob FROM mm_unique_mobiles WHERE id=ms.mmumob;
+    SELECT * INTO STRICT mmob FROM mm_mobiles WHERE name=mmumob.name;
+    res := json_build_object(
+        'id', ms.gid,
+        'lid', ms.gid,
+        'level', mmumob.level,
+        'name', mmumob.name,
+        'label', mmumob.name || ' (' || get_zone_abbrev((select name from zones as z where st_contains(z.geom, ms.geom))) || ' lvl ' || mmumob.level || ')',
+        'category', get_category('Spawn'),
+        'requirement', get_requirement(mmumob.requires),
+        'geom', get_vertices(ms.geom),
+        'bounds', get_bounds(ms.geom),
+        'centroid', get_centroid_coords(ms.geom),
+        'nkilled', ms.nkilled,
+        'elite', mmob.elite,
+        'agressive', mmob.agressive,
+        'drops', get_hunting_drops(ms.gid)
+    );
+    RETURN res;
+END;
 $BODY$;
 
-CREATE OR REPLACE FUNCTION ffxiv.get_item_hg(
+DROP FUNCTION IF EXISTS ffxiv.get_item_hg(text);
+CREATE OR REPLACE FUNCTION ffxiv.get_item_ms(
 	itemlid text)
     RETURNS json
     LANGUAGE 'sql'
 AS $BODY$
 
 select json_agg(json_build_object(
- 'hg', get_mob_spawn(gid),
+ 'ms', get_mob_spawn(gid),
  'nq', nq,
  'hq', hq))
 from(SELECT ms.gid,
@@ -1061,231 +1071,76 @@ from(SELECT ms.gid,
    else 0
  end as nrate
 FROM hunted_where AS hw
-    JOIN mob_spawns as ms ON hw.hg=ms.gid
+    JOIN mob_spawns as ms ON hw.ms=ms.gid
 WHERE itemlid=$1
 order by nrate desc)a
 $BODY$;
 
-CREATE OR REPLACE FUNCTION ffxiv.get_mob(
-	mobname text)
+CREATE OR REPLACE FUNCTION ffxiv.get_item_sources(
+	itemlid text)
     RETURNS json
     LANGUAGE 'sql'
 
     COST 100
     VOLATILE 
 AS $BODY$
+SELECT json_build_object(
+ 'nodes', get_item_nodes($1),
+ 'merchants', get_item_merchants($1),
+ 'crafters', get_item_crafters($1),
+ 'hunting', get_item_ms($1),
+ 'duties', get_item_duties($1),
+ 'maps', get_item_maps($1),
+ 'uses', get_item_uses($1),
+    'leves', get_item_leves($1)
+    )
+$BODY$;
+
+CREATE OR REPLACE FUNCTION ffxiv.get_mob(
+	mobname text)
+    RETURNS json
+    LANGUAGE 'sql'
+AS $BODY$
 select json_build_object(
-    'id', ROW_NUMBER() OVER (ORDER BY name, minlvl),
-    'lid', ROW_NUMBER() OVER (ORDER BY name, minlvl),
+    'lid', name,
     'name', name,
     'label', name,
     'category', get_category('Monster'),
-	'geom', get_vertices(st_union(geom)),
-	'bounds', get_bounds(st_union(geom)),
-	'centroid', get_centroid_coords(st_union(geom)),
-    'minlvl', min(level),
-    'maxlvl', max(level),
-    'agressive', bool_and(agressive),
-    'elite', bool_and(elite)
+    'spawns', spawns
 )
-select row_number() over (order by name, minlvl) as id,
-    row_number() over (order by name, minlvl) as lid,
-    name,
-    minlvl, maxlvl, agressive, elite
 from (
-    SELECT 
-        name, 
-        st_union(geom) as geom, 
-        min(level) as minlvl, 
-        max(level) as maxlvl, 
-        bool_and(agressive) as agressive, 
-        bool_and(elite) as elite
-    FROM mob_spawns as ms
-    where name='Lightning Sprite' and not is_fate
-    group by name)m;
+    select mmob.name, json_agg(get_mob_spawn(ms.gid)) as spawns
+    from mm_mobiles as mmob 
+        join mm_unique_mobiles as mmumob ON mmob.name=mmumob.name
+        join mob_spawns as ms ON mmumob.id=ms.mmumob
+    where mmob.name=mobname
+    group by mmob.name)m;
 $BODY$;
-    
-CREATE OR REPLACE VIEW ffxiv.vsearchables AS
- SELECT 0 AS id,
-    items.lid,
-    'Item'::text AS category,
-    'Item'::text AS category_name,
-    items.name,
-    items.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM items
-UNION
- SELECT regions.gid AS id,
-    regions.lid,
-    'Region'::text AS category,
-    'Region'::text AS category_name,
-    regions.name,
-    regions.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM regions
-UNION
- SELECT zones.gid AS id,
-    zones.lid,
-    'Zone'::text AS category,
-    'Zone'::text AS category_name,
-    zones.name,
-    zones.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM zones
-UNION
- SELECT areas.gid AS id,
-    areas.lid,
-    'Area'::text AS category,
-    'Area'::text AS category_name,
-    areas.name,
-    areas.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM areas
-UNION
- SELECT nodes.gid AS id,
-    nodes.name AS lid,
-    'Fishing'::text AS category,
-    'Fishing Hole'::text AS category_name,
-    nodes.name,
-    nodes.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM nodes
-  WHERE nodes.category = 'Fishing'::text
-UNION
- SELECT nodes.gid AS id,
-    nodes.name AS lid,
-    'Mining'::text AS category,
-    'Mining Node'::text AS category_name,
-    nodes.name,
-    nodes.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM nodes
-  WHERE nodes.category = 'Mining'::text
-UNION
- SELECT nodes.gid AS id,
-    nodes.name AS lid,
-    'Quarrying'::text AS category,
-    'Quarrying Node'::text AS category_name,
-    nodes.name,
-    nodes.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM nodes
-  WHERE nodes.category = 'Quarrying'::text
-UNION
- SELECT nodes.gid AS id,
-    nodes.name AS lid,
-    'Logging'::text AS category,
-    'Logging Node'::text AS category_name,
-    nodes.name,
-    nodes.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM nodes
-  WHERE nodes.category = 'Logging'::text
-UNION
- SELECT nodes.gid AS id,
-    nodes.name AS lid,
-    'Harvesting'::text AS category,
-    'Harvesting Node'::text AS category_name,
-    nodes.name,
-    nodes.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM nodes
-  WHERE nodes.category = 'Harvesting'::text
-UNION
- SELECT 0 as id,
-    mm_mobiles.name as lid,
-    'Monster' AS category,
-    'Monster' AS category_name,
-    mm_mobiles.name,
-    mm_mobiles.name as real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
- FROM mm_mobiles
-UNION
- SELECT merchants.gid AS id,
-    merchants.lid,
-    'Merchant'::text AS category,
-    'Merchant Stall'::text AS category_name,
-    ((merchants.name || ' ('::text) || zones.name) || ')'::text AS name,
-    merchants.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM merchants
-     LEFT JOIN zones ON st_contains(zones.geom, merchants.geom)
-UNION
- SELECT vtrials.id,
-    vtrials.lid,
-    'Trial'::text AS category,
-    'Trial'::text AS category_name,
-    vtrials.name,
-    vtrials.real_name,
-    vtrials.mode,
-    vtrials.sort_order
-   FROM vtrials
-UNION
- SELECT vdungeons.id,
-    vdungeons.lid,
-    'Dungeon'::text AS category,
-    'Dungeon'::text AS category_name,
-    vdungeons.name,
-    vdungeons.real_name,
-    vdungeons.mode,
-    vdungeons.sort_order
-   FROM vdungeons
-UNION
- SELECT vraids.id,
-    vraids.lid,
-    'Raid'::text AS category,
-    'Raid'::text AS category_name,
-    vraids.name,
-    vraids.real_name,
-    vraids.mode,
-    vraids.sort_order
-   FROM vraids
-UNION
- SELECT sightseeing.gid AS id,
-    to_char(sightseeing.gid, 'FM000'::text) AS lid,
-    'Sightseeing'::text AS category,
-    'Sightseeing Entry'::text AS category_name,
-    to_char(sightseeing.gid, 'FM000'::text) AS name,
-    to_char(sightseeing.gid, 'FM000'::text) AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM sightseeing
-UNION
- SELECT lm.gid AS id,
-    lm.name AS lid,
-    'Levemete'::text AS category,
-    'Levemete'::text AS category_name,
-    ((((((lm.name || ' ('::text) || (( SELECT z.name
-           FROM zones z
-          WHERE st_contains(z.geom, lm.geom)))) || ', '::text) || (( SELECT min(l.lvl) AS min
-           FROM leves l
-          WHERE l.levemete = lm.name))) || '-'::text) || (( SELECT max(l.lvl) AS max
-           FROM leves l
-          WHERE l.levemete = lm.name))) || ')'::text AS name,
-    lm.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM levemetes lm
-UNION
- SELECT l.gid AS id,
-    l.name AS lid,
-    'Leve'::text AS category,
-    'Levequest'::text AS category_name,
-    l.name,
-    l.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM leves l
-  ORDER BY 6, 8;
-GRANT SELECT ON TABLE ffxiv.vsearchables TO ffxivro;
+
+CREATE OR REPLACE FUNCTION ffxiv.get_duty_each(
+	dutylid text)
+    RETURNS json
+    LANGUAGE 'sql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
+    SELECT json_build_object(
+        'id', de.id,
+        'lid', de.lid,
+        'name', de.name,
+        'mode', de.mode,
+        'banner', de.banner_url,
+        'label', de.name || ' (' || de.mode || ')',
+        'geom', get_vertices(d.geom),
+        'bounds', get_bounds(d.geom),
+        'centroid', get_centroid_coords(d.geom),
+        'category', get_category(d.cat),
+        'nruns', de.nruns,
+        'level', de.level,
+        'modes', get_modes(de.name)
+    )
+    FROM duties_each as de
+        JOIN duties as d ON de.name=d.name
+    WHERE de.lid=dutylid;
+$BODY$;

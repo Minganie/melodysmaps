@@ -1,10 +1,10 @@
-Selectable.LootableMob = function(searchable) {
+Selectable.Spawn = function(searchable) {
     this._searchable = searchable;
 	if(searchable && searchable.name) {
-		this._full = api("hunting", searchable.name);
+		this._full = api("spawn", searchable.name);
 	}
 };
-Selectable.LootableMob.prototype = $.extend({}, Selectable.Mob.prototype, {
+Selectable.Spawn.prototype = $.extend({}, Selectable.DefaultPolygon.prototype, {
     _getPopupContent: function(full) {
         var html = $('<ul></ul>');
         if(full && full.drops) {
@@ -55,29 +55,51 @@ Selectable.LootableMob.prototype = $.extend({}, Selectable.Mob.prototype, {
     
     _formatLevel: function(mob) {
         return (mob.level ? mob.level : '?');
+    },
+    
+    _getNameplateIconUrl: function(mob) {
+        return 'http://melodysmaps.com/icons/monster/' + 
+            (mob.agressive ? 'agressive/' : 'passive/') + 
+            (mob.elite ? 'elite.png' : 'normal.png');
+    },
+    
+    _getNameplateIconAlt: function(mob) {
+        return (mob.agressive ? 'Agressive ' : 'Passive ') 
+            + (mob.elite ? 'elite' : 'normal');
+    },
+    
+    _getNameplate: function(mob) {
+        var img = $('<img />')
+            .attr('src', this._getNameplateIconUrl(mob))
+            .attr('width', 18)
+            .attr('height', 18);
+        var title = 'Mob is ' + this._getNameplateIconAlt(mob) + ' (lvl ' + this._formatLevel(mob) + ')';
+        return $('<span></span>')
+            .append(img)
+            .append(mob.name)
+            .attr('title', title);
     }
 });
-Selectable.LootableMob.Source = {
+Selectable.Spawn.Source = {
     getLine: function(source, item, hq, nq) {
-        source.category.iconSize = 24;
-        var mob = Selectable.getFull(source);
+        var spawn = Selectable.getFull(source);
         var img = source.category.getGoldIcon();
-        var nspan = mob._getNameplate(source);
+        var nspan = spawn._getNameplate(source);
         var a = $('<a></a>')
             .append(nspan)
             .append(' (*')
-            .append(mob._formatHq(hq, source.nkilled))
+            .append(spawn._formatHq(hq, source.nkilled))
             .append(' & ')
-            .append(mob._formatNq(nq, source.nkilled))
+            .append(spawn._formatNq(nq, source.nkilled))
             .append(' ')
-            .append(mob._formatReliable(source.nkilled))
+            .append(spawn._formatReliable(source.nkilled))
             .append(')');
         var li = $('<li></li>')
             .append(img)
             .append(a)
             .addClass('melsmaps-item-source-link')
             .attr('title', 'Click to pan to the hunting ground');
-        li.data('selectable', mob);
+        li.data('selectable', spawn);
         return li;
     }
 };
