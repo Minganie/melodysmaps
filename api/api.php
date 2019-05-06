@@ -45,6 +45,7 @@ function format_response($worked, $stmt)
 $result = json_encode(array());
 if($conn = conn()) 
 {
+    // error_log(print_r($_GET, true));
     // SEARCH
     if(isset($_GET['search']) && !empty($_GET['search']))
     {
@@ -277,8 +278,18 @@ if($conn = conn())
     // NPC
     if(isset($_GET['npc']) && !empty($_GET['npc']))
     {
+        // GET param can be a string or an int, and that's two
+        // different functions in DB (because Leve deliveries <>
+        // general NPC search)
         $npc = $_GET['npc'];
-        $stmt = $conn->prepare("SELECT get_npc(?)");
+        if(ctype_digit($npc)) {
+            $npc = ctype_digit($npc);
+            $f = "get_npc_from_id";
+        } else {
+            $f = "get_npc";
+        }
+        $sql = "SELECT $f(?)";
+        $stmt = $conn->prepare($sql);
         $worked = $stmt->execute(array($npc));
         $result = format_response($worked, $stmt);
     }

@@ -1,5 +1,8 @@
 Selectable.NPC = function(searchable) {
     this._searchable = searchable;
+    if(!this._full && this._searchable && this._searchable.id){
+        this._full = api("npcs", this._searchable.id);
+    }
 };
 Selectable.NPC.prototype = $.extend({}, Selectable.DefaultPoint.prototype, {
     _getPopupContent: function() {
