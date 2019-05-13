@@ -1,223 +1,77 @@
-DROP VIEW ffxiv.vsearchables;
-CREATE OR REPLACE VIEW ffxiv.vsearchables AS
- SELECT 0 AS id,
-    items.lid,
-    'Item'::text AS category,
-    'Item'::text AS category_name,
-    items.name,
-    items.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM items
-UNION
- SELECT regions.gid AS id,
-    regions.lid,
-    'Region'::text AS category,
-    'Region'::text AS category_name,
-    regions.name,
-    regions.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM regions
-UNION
- SELECT zones.gid AS id,
-    zones.lid,
-    'Zone'::text AS category,
-    'Zone'::text AS category_name,
-    zones.name,
-    zones.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM zones
-UNION
- SELECT areas.gid AS id,
-    areas.lid,
-    'Area'::text AS category,
-    'Area'::text AS category_name,
-    areas.name,
-    areas.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM areas
-UNION
- SELECT nodes.gid AS id,
-    nodes.name AS lid,
-    'Fishing'::text AS category,
-    'Fishing Hole'::text AS category_name,
-    nodes.name,
-    nodes.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM nodes
-  WHERE nodes.category = 'Fishing'::text
-UNION
- SELECT nodes.gid AS id,
-    nodes.name AS lid,
-    'Mining'::text AS category,
-    'Mining Node'::text AS category_name,
-    nodes.name,
-    nodes.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM nodes
-  WHERE nodes.category = 'Mining'::text
-UNION
- SELECT nodes.gid AS id,
-    nodes.name AS lid,
-    'Quarrying'::text AS category,
-    'Quarrying Node'::text AS category_name,
-    nodes.name,
-    nodes.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM nodes
-  WHERE nodes.category = 'Quarrying'::text
-UNION
- SELECT nodes.gid AS id,
-    nodes.name AS lid,
-    'Logging'::text AS category,
-    'Logging Node'::text AS category_name,
-    nodes.name,
-    nodes.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM nodes
-  WHERE nodes.category = 'Logging'::text
-UNION
- SELECT nodes.gid AS id,
-    nodes.name AS lid,
-    'Harvesting'::text AS category,
-    'Harvesting Node'::text AS category_name,
-    nodes.name,
-    nodes.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM nodes
-  WHERE nodes.category = 'Harvesting'::text
-UNION
- SELECT 0 AS id,
-    mm_mobiles.name AS lid,
-    'Monster'::text AS category,
-    'Monster'::text AS category_name,
-    mm_mobiles.name,
-    mm_mobiles.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM mm_mobiles
-UNION
- SELECT merchants.gid AS id,
-    merchants.lid,
-    'Merchant'::text AS category,
-    'Merchant Stall'::text AS category_name,
-    ((merchants.name || ' ('::text) || zones.name) || ')'::text AS name,
-    merchants.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM merchants
-     LEFT JOIN zones ON st_contains(zones.geom, merchants.geom)
-UNION
- SELECT xivdb_npcs.gid as id,
-  xivdb_npcs.gid::text as lid,
-  'npc'::text AS category,
-  'NPC'::text as category_name,
-  xivdb_npcs.name || ' (' || xivdb_npcs.zone || ')' as name,
-  xivdb_npcs.name as real_name,
-  NULL::text as mode,
-  NULL::integer as sort_order
- FROM xivdb_npcs
-UNION
- SELECT vtrials.id,
-    vtrials.lid,
-    'Trial'::text AS category,
-    'Trial'::text AS category_name,
-    vtrials.name,
-    vtrials.real_name,
-    vtrials.mode,
-    vtrials.sort_order
-   FROM vtrials
-UNION
- SELECT vdungeons.id,
-    vdungeons.lid,
-    'Dungeon'::text AS category,
-    'Dungeon'::text AS category_name,
-    vdungeons.name,
-    vdungeons.real_name,
-    vdungeons.mode,
-    vdungeons.sort_order
-   FROM vdungeons
-UNION
- SELECT vraids.id,
-    vraids.lid,
-    'Raid'::text AS category,
-    'Raid'::text AS category_name,
-    vraids.name,
-    vraids.real_name,
-    vraids.mode,
-    vraids.sort_order
-   FROM vraids
-UNION
- SELECT sightseeing.gid AS id,
-    to_char(sightseeing.gid, 'FM000'::text) AS lid,
-    'Sightseeing'::text AS category,
-    'Sightseeing Entry'::text AS category_name,
-    to_char(sightseeing.gid, 'FM000'::text) AS name,
-    to_char(sightseeing.gid, 'FM000'::text) AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM sightseeing
-UNION
- SELECT lm.gid AS id,
-    lm.name AS lid,
-    'Levemete'::text AS category,
-    'Levemete'::text AS category_name,
-    ((((((lm.name || ' ('::text) || (( SELECT z.name
-           FROM zones z
-          WHERE st_contains(z.geom, lm.geom)))) || ', '::text) || (( SELECT min(l.lvl) AS min
-           FROM leves l
-          WHERE l.levemete = lm.name))) || '-'::text) || (( SELECT max(l.lvl) AS max
-           FROM leves l
-          WHERE l.levemete = lm.name))) || ')'::text AS name,
-    lm.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM levemetes lm
-UNION
- SELECT l.gid AS id,
-    l.name AS lid,
-    'Leve'::text AS category,
-    'Levequest'::text AS category_name,
-    l.name,
-    l.name AS real_name,
-    NULL::text AS mode,
-    NULL::integer AS sort_order
-   FROM leves l
-  ORDER BY 6, 8;
-GRANT SELECT ON vsearchables TO ffxivro;
-
-CREATE OR REPLACE FUNCTION ffxiv.get_npc_from_id(
-	npcgid integer)
-    RETURNS json
-    LANGUAGE 'sql'
-AS $BODY$
-SELECT json_build_object(
-    'id', n.name,
-    'lid', n.name,
-    'name', n.name,
-    'label', n.name,
-    'category', get_category('npc'),
-    'zone', get_zone((select lid from zones as z where st_contains(z.geom, n.geom))),
-    'geom', get_vertices(n.geom),
-    'bounds', get_bounds(n.geom),
-    'centroid', get_centroid_coords(n.geom)
-)
-FROM xivdb_npcs as n
-WHERE gid = npcgid;
-$BODY$;
-
-
 -- pg_restore.exe -U postgres -d postgres --create C:\xampp\htdocs\melodysmaps\ffxivall.bu
 ALTER DATABASE ffxiv SET search_path TO ffxiv, public;
--- QUESTS
+
+-- Add coeffs to invis_zones
+ALTER TABLE invis_zones ADD COLUMN a real NOT NULL DEFAULT 1.0;
+ALTER TABLE invis_zones ADD COLUMN b real NOT NULL DEFAULT 21.4;
+ALTER TABLE invis_zones ADD COLUMN e real NOT NULL DEFAULT 1.0;
+ALTER TABLE invis_zones ADD COLUMN f real NOT NULL DEFAULT 21.4;
+-- Why did I do this with triggers when it can be a view??
+ALTER TABLE zones DROP COLUMN c, 
+  DROP COLUMN d,
+  DROP COLUMN g,
+  DROP COLUMN h,
+  DROP COLUMN mxge,
+  DROP COLUMN nxge,
+  DROP COLUMN mxeg,
+  DROP COLUMN nxeg,
+  DROP COLUMN minx,
+  DROP COLUMN maxx,
+  DROP COLUMN miny,
+  DROP COLUMN maxy;
+-- Create view that combines zones and invis_zones for use by get_xiv_zone_geom
+DROP VIEW all_zones;
+CREATE VIEW all_zones AS
+SELECT name, code, geom, a, b, e, f,
+  st_xmin(geom) as c, st_xmax(geom) as d,
+  st_ymin(geom) as h, st_ymax(geom) as g,
+  (st_xmax(geom) - st_xmin(geom))/(b - a) AS mxge,
+  (st_xmin(geom) - (st_xmax(geom) - st_xmin(geom))/(b - a)*a) AS nxge,
+  (b - a)/(st_xmax(geom) - st_xmin(geom)) AS mxeg,
+  (a - (b - a)/(st_xmax(geom) - st_xmin(geom))*st_xmin(geom)) AS nxeg,
+  (st_ymin(geom) - st_ymax(geom))/(f - e) AS myge,
+  (st_ymax(geom) - (st_ymin(geom) - st_ymax(geom))/(f - e)*e) AS nyge,
+  (e - f)/(st_ymax(geom) - st_ymin(geom)) AS myeg,
+  (f - (e - f)/(st_ymax(geom) - st_ymin(geom))*st_ymin(geom)) AS nyeg
+FROM invis_zones
+ UNION
+SELECT name, code, geom, a, b, e, f,
+  st_xmin(geom) as c, st_xmax(geom) as d,
+  st_ymin(geom) as h, st_ymax(geom) as g,
+  (st_xmax(geom) - st_xmin(geom))/(b - a) AS mxge,
+  (st_xmin(geom) - (st_xmax(geom) - st_xmin(geom))/(b - a)*a) AS nxge,
+  (b - a)/(st_xmax(geom) - st_xmin(geom)) AS mxeg,
+  (a - (b - a)/(st_xmax(geom) - st_xmin(geom))*st_xmin(geom)) AS nxeg,
+  (st_ymin(geom) - st_ymax(geom))/(f - e) AS myge,
+  (st_ymax(geom) - (st_ymin(geom) - st_ymax(geom))/(f - e)*e) AS nyge,
+  (e - f)/(st_ymax(geom) - st_ymin(geom)) AS myeg,
+  (f - (e - f)/(st_ymax(geom) - st_ymin(geom))*st_ymin(geom)) AS nyeg
+FROM zones;
+GRANT SELECT ON all_zones TO ffxivro;
+
+-- Create function that gives you actual zone from a "subzone" like 'Seat of the First Bow'
+CREATE OR REPLACE FUNCTION ffxiv.get_actual_zone(subzone text)
+    RETURNS text
+    LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+ invis_geom geometry(Polygon, 4326);
+ zonename text;
+BEGIN
+  SELECT geom INTO STRICT invis_geom FROM invis_zones WHERE lower(name)=lower($1);
+  SELECT name INTO STRICT zonename FROM zones AS z 
+  order by st_area(st_intersection(z.geom, invis_geom)) desc
+  limit 1;
+  RETURN zonename;
+  EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      SELECT name INTO STRICT zonename FROM zones WHERE lower(name)=lower($1);
+      RETURN zonename;
+    WHEN TOO_MANY_ROWS THEN
+      RAISE EXCEPTION 'More than one subzone with name % ???',  $1;
+END;
+$BODY$;
+
 -- Fix function get_xiv_zone_geom for those weird zones like 'Seat of the First Bow'
 CREATE OR REPLACE FUNCTION ffxiv.get_xiv_zone_geom(
 	x real,
@@ -225,9 +79,6 @@ CREATE OR REPLACE FUNCTION ffxiv.get_xiv_zone_geom(
 	zonename text)
     RETURNS geometry
     LANGUAGE 'plpgsql'
-
-    COST 100
-    VOLATILE 
 AS $BODY$
 DECLARE
  mxge numeric;
@@ -236,15 +87,11 @@ DECLARE
  nyge numeric;
  coords geometry(Point, 4326);
 BEGIN
- IF zonename = 'Seat of the First Bow'
-    THEN coords = get_xiv_zone_geom(20, 10, 'New Gridania');
- ELSE
-     select zones.mxge into STRICT mxge from zones where lower(name)=lower(zonename);
-     select zones.nxge into STRICT nxge from zones where lower(name)=lower(zonename);
-     select zones.myge into STRICT myge from zones where lower(name)=lower(zonename);
-     select zones.nyge into STRICT nyge from zones where lower(name)=lower(zonename);
-     coords = ST_GeomFromText('POINT(' || (mxge*x + nxge) || ' ' || (myge*y + nyge) ||')', 4326);
- END IF;
+   select all_zones.mxge into STRICT mxge from all_zones where lower(name)=lower(zonename);
+   select all_zones.nxge into STRICT nxge from all_zones where lower(name)=lower(zonename);
+   select all_zones.myge into STRICT myge from all_zones where lower(name)=lower(zonename);
+   select all_zones.nyge into STRICT nyge from all_zones where lower(name)=lower(zonename);
+   coords = ST_GeomFromText('POINT(' || (mxge*x + nxge) || ' ' || (myge*y + nyge) ||')', 4326);
  RETURN coords;
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
@@ -264,6 +111,7 @@ GRANT INSERT, UPDATE, DELETE ON grand_companies TO ffxivrw;
 INSERT INTO grand_companies VALUES('Maelstrom', 'Storm');
 INSERT INTO grand_companies VALUES('Order of the Twin Adder', 'Serpent');
 INSERT INTO grand_companies VALUES('Immortal Flames', 'Flame');
+
 CREATE TABLE grand_company_ranks(
     rank int not null,
     name text primary key,
@@ -283,6 +131,7 @@ INSERT INTO grand_company_ranks (rank, name, before_particle, after_particle) VA
 INSERT INTO grand_company_ranks (rank, name, before_particle, after_particle) VALUES (9, 'Second Lieutenant', 'Second ', ' Lieutenant');
 INSERT INTO grand_company_ranks (rank, name, before_particle, after_particle) VALUES (10, 'First Lieutenant', 'First ', ' Lieutenant');
 INSERT INTO grand_company_ranks (rank, name, before_particle, after_particle) VALUES (11, 'Captain', '', ' Captain');
+
 -- beast tribes
 CREATE TABLE beast_tribes(
     name text primary key,
@@ -401,7 +250,7 @@ CREATE VIEW bad_disc_groups AS
 SELECT *
 FROM discipline_groups as dg
     LEFT JOIN discipline_group_lists AS dgl ON dg.name=dgl.disc_group
-WHERE dgl.name IS NULL;
+WHERE dgl.disc IS NULL;
 
 -- CREATE TABLE all_disc_groups();
 -- GRANT SELECT ON discipline_group_lists TO ffxivro;
@@ -411,7 +260,7 @@ WHERE dgl.name IS NULL;
 INSERT INTO mobile_types VALUES ('NPC');
 ALTER TABLE mobiles ADD COLUMN x real;
 ALTER TABLE mobiles ADD COLUMN y real;
-ALTER TABLE mobiles ADD COLUMN map text REFERENCES zones(name);
+ALTER TABLE mobiles ADD COLUMN map;
 ALTER TABLE mobiles ADD COLUMN geom geometry(Point, 4326);
 
 -- add bunch of columns to quests
@@ -470,5 +319,3 @@ CREATE TABLE quest_requirements(
 );
 GRANT SELECT ON quest_requirements TO ffxivro;
 GRANT UPDATE, INSERT, DELETE ON quest_requirements TO ffxivrw;
-
-
