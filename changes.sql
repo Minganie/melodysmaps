@@ -58,10 +58,13 @@ DECLARE
  invis_geom geometry(Polygon, 4326);
  zonename text;
 BEGIN
-  SELECT geom INTO STRICT invis_geom FROM invis_zones WHERE lower(name)=lower($1);
-  SELECT name INTO STRICT zonename FROM zones AS z 
-  order by st_area(st_intersection(z.geom, invis_geom)) desc
-  limit 1;
+  IF $1 IS NULL THEN
+    zonename := NULL;
+  ELSE
+    SELECT geom INTO STRICT invis_geom FROM invis_zones WHERE lower(name)=lower($1);
+    SELECT name INTO STRICT zonename FROM zones AS z 
+    order by st_area(st_intersection(z.geom, invis_geom)) desc limit 1;
+  END IF;
   RETURN zonename;
   EXCEPTION
     WHEN NO_DATA_FOUND THEN
@@ -139,7 +142,7 @@ CREATE TABLE beast_tribes(
 );
 GRANT SELECT ON beast_tribes TO ffxivro;
 GRANT UPDATE, INSERT, DELETE ON beast_tribes TO ffxivrw;
-INSERT INTO beast_tribes (name, currency) VALUES ('Ixali', 'Ixali Oaknot');
+INSERT INTO beast_tribes (name, currency) VALUES ('Ixal', 'Ixali Oaknot');
 INSERT INTO beast_tribes (name, currency) VALUES ('Sahagin', 'Rainbowtide Psashp');
 INSERT INTO beast_tribes (name, currency) VALUES ('Amalj''aa', 'Steel Amalj''ok');
 INSERT INTO beast_tribes (name, currency) VALUES ('Sylphs', 'Sylphic Goldleaf');
@@ -245,6 +248,84 @@ CREATE TABLE discipline_group_lists(
 );
 GRANT SELECT ON discipline_group_lists TO ffxivro;
 GRANT UPDATE, INSERT, DELETE ON discipline_group_lists TO ffxivrw;
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ACN', 'Arcanist');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ALC', 'Alchemist');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ARC', 'Archer');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ARM', 'Armorer');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('AST', 'Astrologian');
+INSERT INTO discipline_group_lists (disc_group, disc) 
+SELECT 'All classes and jobs (excluding limited jobs)', name
+FROM disciplines WHERE ltd=false or ltd is null;
+INSERT INTO discipline_group_lists (disc_group, disc)
+SELECT 'Any Class or Job', name
+FROM disciplines;
+INSERT INTO discipline_group_lists (disc_group, disc) 
+SELECT 'Any Disciple of War or Magic (excluding limited jobs)', dowm.name
+FROM dowm
+    join disciplines as d on dowm.name=d.name
+where d.ltd=false or d.ltd is null;
+INSERT INTO discipline_group_lists (disc_group, disc) 
+SELECT 'Any Disciple of the Hand (excluding culinarians)', name
+FROM doth 
+where name <> 'Culinarian';
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('BLM', 'Black Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('BRD', 'Bard');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('BSM', 'Blacksmith');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('BTN', 'Botanist');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('CNJ', 'Conjurer');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('CRP', 'Carpenter');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('CUL', 'Culinarian');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('DRG', 'Dragoon');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('DRK', 'Dark Knight');
+INSERT INTO discipline_group_lists (disc_group, disc)
+SELECT 'Disciple of the Hand', name
+FROM doth;
+INSERT INTO discipline_group_lists (disc_group, disc) 
+SELECT 'Disciple of the Land', name
+FROM dotl;
+INSERT INTO discipline_group_lists (disc_group, disc) 
+SELECT 'Disciples of War or Magic', name
+FROM dowm;
+INSERT INTO discipline_group_lists (disc_group, disc) 
+SELECT 'Disciples of the Land or Hand', name
+FROM dotl
+union
+SELECT 'Disciples of the Land or Hand', name
+FROM doth;
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('FSH', 'Fisher');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA', 'Gladiator');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GSM', 'Goldsmith');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('LNC', 'Lancer');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('LTW', 'Leatherworker');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('MCH', 'Machinist');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('MIN', 'Miner');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('MNK', 'Monk');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('MRD', 'Marauder');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('NIN', 'Ninja');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL', 'Pugilist');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD', 'Paladin');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Paladin');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Monk');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Warrior');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Dragoon');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Bard');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'White Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Black Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Summoner');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Scholar');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Ninja');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Machinist');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Dark Knight');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Astrologian');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('RDM', 'Red Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ROG', 'Rogue');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('SAM', 'Samurai');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('SCH', 'Scholar');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('SMN', 'Summoner');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('THM', 'Thaumaturge');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('WAR', 'Warrior');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('WHM', 'White Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('WVR', 'Weaver');
 -- For validation:
 CREATE VIEW bad_disc_groups AS
 SELECT *
@@ -260,7 +341,7 @@ WHERE dgl.disc IS NULL;
 INSERT INTO mobile_types VALUES ('NPC');
 ALTER TABLE mobiles ADD COLUMN x real;
 ALTER TABLE mobiles ADD COLUMN y real;
-ALTER TABLE mobiles ADD COLUMN map;
+ALTER TABLE mobiles ADD COLUMN map text;
 ALTER TABLE mobiles ADD COLUMN geom geometry(Point, 4326);
 
 -- add bunch of columns to quests
@@ -295,13 +376,14 @@ ALTER TABLE quests ADD COLUMN seasonal boolean;
 -- 1xn rel tables
 CREATE TYPE gender AS ENUM ('Male', 'Female');
 CREATE TABLE quest_rewards(
+    id       serial primary key,
     questlid text REFERENCES quests(lid),
     itemlid  text REFERENCES items(lid),
     n        int NOT NULL DEFAULT 1,
     classjob text REFERENCES disciplines (abbrev),
     gender   gender,
     optional boolean,
-    PRIMARY KEY (questlid, itemlid)
+    UNIQUE (questlid, itemlid, classjob)
 );
 GRANT SELECT ON quest_rewards TO ffxivro;
 GRANT INSERT, UPDATE, DELETE ON quest_rewards TO ffxivrw;
