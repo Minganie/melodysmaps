@@ -1,4 +1,5 @@
 -- pg_restore.exe -U postgres -d postgres --create C:\xampp\htdocs\melodysmaps\ffxivall.bu
+-- pg_restore.exe -U postgres -d postgres --create C:\xampp\htdocs\melodysmaps\ffxivall20190521.backup
 ALTER DATABASE ffxiv SET search_path TO ffxiv, public;
 
 -- Add coeffs to invis_zones
@@ -103,6 +104,26 @@ BEGIN
             RAISE EXCEPTION 'Zone % not unique', zonename;
 END;
 $BODY$;
+
+-- create function to find lid from name like "The Bowl of Embers (Hard)"
+CREATE OR REPLACE FUNCTION ffxiv.find_duty_lid(name text, diff text)
+    RETURNS text
+    LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+ diffi text;
+ llid text;
+BEGIN
+  IF $2 IS NULL THEN
+    diffi := 'Regular';
+  ELSE
+    diffi := $2;
+  END IF;
+  SELECT lid INTO STRICT llid FROM duties_each WHERE duties_each.name=$1 AND duties_each.mode=diffi;
+ RETURN llid;
+END;
+$BODY$;
+
 -- tables required for future fkeys
 -- GC and their ranks
 CREATE TABLE grand_companies(
@@ -248,6 +269,78 @@ CREATE TABLE discipline_group_lists(
 );
 GRANT SELECT ON discipline_group_lists TO ffxivro;
 GRANT UPDATE, INSERT, DELETE ON discipline_group_lists TO ffxivrw;
+
+-- For validation:
+CREATE VIEW bad_disc_groups AS
+SELECT *
+FROM discipline_groups as dg
+    LEFT JOIN discipline_group_lists AS dgl ON dg.name=dgl.disc_group
+WHERE dgl.disc IS NULL;
+
+-- add geom to npcs
+INSERT INTO mobile_types VALUES ('NPC');
+ALTER TABLE mobiles ADD COLUMN x real;
+ALTER TABLE mobiles ADD COLUMN y real;
+ALTER TABLE mobiles ADD COLUMN map text;
+ALTER TABLE mobiles ADD COLUMN geom geometry(Point, 4326);
+
+-- add bunch of columns to quests
+ALTER TABLE quests ADD COLUMN category text;
+ALTER TABLE quests ADD COLUMN banner text;
+ALTER TABLE quests ADD COLUMN area text;
+ALTER TABLE quests ADD COLUMN zone text references zones (name);
+ALTER TABLE quests ADD COLUMN quest_giver text references mobiles(lid);
+ALTER TABLE quests ADD COLUMN level int;
+
+ALTER TABLE quests ADD COLUMN level_requirement int;
+ALTER TABLE quests ADD COLUMN class_requirement text REFERENCES discipline_groups (name);
+ALTER TABLE quests ADD COLUMN gc text references grand_companies(name);
+ALTER TABLE quests ADD COLUMN gc_rank text references grand_company_ranks(name);
+
+ALTER TABLE quests ADD COLUMN xp int;
+ALTER TABLE quests ADD COLUMN gil int;
+ALTER TABLE quests ADD COLUMN bt text REFERENCES beast_tribes(name);
+ALTER TABLE quests ADD COLUMN bt_currency_n int;
+ALTER TABLE quests ADD COLUMN bt_currency text REFERENCES beast_tribes(currency);
+ALTER TABLE quests ADD COLUMN bt_reputation int;
+ALTER TABLE quests ADD COLUMN gc_seals int;
+ALTER TABLE quests ADD COLUMN starting_class text REFERENCES disciplines(name);
+ALTER TABLE quests ADD COLUMN tomestones text REFERENCES currency (name);
+ALTER TABLE quests ADD COLUMN tomestones_n int;
+ALTER TABLE quests ADD COLUMN ventures int;
+ALTER TABLE quests ADD COLUMN seasonal boolean;
+
+-- 1xn rel tables
+CREATE TYPE gender AS ENUM ('Male', 'Female');
+CREATE TABLE quest_rewards(
+    id       serial primary key,
+    questlid text REFERENCES quests(lid),
+    itemlid  text REFERENCES items(lid),
+    n        int NOT NULL DEFAULT 1,
+    classjob text REFERENCES disciplines (abbrev),
+    gender   gender,
+    optional boolean,
+    UNIQUE (questlid, itemlid, classjob)
+);
+GRANT SELECT ON quest_rewards TO ffxivro;
+GRANT INSERT, UPDATE, DELETE ON quest_rewards TO ffxivrw;
+CREATE TABLE quest_rewards_others(
+    questlid text references quests(lid),
+    other    text,
+    PRIMARY KEY (questlid, other)
+);
+GRANT SELECT ON quest_rewards_others TO ffxivro;
+GRANT INSERT, UPDATE, DELETE ON quest_rewards_others TO ffxivrw;
+CREATE TABLE quest_requirements(
+    questlid text REFERENCES quests(lid),
+    dutylid  text REFERENCES duties_each(lid),
+    PRIMARY KEY (questlid, dutylid)
+);
+GRANT SELECT ON quest_requirements TO ffxivro;
+GRANT UPDATE, INSERT, DELETE ON quest_requirements TO ffxivrw;
+
+-- Run Molestone's QuestLister here
+DELETE FROM quests WHERE category IS NULL; -- to remove leftover that has been removed from game
 INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ACN', 'Arcanist');
 INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ALC', 'Alchemist');
 INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ARC', 'Archer');
@@ -326,78 +419,12 @@ INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('THM', 'Thaumaturg
 INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('WAR', 'Warrior');
 INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('WHM', 'White Mage');
 INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('WVR', 'Weaver');
--- For validation:
-CREATE VIEW bad_disc_groups AS
-SELECT *
-FROM discipline_groups as dg
-    LEFT JOIN discipline_group_lists AS dgl ON dg.name=dgl.disc_group
-WHERE dgl.disc IS NULL;
 
--- CREATE TABLE all_disc_groups();
--- GRANT SELECT ON discipline_group_lists TO ffxivro;
--- GRANT UPDATE, INSERT, DELETE ON discipline_group_lists TO ffxivrw;
-
--- add geom to npcs
-INSERT INTO mobile_types VALUES ('NPC');
-ALTER TABLE mobiles ADD COLUMN x real;
-ALTER TABLE mobiles ADD COLUMN y real;
-ALTER TABLE mobiles ADD COLUMN map text;
-ALTER TABLE mobiles ADD COLUMN geom geometry(Point, 4326);
-
--- add bunch of columns to quests
-ALTER TABLE quests ADD COLUMN category text;
-ALTER TABLE quests ADD COLUMN banner text;
-ALTER TABLE quests ADD COLUMN area text;
-ALTER TABLE quests ADD COLUMN zone text references zones (name);
-ALTER TABLE quests ADD COLUMN quest_giver text references mobiles(lid);
-ALTER TABLE quests ADD COLUMN level int;
-
-ALTER TABLE quests ADD COLUMN level_requirement int;
-------
---ALTER TABLE quests DROP CONSTRAINT quests_class_requirement_fkey, ADD CONSTRAINT quests_class_requirement_fkey FOREIGN KEY (class_requirement) REFERENCES discipline_groups(name);
-------
-ALTER TABLE quests ADD COLUMN class_requirement text REFERENCES discipline_groups (name);
-ALTER TABLE quests ADD COLUMN gc text references grand_companies(name);
-ALTER TABLE quests ADD COLUMN gc_rank text references grand_company_ranks(name);
-
-ALTER TABLE quests ADD COLUMN xp int;
-ALTER TABLE quests ADD COLUMN gil int;
-ALTER TABLE quests ADD COLUMN bt text REFERENCES beast_tribes(name);
-ALTER TABLE quests ADD COLUMN bt_currency_n int;
-ALTER TABLE quests ADD COLUMN bt_currency text REFERENCES beast_tribes(currency);
-ALTER TABLE quests ADD COLUMN bt_reputation int;
-ALTER TABLE quests ADD COLUMN gc_seals int;
-ALTER TABLE quests ADD COLUMN starting_class text REFERENCES disciplines(name);
-ALTER TABLE quests ADD COLUMN tomestones text REFERENCES currency (name);
-ALTER TABLE quests ADD COLUMN tomestones_n int;
-ALTER TABLE quests ADD COLUMN ventures int;
-ALTER TABLE quests ADD COLUMN seasonal boolean;
-
--- 1xn rel tables
-CREATE TYPE gender AS ENUM ('Male', 'Female');
-CREATE TABLE quest_rewards(
-    id       serial primary key,
-    questlid text REFERENCES quests(lid),
-    itemlid  text REFERENCES items(lid),
-    n        int NOT NULL DEFAULT 1,
-    classjob text REFERENCES disciplines (abbrev),
-    gender   gender,
-    optional boolean,
-    UNIQUE (questlid, itemlid, classjob)
-);
-GRANT SELECT ON quest_rewards TO ffxivro;
-GRANT INSERT, UPDATE, DELETE ON quest_rewards TO ffxivrw;
-CREATE TABLE quest_rewards_others(
-    questlid text references quests(lid),
-    other    text,
-    PRIMARY KEY (questlid, other)
-);
-GRANT SELECT ON quest_rewards_others TO ffxivro;
-GRANT INSERT, UPDATE, DELETE ON quest_rewards_others TO ffxivrw;
-CREATE TABLE quest_requirements(
-    questlid text REFERENCES quests(lid),
-    dutylid  text REFERENCES duties_each(lid),
-    PRIMARY KEY (questlid, dutylid)
-);
-GRANT SELECT ON quest_requirements TO ffxivro;
-GRANT UPDATE, INSERT, DELETE ON quest_requirements TO ffxivrw;
+-- start working on making json for api
+with qr as (
+select json_agg(row_to_json(quest_rewards)) from quest_rewards where questlid='fad849a70a9'
+),
+qro as (
+	select json_agg(other) from quest_rewards_others where questlid='02577140302'
+)
+select * from qro;

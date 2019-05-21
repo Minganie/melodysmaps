@@ -1,0 +1,30 @@
+#quest .melsmaps-quest-tooltip-container {
+    max-height: 98%;
+    overflow: auto;
+}
+#quest img.banner {
+  width: 376px;
+  height: 120px;
+  box-shadow: 0 0 4px 4px #434243;
+}
+#quest div.questInfo img {
+  vertical-align: middle;
+}
+#quest div.questInfo > div {
+  display: inline-block;
+}
+#quest div.questInfo h1 {
+  
+}
+#quest div.questInfo p {
+  
+}
+
+#quest div.questBlock {
+  
+}
+#quest div.questBlock h2 {
+  background-color: #1f1f1f;
+  color: #bfa34c;
+  border: solid 1px #3c3c3c;
+}
