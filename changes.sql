@@ -341,6 +341,7 @@ GRANT INSERT, UPDATE, DELETE ON quest_rewards TO ffxivrw;
 CREATE TABLE quest_rewards_others(
     questlid text references quests(lid),
     other    text,
+    icon     text,
     PRIMARY KEY (questlid, other)
 );
 GRANT SELECT ON quest_rewards_others TO ffxivro;
