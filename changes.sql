@@ -1,6 +1,8 @@
--- pg_restore.exe -U postgres -d postgres --create C:\xampp\htdocs\melodysmaps\ffxivall.bu
+-- pg_restore.exe -U postgres -d postgres --create D:\Programmes\xampp\htdocs\melodysmaps\ffxivall20190521.backup
 -- pg_restore.exe -U postgres -d postgres --create C:\xampp\htdocs\melodysmaps\ffxivall20190521.backup
 ALTER DATABASE ffxiv SET search_path TO ffxiv, public;
+
+DELETE FROM quests;
 
 -- Add coeffs to invis_zones
 ALTER TABLE invis_zones ADD COLUMN a real NOT NULL DEFAULT 1.0;
@@ -289,6 +291,18 @@ ALTER TABLE quests ADD COLUMN category text;
 ALTER TABLE quests ADD COLUMN banner text;
 ALTER TABLE quests ADD COLUMN area text;
 ALTER TABLE quests ADD COLUMN zone text references zones (name);
+CREATE TABLE quest_type (
+    name text primary key,
+    repeatable boolean not null default false
+);
+GRANT SELECT ON quest_type TO ffxivro;
+GRANT INSERT, UPDATE, DELETE ON quest_type TO ffxivrw;
+INSERT INTO quest_type (name, repeatable) VALUES ('Feature Quest, Repeatable', true);
+INSERT INTO quest_type (name, repeatable) VALUES ('Feature Quest', false);
+INSERT INTO quest_type (name, repeatable) VALUES ('Main Story Quest', false);
+INSERT INTO quest_type (name, repeatable) VALUES ('Side Quest, Repeatable', true);
+INSERT INTO quest_type (name, repeatable) VALUES ('Side Quest', false);
+ALTER TABLE quests ADD COLUMN quest_type text REFERENCES quest_type (name);
 ALTER TABLE quests ADD COLUMN quest_giver text references mobiles(lid);
 ALTER TABLE quests ADD COLUMN level int;
 
