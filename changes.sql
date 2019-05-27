@@ -2,43 +2,10 @@
 -- pg_restore.exe -U postgres -d postgres --create C:\xampp\htdocs\melodysmaps\ffxivall20190521.backup
 ALTER DATABASE ffxiv SET search_path TO ffxiv, public;
 
-DELETE FROM quests;
-
--- Add coeffs to invis_zones
-ALTER TABLE invis_zones ADD COLUMN a real NOT NULL DEFAULT 1.0;
-ALTER TABLE invis_zones ADD COLUMN b real NOT NULL DEFAULT 21.4;
-ALTER TABLE invis_zones ADD COLUMN e real NOT NULL DEFAULT 1.0;
-ALTER TABLE invis_zones ADD COLUMN f real NOT NULL DEFAULT 21.4;
--- Why did I do this with triggers when it can be a view??
-ALTER TABLE zones DROP COLUMN c, 
-  DROP COLUMN d,
-  DROP COLUMN g,
-  DROP COLUMN h,
-  DROP COLUMN mxge,
-  DROP COLUMN nxge,
-  DROP COLUMN mxeg,
-  DROP COLUMN nxeg,
-  DROP COLUMN minx,
-  DROP COLUMN maxx,
-  DROP COLUMN miny,
-  DROP COLUMN maxy;
--- Create view that combines zones and invis_zones for use by get_xiv_zone_geom
-DROP VIEW all_zones;
-CREATE VIEW all_zones AS
-SELECT name, code, geom, a, b, e, f,
-  st_xmin(geom) as c, st_xmax(geom) as d,
-  st_ymin(geom) as h, st_ymax(geom) as g,
-  (st_xmax(geom) - st_xmin(geom))/(b - a) AS mxge,
-  (st_xmin(geom) - (st_xmax(geom) - st_xmin(geom))/(b - a)*a) AS nxge,
-  (b - a)/(st_xmax(geom) - st_xmin(geom)) AS mxeg,
-  (a - (b - a)/(st_xmax(geom) - st_xmin(geom))*st_xmin(geom)) AS nxeg,
-  (st_ymin(geom) - st_ymax(geom))/(f - e) AS myge,
-  (st_ymax(geom) - (st_ymin(geom) - st_ymax(geom))/(f - e)*e) AS nyge,
-  (e - f)/(st_ymax(geom) - st_ymin(geom)) AS myeg,
-  (f - (e - f)/(st_ymax(geom) - st_ymin(geom))*st_ymin(geom)) AS nyeg
-FROM invis_zones
- UNION
-SELECT name, code, geom, a, b, e, f,
+-- yeah, let's not break the whole website because we removed other parts, okies?
+DROP VIEW IF EXISTS vzones;
+CREATE VIEW vzones AS
+SELECT gid, name, code, geom, a, b, e, f,
   st_xmin(geom) as c, st_xmax(geom) as d,
   st_ymin(geom) as h, st_ymax(geom) as g,
   (st_xmax(geom) - st_xmin(geom))/(b - a) AS mxge,
@@ -50,396 +17,122 @@ SELECT name, code, geom, a, b, e, f,
   (e - f)/(st_ymax(geom) - st_ymin(geom)) AS myeg,
   (f - (e - f)/(st_ymax(geom) - st_ymin(geom))*st_ymin(geom)) AS nyeg
 FROM zones;
-GRANT SELECT ON all_zones TO ffxivro;
+GRANT SELECT ON vzones TO ffxivro;
 
--- Create function that gives you actual zone from a "subzone" like 'Seat of the First Bow'
-CREATE OR REPLACE FUNCTION ffxiv.get_actual_zone(subzone text)
-    RETURNS text
-    LANGUAGE 'plpgsql'
+CREATE OR REPLACE FUNCTION ffxiv.get_zone(
+	zonelid text)
+    RETURNS json
+    LANGUAGE 'sql'
 AS $BODY$
-DECLARE
- invis_geom geometry(Polygon, 4326);
- zonename text;
-BEGIN
-  IF $1 IS NULL THEN
-    zonename := NULL;
-  ELSE
-    SELECT geom INTO STRICT invis_geom FROM invis_zones WHERE lower(name)=lower($1);
-    SELECT name INTO STRICT zonename FROM zones AS z 
-    order by st_area(st_intersection(z.geom, invis_geom)) desc limit 1;
-  END IF;
-  RETURN zonename;
-  EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-      SELECT name INTO STRICT zonename FROM zones WHERE lower(name)=lower($1);
-      RETURN zonename;
-    WHEN TOO_MANY_ROWS THEN
-      RAISE EXCEPTION 'More than one subzone with name % ???',  $1;
-END;
-$BODY$;
-
--- Fix function get_xiv_zone_geom for those weird zones like 'Seat of the First Bow'
-CREATE OR REPLACE FUNCTION ffxiv.get_xiv_zone_geom(
-	x real,
-	y real,
-	zonename text)
-    RETURNS geometry
-    LANGUAGE 'plpgsql'
-AS $BODY$
-DECLARE
- mxge numeric;
- nxge numeric;
- myge numeric;
- nyge numeric;
- coords geometry(Point, 4326);
-BEGIN
-   select all_zones.mxge into STRICT mxge from all_zones where lower(name)=lower(zonename);
-   select all_zones.nxge into STRICT nxge from all_zones where lower(name)=lower(zonename);
-   select all_zones.myge into STRICT myge from all_zones where lower(name)=lower(zonename);
-   select all_zones.nyge into STRICT nyge from all_zones where lower(name)=lower(zonename);
-   coords = ST_GeomFromText('POINT(' || (mxge*x + nxge) || ' ' || (myge*y + nyge) ||')', 4326);
- RETURN coords;
-    EXCEPTION
-        WHEN NO_DATA_FOUND THEN
-            RAISE EXCEPTION 'Zone % not found', zonename;
-        WHEN TOO_MANY_ROWS THEN
-            RAISE EXCEPTION 'Zone % not unique', zonename;
-END;
-$BODY$;
-
--- create function to find lid from name like "The Bowl of Embers (Hard)"
-CREATE OR REPLACE FUNCTION ffxiv.find_duty_lid(name text, diff text)
-    RETURNS text
-    LANGUAGE 'plpgsql'
-AS $BODY$
-DECLARE
- diffi text;
- llid text;
-BEGIN
-  IF $2 IS NULL THEN
-    diffi := 'Regular';
-  ELSE
-    diffi := $2;
-  END IF;
-  SELECT lid INTO STRICT llid FROM duties_each WHERE duties_each.name=$1 AND duties_each.mode=diffi;
- RETURN llid;
-END;
-$BODY$;
-
--- tables required for future fkeys
--- GC and their ranks
-CREATE TABLE grand_companies(
-    name text primary key,
-    particle text not null
-);
-GRANT SELECT ON grand_companies TO ffxivro;
-GRANT INSERT, UPDATE, DELETE ON grand_companies TO ffxivrw;
-INSERT INTO grand_companies VALUES('Maelstrom', 'Storm');
-INSERT INTO grand_companies VALUES('Order of the Twin Adder', 'Serpent');
-INSERT INTO grand_companies VALUES('Immortal Flames', 'Flame');
-
-CREATE TABLE grand_company_ranks(
-    rank int not null,
-    name text primary key,
-    before_particle text,
-    after_particle text
-);
-GRANT SELECT ON grand_company_ranks TO ffxivro;
-GRANT INSERT, UPDATE, DELETE ON grand_company_ranks TO ffxivrw;
-INSERT INTO grand_company_ranks (rank, name, before_particle, after_particle) VALUES (1, 'Private Third Class', '', ' Private Third Class');
-INSERT INTO grand_company_ranks (rank, name, before_particle, after_particle) VALUES (2, 'Private Second Class', '', ' Private Second Class');
-INSERT INTO grand_company_ranks (rank, name, before_particle, after_particle) VALUES (3, 'Private First Class', '', ' Private First Class');
-INSERT INTO grand_company_ranks (rank, name, before_particle, after_particle) VALUES (4, 'Corporal', '', ' Corporal');
-INSERT INTO grand_company_ranks (rank, name, before_particle, after_particle) VALUES (5, 'Sergeant Third Class', '', ' Sergeant Third Class');
-INSERT INTO grand_company_ranks (rank, name, before_particle, after_particle) VALUES (6, 'Sergeant Second Class', '', ' Sergeant Second Class');
-INSERT INTO grand_company_ranks (rank, name, before_particle, after_particle) VALUES (7, 'Sergeant First Class', '', ' Sergeant First Class');
-INSERT INTO grand_company_ranks (rank, name, before_particle, after_particle) VALUES (8, 'Chief Sergeant', 'Chief ', ' Sergeant');
-INSERT INTO grand_company_ranks (rank, name, before_particle, after_particle) VALUES (9, 'Second Lieutenant', 'Second ', ' Lieutenant');
-INSERT INTO grand_company_ranks (rank, name, before_particle, after_particle) VALUES (10, 'First Lieutenant', 'First ', ' Lieutenant');
-INSERT INTO grand_company_ranks (rank, name, before_particle, after_particle) VALUES (11, 'Captain', '', ' Captain');
-
--- beast tribes
-CREATE TABLE beast_tribes(
-    name text primary key,
-    currency text unique
-);
-GRANT SELECT ON beast_tribes TO ffxivro;
-GRANT UPDATE, INSERT, DELETE ON beast_tribes TO ffxivrw;
-INSERT INTO beast_tribes (name, currency) VALUES ('Ixal', 'Ixali Oaknot');
-INSERT INTO beast_tribes (name, currency) VALUES ('Sahagin', 'Rainbowtide Psashp');
-INSERT INTO beast_tribes (name, currency) VALUES ('Amalj''aa', 'Steel Amalj''ok');
-INSERT INTO beast_tribes (name, currency) VALUES ('Sylphs', 'Sylphic Goldleaf');
-INSERT INTO beast_tribes (name, currency) VALUES ('Kobolds', 'Titan Cobaltpiece');
-INSERT INTO beast_tribes (name, currency) VALUES ('Vanu Vanu', 'Vanu Whitebone');
-INSERT INTO beast_tribes (name, currency) VALUES ('Vath', 'Black Copper Gil');
-INSERT INTO beast_tribes (name, currency) VALUES ('Moogles', 'Carved Kupo Nut');
-INSERT INTO beast_tribes (name, currency) VALUES ('Ananta', 'Ananta Dreamstaff');
-INSERT INTO beast_tribes (name, currency) VALUES ('Kojin', 'Kojin Sango');
-INSERT INTO beast_tribes (name, currency) VALUES ('Namazu', 'Namazu Koban');
--- disciplines
--- Fix what already exists: 3 tables for discs; trigger that
--- Are tables 'cause items and others couldn't fkey on a view
--- Add to doth, dotl, dotwm when adding to disciplines
-ALTER TABLE disciplines ALTER COLUMN cat SET NOT NULL,
-ALTER COLUMN abbrev SET NOT NULL, ALTER COLUMN lid SET NOT NULL;
-ALTER TABLE disciplines ADD COLUMN ltd boolean;
-UPDATE disciplines SET ltd=false WHERE cat='War' or cat='Magic';
-UPDATE disciplines SET ltd=true WHERE abbrev='BLU';
-UPDATE disciplines SET name='Fisher' WHERE name='Fishing';
-UPDATE disciplines SET name='Miner' WHERE name='Mining';
-REVOKE UPDATE, INSERT, DELETE ON doth FROM ffxivrw;
-REVOKE UPDATE, INSERT, DELETE ON dotl FROM ffxivrw;
-REVOKE UPDATE, INSERT, DELETE ON dowm FROM ffxivrw;
-ALTER TABLE doth DROP COLUMN icon;
-ALTER TABLE doth DROP COLUMN abbrev;
-ALTER TABLE dotl DROP COLUMN abbrev;
-ALTER TABLE dowm DROP COLUMN abbrev;
--- old DOTL had Mining+Quarrying, move that to new table;
--- make nodes ref new table
-ALTER TABLE nodes DROP CONSTRAINT fk_cat;
-UPDATE nodes SET category='Mining' WHERE category='Miner';
-UPDATE dotl SET name='Miner' WHERE name='Mining';
-UPDATE dotl SET name='Fisher' WHERE name='Fishing';
-UPDATE dotl SET name='Botanist' WHERE name='Logging';
-DELETE FROM dotl WHERE name='Quarrying' OR name='Harvesting' OR name='Spearfishing';
-CREATE TYPE hand AS ENUM ('Main hand', 'Off-hand');
-CREATE TABLE dotl_sub (
-    dotl text REFERENCES dotl(name),
-    hand hand not null,
-    sub_disc text not null UNIQUE,
-    PRIMARY KEY (dotl, hand)
-);
-GRANT SELECT ON dotl_sub TO ffxivro;
-GRANT INSERT, UPDATE, DELETE ON dotl_sub TO ffxivrw;
-INSERT INTO dotl_sub VALUES ('Miner', 'Main hand', 'Mining');
-INSERT INTO dotl_sub VALUES ('Miner', 'Off-hand', 'Quarrying');
-INSERT INTO dotl_sub VALUES ('Fisher', 'Main hand', 'Fishing');
-INSERT INTO dotl_sub VALUES ('Fisher', 'Off-hand', 'Spearfishing');
-INSERT INTO dotl_sub VALUES ('Botanist', 'Main hand', 'Logging');
-INSERT INTO dotl_sub VALUES ('Botanist', 'Off-hand', 'Harvesting');
-ALTER TABLE nodes ADD CONSTRAINT fk_cat FOREIGN KEY (category) REFERENCES dotl_sub(sub_disc) ON UPDATE CASCADE;
--- fix fkeys on new tables
-ALTER TABLE doth ADD CONSTRAINT doth_fkey FOREIGN KEY (name) REFERENCES disciplines(name);
-ALTER TABLE dotl ADD CONSTRAINT doth_fkey FOREIGN KEY (name) REFERENCES disciplines(name);
-ALTER TABLE dowm ADD CONSTRAINT doth_fkey FOREIGN KEY (name) REFERENCES disciplines(name);
--- Might need just dow or just dom too
-CREATE TABLE dow (
-    name text REFERENCES disciplines(name) PRIMARY KEY
-);
-GRANT SELECT ON dow TO ffxivro;
-INSERT INTO dow SELECT name FROM disciplines WHERE cat='War';
-CREATE TABLE dom (
-    name text REFERENCES disciplines(name) PRIMARY KEY
-);
-GRANT SELECT ON dom TO ffxivro;
-INSERT INTO dom SELECT name FROM disciplines WHERE cat='Magic';
-
-CREATE FUNCTION add_disc_to_child_table()
-    RETURNS trigger
-    LANGUAGE 'plpgsql'
-    SECURITY DEFINER
-AS $BODY$
-    BEGIN
-        CASE NEW.cat
-            WHEN 'Hand' THEN
-                INSERT INTO doth VALUES (NEW.name);
-            WHEN 'Land' THEN
-                INSERT INTO dotl VALUES (NEW.name);
-            WHEN 'War' THEN
-                INSERT INTO dow VALUES (NEW.name);
-                INSERT INTO dowm VALUES (NEW.name);
-            WHEN 'Magic' THEN
-                INSERT INTO dom VALUES (NEW.name);
-                INSERT INTO dowm VALUES (NEW.name);
-        END case;
-        RETURN NEW;
-    END;
-$BODY$;
-CREATE TRIGGER add_disc_to_child_table
-    AFTER INSERT ON disciplines
-    FOR EACH ROW EXECUTE PROCEDURE add_disc_to_child_table();
-
-CREATE TABLE discipline_groups(
-    name text primary key
-);
-GRANT SELECT ON discipline_groups TO ffxivro;
-GRANT UPDATE, INSERT, DELETE ON discipline_groups TO ffxivrw;
-CREATE TABLE discipline_group_lists(
-    disc_group text REFERENCES discipline_groups(name),
-    disc text REFERENCES disciplines(name),
-    PRIMARY KEY (disc_group, disc)
-);
-GRANT SELECT ON discipline_group_lists TO ffxivro;
-GRANT UPDATE, INSERT, DELETE ON discipline_group_lists TO ffxivrw;
-
--- For validation:
-CREATE VIEW bad_disc_groups AS
-SELECT *
-FROM discipline_groups as dg
-    LEFT JOIN discipline_group_lists AS dgl ON dg.name=dgl.disc_group
-WHERE dgl.disc IS NULL;
-
--- add geom to npcs
-INSERT INTO mobile_types VALUES ('NPC');
-ALTER TABLE mobiles ADD COLUMN x real;
-ALTER TABLE mobiles ADD COLUMN y real;
-ALTER TABLE mobiles ADD COLUMN map text;
-ALTER TABLE mobiles ADD COLUMN geom geometry(Point, 4326);
-
--- add bunch of columns to quests
-ALTER TABLE quests ADD COLUMN category text;
-ALTER TABLE quests ADD COLUMN banner text;
-ALTER TABLE quests ADD COLUMN area text;
-ALTER TABLE quests ADD COLUMN zone text references zones (name);
-CREATE TABLE quest_type (
-    name text primary key,
-    repeatable boolean not null default false
-);
-GRANT SELECT ON quest_type TO ffxivro;
-GRANT INSERT, UPDATE, DELETE ON quest_type TO ffxivrw;
-INSERT INTO quest_type (name, repeatable) VALUES ('Feature Quest, Repeatable', true);
-INSERT INTO quest_type (name, repeatable) VALUES ('Feature Quest', false);
-INSERT INTO quest_type (name, repeatable) VALUES ('Main Story Quest', false);
-INSERT INTO quest_type (name, repeatable) VALUES ('Side Quest, Repeatable', true);
-INSERT INTO quest_type (name, repeatable) VALUES ('Side Quest', false);
-ALTER TABLE quests ADD COLUMN quest_type text REFERENCES quest_type (name);
-ALTER TABLE quests ADD COLUMN quest_giver text references mobiles(lid);
-ALTER TABLE quests ADD COLUMN level int;
-
-ALTER TABLE quests ADD COLUMN level_requirement int;
-ALTER TABLE quests ADD COLUMN class_requirement text REFERENCES discipline_groups (name);
-ALTER TABLE quests ADD COLUMN gc text references grand_companies(name);
-ALTER TABLE quests ADD COLUMN gc_rank text references grand_company_ranks(name);
-
-ALTER TABLE quests ADD COLUMN xp int;
-ALTER TABLE quests ADD COLUMN gil int;
-ALTER TABLE quests ADD COLUMN bt text REFERENCES beast_tribes(name);
-ALTER TABLE quests ADD COLUMN bt_currency_n int;
-ALTER TABLE quests ADD COLUMN bt_currency text REFERENCES beast_tribes(currency);
-ALTER TABLE quests ADD COLUMN bt_reputation int;
-ALTER TABLE quests ADD COLUMN gc_seals int;
-ALTER TABLE quests ADD COLUMN starting_class text REFERENCES disciplines(name);
-ALTER TABLE quests ADD COLUMN tomestones text REFERENCES currency (name);
-ALTER TABLE quests ADD COLUMN tomestones_n int;
-ALTER TABLE quests ADD COLUMN ventures int;
-ALTER TABLE quests ADD COLUMN seasonal boolean;
-
--- 1xn rel tables
-CREATE TYPE gender AS ENUM ('Male', 'Female');
-CREATE TABLE quest_rewards(
-    id       serial primary key,
-    questlid text REFERENCES quests(lid),
-    itemlid  text REFERENCES items(lid),
-    n        int NOT NULL DEFAULT 1,
-    classjob text REFERENCES disciplines (abbrev),
-    gender   gender,
-    optional boolean,
-    UNIQUE (questlid, itemlid, classjob)
-);
-GRANT SELECT ON quest_rewards TO ffxivro;
-GRANT INSERT, UPDATE, DELETE ON quest_rewards TO ffxivrw;
-CREATE TABLE quest_rewards_others(
-    questlid text references quests(lid),
-    other    text,
-    icon     text,
-    PRIMARY KEY (questlid, other)
-);
-GRANT SELECT ON quest_rewards_others TO ffxivro;
-GRANT INSERT, UPDATE, DELETE ON quest_rewards_others TO ffxivrw;
-CREATE TABLE quest_requirements(
-    questlid text REFERENCES quests(lid),
-    dutylid  text REFERENCES duties_each(lid),
-    PRIMARY KEY (questlid, dutylid)
-);
-GRANT SELECT ON quest_requirements TO ffxivro;
-GRANT UPDATE, INSERT, DELETE ON quest_requirements TO ffxivrw;
-
--- Run Molestone's QuestLister here
-DELETE FROM quests WHERE category IS NULL; -- to remove leftover that has been removed from game
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ACN', 'Arcanist');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ALC', 'Alchemist');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ARC', 'Archer');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ARM', 'Armorer');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('AST', 'Astrologian');
-INSERT INTO discipline_group_lists (disc_group, disc) 
-SELECT 'All classes and jobs (excluding limited jobs)', name
-FROM disciplines WHERE ltd=false or ltd is null;
-INSERT INTO discipline_group_lists (disc_group, disc)
-SELECT 'Any Class or Job', name
-FROM disciplines;
-INSERT INTO discipline_group_lists (disc_group, disc) 
-SELECT 'Any Disciple of War or Magic (excluding limited jobs)', dowm.name
-FROM dowm
-    join disciplines as d on dowm.name=d.name
-where d.ltd=false or d.ltd is null;
-INSERT INTO discipline_group_lists (disc_group, disc) 
-SELECT 'Any Disciple of the Hand (excluding culinarians)', name
-FROM doth 
-where name <> 'Culinarian';
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('BLM', 'Black Mage');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('BRD', 'Bard');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('BSM', 'Blacksmith');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('BTN', 'Botanist');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('CNJ', 'Conjurer');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('CRP', 'Carpenter');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('CUL', 'Culinarian');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('DRG', 'Dragoon');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('DRK', 'Dark Knight');
-INSERT INTO discipline_group_lists (disc_group, disc)
-SELECT 'Disciple of the Hand', name
-FROM doth;
-INSERT INTO discipline_group_lists (disc_group, disc) 
-SELECT 'Disciple of the Land', name
-FROM dotl;
-INSERT INTO discipline_group_lists (disc_group, disc) 
-SELECT 'Disciples of War or Magic', name
-FROM dowm;
-INSERT INTO discipline_group_lists (disc_group, disc) 
-SELECT 'Disciples of the Land or Hand', name
-FROM dotl
-union
-SELECT 'Disciples of the Land or Hand', name
-FROM doth;
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('FSH', 'Fisher');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA', 'Gladiator');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GSM', 'Goldsmith');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('LNC', 'Lancer');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('LTW', 'Leatherworker');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('MCH', 'Machinist');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('MIN', 'Miner');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('MNK', 'Monk');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('MRD', 'Marauder');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('NIN', 'Ninja');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL', 'Pugilist');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD', 'Paladin');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Paladin');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Monk');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Warrior');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Dragoon');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Bard');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'White Mage');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Black Mage');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Summoner');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Scholar');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Ninja');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Machinist');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Dark Knight');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PLD MNK WAR DRG BRD WHM BLM SMN SCH NIN MCH DRK AST', 'Astrologian');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('RDM', 'Red Mage');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ROG', 'Rogue');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('SAM', 'Samurai');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('SCH', 'Scholar');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('SMN', 'Summoner');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('THM', 'Thaumaturge');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('WAR', 'Warrior');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('WHM', 'White Mage');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('WVR', 'Weaver');
-
--- start working on making json for api
-with qr as (
-select json_agg(row_to_json(quest_rewards)) from quest_rewards where questlid='fad849a70a9'
-),
-qro as (
-	select json_agg(other) from quest_rewards_others where questlid='02577140302'
+select json_build_object(
+	'gid', gid,
+	'id', gid,
+	'name', name,
+    'label', name,
+	'lid', name,
+	'geom', get_vertices(geom),
+	'bounds', get_bounds(geom),
+	'centroid', get_centroid_coords(geom),
+    'region', get_region((select lid from regions as r where st_contains(r.geom, z.geom))),
+	'a', a,
+	'b', b,
+	'c', c,
+	'd', d,
+    'e', e,
+    'f', f,
+    'g', g,
+    'h', h,
+    'mxge', mxge,
+    'nxge', nxge,
+    'myge', myge,
+    'nyge', nyge,
+    'mxeg', mxeg,
+    'nxeg', nxeg,
+    'myeg', myeg,
+    'nyeg', nyeg
 )
-select * from qro;
+from vzones as z
+where name=$1;
+$BODY$;
+
+-- forgot to drop a few columns there Mel
+ALTER TABLE zones DROP COLUMN myge, 
+    DROP COLUMN nyge, 
+    DROP COLUMN myeg, 
+    DROP COLUMN nyeg;
+-- while we're in zones, zones shouldn't intersect because it screws up selects with st_contains(zone.geom, other.geom)
+-- move Waking Sands to invis_zones
+INSERT INTO invis_zones(name, geom, code, a, b, e, f) 
+SELECT name, geom, code, a, b, e, f
+FROM zones
+WHERE name='The Waking Sands';
+UPDATE quests SET zone='Western Thanalan' WHERE zone='The Waking Sands';
+DELETE FROM zones WHERE name='The Waking Sands';
+
+CREATE OR REPLACE FUNCTION ffxiv.get_mobile(
+	lid text)
+    RETURNS json
+    LANGUAGE 'sql' 
+AS $BODY$
+SELECT json_build_object(
+    'id', n.name,
+    'lid', n.name,
+    'name', n.name,
+    'label', n.name,
+    'category', get_category('npc'),
+    'zone', get_zone((select lid from zones as z where st_contains(z.geom, n.geom))),
+    'x', n.x,
+    'y', n.y,
+    'geom', get_vertices(n.geom),
+    'bounds', get_bounds(n.geom),
+    'centroid', get_centroid_coords(n.geom)
+)
+FROM mobiles as n
+WHERE lid = $1;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION get_quest(questlid text)
+    RETURNS json
+    LANGUAGE 'sql'
+AS $BODY$
+
+with quest as (
+	select * from quests where lid=$1
+), rewards as (
+select questlid, 
+    json_agg(rewards) as rewards 
+from (select questlid, 
+        (select row_to_json(_) from (select get_item(itemlid) as item, n, classjob, gender, optional) as _) as rewards
+    from quest_rewards 
+    where questlid=$1)a
+group by questlid
+), other as (
+select questlid, 
+    json_agg(reward) as other
+from (select questlid, (select row_to_json(_) from (select other, icon) as _) as reward
+    from quest_rewards_others
+    where questlid=$1)a
+group by questlid
+), qreq as (
+select questlid, dutylid
+from quest_requirements 
+where questlid=$1
+), req as (
+select questlid, json_agg(requirements) as requirements 
+from 
+    (
+	select qreq.questlid, (select row_to_json(_) from (select lid, name, mode, level) as _) as requirements
+	from duties_each as de, qreq
+	where de.lid=qreq.dutylid
+    )a
+group by questlid
+)
+select (select row_to_json(_) from (select q.lid, q.name, q.category, q.banner, q.area, q.zone, q.quest_type, 
+    get_mobile(q.quest_giver) as quest_giver, q.level, q.level_requirement, q.class_requirement, q.gc, q.gc_rank, q.xp, 
+    q.gil, q.bt, q.bt_currency_n, q.bt_currency, q.bt_reputation, q.gc_seals, q.starting_class, 
+    q.tomestones, q.tomestones_n, q.ventures, q.seasonal, r.rewards, o.other, req.requirements) as _)
+from quest as q
+	left join rewards as r on q.lid=r.questlid
+	left join other as o on q.lid=o.questlid
+	left join req on q.lid=req.questlid
+$BODY$;

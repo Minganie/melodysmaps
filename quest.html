@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>title</title><!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
+    integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
+    integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
+    crossorigin=""></script>
+    
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    
+    <!-- Legend -->
+    <link rel="stylesheet" href="css/leaflet.groupedlayercontrol.min.css" />
+    <script src="js/leaflet.groupedlayercontrol.js"></script>
+    <link rel="stylesheet" href="css/L.Control.MelodysLegend.css" />
+    <script src="js/L.Control.MelodysLegend.js"></script>
+    <!-- Layers -->
+    <link rel="stylesheet" href="css/L.Layer.NamedLayer.css" />
+    <script src="js/L.Layer.NamedLayer.js"></script>
+    <script src="js/L.Layer.NamedPolygonLayer.js"></script>
+    <script src="js/L.Layer.NamedPointLayer.js"></script>
+    <script src="js/L.Layer.DutyLayer.js"></script>
+    <!-- Map -->
+    <link rel="stylesheet" href="css/L.Map.MelodysMap.css" />
+    <script src="js/L.Map.MelodysMap.js"></script>
+    <script src="js/init.js"></script>
+    
+    <!-- General css -->
+    <link rel="stylesheet" href="css/melodysmaps.css" />
+    
+    <!-- Select-ables -->
+    <script src="js/Requirement.js"></script>
+    <script src="js/Selectable.js"></script>
+    <script src="js/Selectable.Item.js"></script>
+    <script src="js/Selectable.AlreadyOnMap.js"></script>
+    <script src="js/Selectable.Region.js"></script>
+    <script src="js/Selectable.Zone.js"></script>
+    <script src="js/Selectable.Area.js"></script>
+    <script src="js/Selectable.HasPopup.js"></script>
+    <script src="js/Selectable.Trial.js"></script>
+    <script src="js/Selectable.MappedDuty.js"></script>
+    <script src="js/Selectable.HasPopupAndTooltip.js"></script>
+    <script src="js/Selectable.DefaultPolygon.js"></script>
+    <script src="js/Selectable.Gathering.js"></script>
+    <script src="js/Selectable.Fishing.js"></script>
+    <script src="js/Selectable.Mob.js"></script>
+    <script src="js/Selectable.Spawn.js"></script>
+    <script src="js/Selectable.DefaultPoint.js"></script>
+    <script src="js/Selectable.Merchant.js"></script>
+    <script src="js/Selectable.Sightseeing.js"></script>
+    <script src="js/Selectable.NPC.js"></script>
+    <script src="js/Selectable.Levemete.js"></script>
+    <script src="js/Selectable.Leve.js"></script>
+    <script src="js/Selectable.Recipe.js"></script>
+    
+    <!-- api -->
+    <script src="js/api.js"></script>
+    
+    <!-- search -->
+    <link rel="stylesheet" href="css/search.css" />
+    <script src="js/Category.js"></script>
+    <script src="js/search.js"></script>
+    
+    <!-- lightboxes -->
+    <link rel="stylesheet" href="css/lightbox.css" />
+    <link rel="stylesheet" href="css/lightbox.item.css" />
+    <link rel="stylesheet" href="css/lightbox.duty.css" />
+    <link rel="stylesheet" href="css/lightbox.vista.css" />
+    <link rel="stylesheet" href="css/lightbox.leve.css" />
+    <link rel="stylesheet" href="css/lightbox.quest.css" />
+    <script src="js/lightbox.js"></script>
+    <script src="js/itemBox.js"></script>
+    <script src="js/dutyBox.js"></script>
+    <script src="js/vistaBox.js"></script>
+    <script src="js/leveBox.js"></script>
+    
+    <!-- Tooltips -->
+    <link rel="stylesheet" href="css/tooltip.item.css" />
+    <link rel="stylesheet" href="css/tooltip.leve.css" />
+  </head>
+  <body>
+    <div id="quest">
+        <div class="melsmaps-quest-container">
+            <div class="melsmaps-quest-tooltip-container">
+                <img class="banner" src="https://img.finalfantasyxiv.com/lds/pc/global/images/itemicon/c8/c8805db22af120c3119ad66c9b57674751c84673.png?4.58" alt="" width=376 height=120 />
+                <div class="questInfo">
+                    <img src="http://localhost/melodysmaps/icons/quests/msq.png" alt="" width=32 height=32 />
+                    <div>
+                        <h1>The First and the Foremost</h1>
+                        <p><span>Lv. 50</span><span>Heavensward</span></p>
+                    </div>
+                </div>
+                <div class="questBlock data">
+                    <h2>Quest Giver</h2>
+                    <h3 class="llink">Mother Miounne</h3>
+                    <p>New Gridania X: 11.7 Y: 13.5</p>
+                </div>
+                <div class="questBlock requirements">
+                    <h2>Requirements</h2>
+                    <h3>Starting Class</h3>
+                    <p>Lancer</p>
+                    <h3>Class/Job</h3>
+                    <p>All classes and job (excluding limited jobs) Lv. 1</p>
+                    <h3>Grand Company</h3>
+                    <p>Not specified</p>
+                    <h3>Quest/Duty</h3>
+                    <p>Not specified</p>
+                    <h4>Reward</h4>
+                    <div class="imgAndTwoPs halfBlock">
+                        <img src="http://localhost/melodysmaps/icons/xp.png" alt="" width=32 height=32/>
+                        <div>
+                            <p>Experience</p>
+                            <p>100</p>
+                        </div>
+                    </div>
+                    <div class="imgAndTwoPs halfBlock">
+                        <img src="http://localhost/melodysmaps/icons/gil.png" alt="" width=32 height=32/>
+                        <div>
+                            <p>Gil</p>
+                            <p>107</p>
+                        </div>
+                    </div>
+                    <div class="imgAndTwoPs halfBlock">
+                        <img src="http://localhost/melodysmaps/icons/venture.png" alt="" width=32 height=32/>
+                        <div>
+                            <p>Venture</p>
+                            <p>1</p>
+                        </div>
+                    </div>
+                    <div class="imgAndTwoPs halfBlock">
+                        <img src="http://localhost/melodysmaps/icons/allagantomestoneofpoetics.png" alt="" width=32 height=32/>
+                        <div>
+                            <p>Allagan Tomestone of Poetics</p>
+                            <p>5</p>
+                        </div>
+                    </div>
+                    <div class="imgAndTwoPs halfBlock">
+                        <img src="http://localhost/melodysmaps/icons/beast_tribes/amaljaa.png" alt="" width=32 height=32/>
+                        <div>
+                            <p>Amalj'aa Relations</p>
+                            <p>10</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="questBlock rewards">
+                    <h2>Completion Rewards</h2>
+                    <div class="imgAndTwoPs">
+                        <img src="https://img.finalfantasyxiv.com/lds/pc/global/images/itemicon/2c/2c245b33ae56b18e48b140b11304dd71508eacff.png?4.58" alt="" width=48 height=48/>
+                        <div>
+                            <p class="llink">Tomato Pie</p>
+                            <p>3</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="questBlock rewards">
+                    <h2>Optional Rewards</h2>
+                    <div class="imgAndTwoPs">
+                        <img src="https://img.finalfantasyxiv.com/lds/pc/global/images/itemicon/2c/2c245b33ae56b18e48b140b11304dd71508eacff.png?4.58" alt="" width=48 height=48/>
+                        <div>
+                            <p class="llink">Pill Bug</p>
+                            <p>99</p>
+                        </div>
+                    </div>
+                    <div class="imgAndTwoPs">
+                        <img src="https://img.finalfantasyxiv.com/lds/pc/global/images/itemicon/2c/2c245b33ae56b18e48b140b11304dd71508eacff.png?4.58" alt="" width=48 height=48/>
+                        <div>
+                            <p class="llink">Crayfish Ball</p>
+                            <p>99</p>
+                        </div>
+                    </div>
+                    <div class="imgAndTwoPs">
+                        <img src="https://img.finalfantasyxiv.com/lds/pc/global/images/itemicon/2c/2c245b33ae56b18e48b140b11304dd71508eacff.png?4.58" alt="" width=48 height=48/>
+                        <div>
+                            <p class="llink">Butterworm</p>
+                            <p>99</p>
+                        </div>
+                    </div>
+                    <div class="imgAndTwoPs">
+                        <img src="https://img.finalfantasyxiv.com/lds/pc/global/images/itemicon/2c/2c245b33ae56b18e48b140b11304dd71508eacff.png?4.58" alt="" width=48 height=48/>
+                        <div>
+                            <p class="llink">Crow Fly</p>
+                            <p>99</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    $(document).ready(function() {
+        $.ajax({
+            url: "http://localhost/melodysmaps/api/quests/d3f5b5de83a",
+            dataType: "json"
+        }).done(function(quest) {
+            console.log(quest);
+        });
+        $.ajax({
+            url: "http://localhost/melodysmaps/api/quests/b08d7bf6a75",
+            dataType: "json"
+        }).done(function(quest) {
+            console.log(quest);
+        });
+        $.ajax({
+            url: "http://localhost/melodysmaps/api/quests/05653b4d0b2",
+            dataType: "json"
+        }).done(function(quest) {
+            console.log(quest);
+        });
+    });
+    </script>
+  </body>
+</html>

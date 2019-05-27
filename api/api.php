@@ -320,6 +320,15 @@ if($conn = conn())
         $worked = $stmt->execute(array($recipe));
         $result = format_response($worked, $stmt);
     }
+    
+    // QUEST
+    if(isset($_GET['quest']) && !empty($_GET['quest']))
+    {
+        $quest = $_GET['quest'];
+        $stmt = $conn->prepare("SELECT get_quest(?)");
+        $worked = $stmt->execute(array($quest));
+        $result = format_response($worked, $stmt);
+    }
 }
 
 echo $result;
