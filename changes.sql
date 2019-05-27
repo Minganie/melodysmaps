@@ -1,5 +1,5 @@
 -- pg_restore.exe -U postgres -d postgres --create D:\Programmes\xampp\htdocs\melodysmaps\ffxivall20190521.backup
--- pg_restore.exe -U postgres -d postgres --create C:\xampp\htdocs\melodysmaps\ffxivall20190521.backup
+-- pg_restore.exe -U postgres -d postgres --create C:\xampp\htdocs\melodysmaps\ffxivall20190524.backup
 ALTER DATABASE ffxiv SET search_path TO ffxiv, public;
 
 -- yeah, let's not break the whole website because we removed other parts, okies?
@@ -136,3 +136,5 @@ from quest as q
 	left join other as o on q.lid=o.questlid
 	left join req on q.lid=req.questlid
 $BODY$;
+
+INSERT INTO categories (name, pretty_name, red_icon, gold_icon, tooltip, map_icon, lid) VALUES ('Quest', 'Quest', '', '', 'A quest you may understake', '', 'Quest');

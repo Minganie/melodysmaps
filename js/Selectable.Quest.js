@@ -39,29 +39,23 @@ Selectable.Quest.prototype = $.extend({}, Selectable.prototype, {
 });
 Selectable.Quest.Source = {
     getLine: function(quest) {
-        // leve.category.iconSize = 24;
-        // var img = leve.category.getGoldIcon();
-        // var a = $('<a></a>')
-            // .html(leve.name + ' (lvl ' + leve.lvl + ')');
-        // var li = $('<li></li>')
-            // .append(img)
-            // .append(a)
-            // .addClass('melsmaps-item-source-link')
-            // .attr('title', 'Click to view the leve');
-        // li.data('selectable', Selectable.getFull(leve));
-        // return li;
+        quest.category.iconSize = 24;
+        var img = quest.category.getGoldIcon();
+        var a = $('<a></a>')
+            .html(leve.name + ' (lvl ' + leve.lvl + ')');
+        var li = $('<li></li>')
+            .append(img)
+            .append(a)
+            .addClass('melsmaps-item-source-link')
+            .attr('title', 'Click to view the leve');
+        li.data('selectable', Selectable.getFull(leve));
+        return li;
     }
 };
 
 Selectable.Quest.Tooltip = {
     get: function(quest) {
-        
-        // else if(leve.model=='Wisdom')
-            // return new Selectable.Leve.Tooltip.Wisdom(leve);
-        // else {
-            // console.error("Can't find the type of leve tooltip to make for ");
-            // console.error(leve);
-        // }
+      return new Selectable.Quest.Tooltip.Quest(quest);
     }
 };
 
@@ -71,46 +65,6 @@ Selectable.Quest.Tooltip.Quest = function(quest, className) {
     this.quest = quest;
 }
 Selectable.Quest.Tooltip.Quest.prototype = {
-    _getName: function() {
-        // return $('<h1></h1>')
-            // .html(this.leve.name);
-    },
-
-    _getCurrencies: function() {
-        // var html = $('<div></div>')
-            // .addClass('melsmaps-leve-tooltip-section melsmaps-leve-tooltip-currencies');
-        // $('<h2></h2>')
-            // .html('<img src="http://melodysmaps.com/icons/leves/currency_reward.png" width=32 height=32 alt="" />Currency rewards')
-            // .appendTo(html);
-        // html.append(this.leve.xp && this.leve.xp>0 ? '<span>' + this.leve.xp + '<img src="http://melodysmaps.com/icons/xp.png" alt="" width=24 height=24 /></span>' : '?');
-        // html.append(this.leve.gil && this.leve.gil>0 ? '<span>' + this.leve.gil + '<img src="http://melodysmaps.com/icons/gil.png" alt="" width=24 height=24 /></span>' : '');
-        // html.append(this.leve.seals && this.leve.seals>0 ? '<span>' + this.leve.seals + '<img src="http://melodysmaps.com/icons/flameseal.png" alt="" width=24 height=24 /></span>' : '');
-        // return html;
-    },
-    _getRewards: function() {
-        // var html = $('<div></div>');
-        // if(this.leve && this.leve.rewards)
-            // for(var i = 0; i < this.leve.rewards.length; i++) {
-                // var reward = this.leve.rewards[i];
-                // if(reward && reward.n && reward.item) {
-                    // var span = $('<span></span>')
-                        // .append(Selectable.getItemTooltippedImage(reward.item));
-                    // html.append(reward.n + ' x ')
-                        // .append(span);
-                // }
-            // }
-        // return html;
-    },
-    _getHostiles: function() {
-        // var html = $('<div></div>');
-        // if(this.leve.mobs && this.leve.mobs[0] && this.leve.mobs[0].mob) {
-            // $('<p></p>')
-                // .html('You may face the following hostiles:')
-                // .appendTo(html);
-            // html.append(this._getNumberedEnemyList());
-        // }
-        // return html;
-    },
     _getQuestTypeIcon: function(questType) {
         switch(questType) {
             case 'Main Story Quest':
@@ -153,15 +107,17 @@ Selectable.Quest.Tooltip.Quest.prototype = {
     _getDataBlock: function() {
         var div = $('<div class="questBlock data"></div>');
         if(!this.quest.seasonal) {
-        $('<h2>Quest Giver</h2>').appendTo(div);
-        $('<h3 class="llink"></h3>')
-            .html(this.quest.quest_giver.label)
-            .appendTo(div);
-        $('<p></p>')
-            .html(this.quest.quest_giver.zone.name + ' X: ' + this.quest.quest_giver.x + ' Y: ' + this.quest.quest_giver.y)
-            .appendTo(div);
+          $('<h2>Quest Giver</h2>').appendTo(div);
+          $('<h3 class="llink"></h3>')
+              .html(this.quest.quest_giver.label)
+              .appendTo(div);
+          $('<p></p>')
+              .html(this.quest.quest_giver.zone.name + ' X: ' + this.quest.quest_giver.x + ' Y: ' + this.quest.quest_giver.y)
+              .appendTo(div);
         } else {
-            // figure it out!
+            $('<p class="melsmaps-quest-seasonal"></p>')
+            .html("This quest cannot be accepted. The associated seasonal event has ended.")
+            .appendTo(div);
         }
         return div;
     },

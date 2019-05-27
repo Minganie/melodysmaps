@@ -76,6 +76,17 @@ div.questBlock * {
     color: #73bfe6;
     line-height: 15px;
 }
+p.melsmaps-quest-seasonal {
+  background-color: #4d3d1f;
+  margin: 13px 0 19px;
+  padding: 0 10px;
+  color: #ffcc66;
+  border: 1px solid #ffcc66;
+  border-radius: 5px;
+  text-align: left;
+  line-height: 1.2;
+  position: relative;
+}
 div.questBlock.requirements:after {
     content: "";
     display: table;
