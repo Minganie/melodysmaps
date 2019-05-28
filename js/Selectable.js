@@ -17,6 +17,9 @@ Selectable = {
     getLeveTooltip: function(tooltippable) {
         return Selectable.Leve.Tooltip.get(tooltippable).getTooltip();
     },
+    getQuestTooltip: function(tooltippable) {
+        return Selectable.Quest.Tooltip.get(tooltippable).getTooltip();
+    },
     getNPCLink: function(npc) {
         return $('<a></a>')
             .addClass('melsmaps-npc-link')
@@ -84,6 +87,8 @@ Selectable = {
                 return new Selectable.Levemete(searchable);
             case 'Leve':
                 return new Selectable.Leve(searchable);
+            case 'Quest':
+                return new Selectable.Quest(searchable);
             default:
                 console.error("Can't find which kind of select-able category '" + searchable.category.getName() + "' is.");
         }

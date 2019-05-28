@@ -33,6 +33,6 @@ $.widget("melsmaps.questBox", $.melsmaps.lightbox, {
     this.show();
   },
   _reset: function() {
-    this.container.find('.melsmaps-quest-tooltip-container').remove();
+    this.container.find('div').remove();
   }
 });

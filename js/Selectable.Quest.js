@@ -8,7 +8,8 @@ Selectable.Quest.prototype = $.extend({}, Selectable.prototype, {
     onSelect: function() {
         $('#quest').questBox('instance').setQuest(this);
     },
-    getIcon: function(lev) {
+    // getIcon: function(lev) {
+        // return $()
         // var extra = null;
         // var part;
         // if(lev.gc && lev.gc != '') {
@@ -35,7 +36,7 @@ Selectable.Quest.prototype = $.extend({}, Selectable.prototype, {
             // .append(extra)
             // .append(def_img);
         // return span;
-    }
+    // }
 });
 Selectable.Quest.Source = {
     getLine: function(quest) {
@@ -90,18 +91,19 @@ Selectable.Quest.Tooltip.Quest.prototype = {
         var qi = $('<div class="questInfo"></div>');
         html.append(qi);
         $('<img alt="" width=32 height=32 />')
-            .attr("src", this._questTypeIcon(this.quest.quest_type));
+            .attr("src", this._getQuestTypeIcon(this.quest.quest_type))
             .appendTo(qi);
         var div = $('<div></div>').appendTo(qi);
+        console.log(this.quest);
         $('<h1></h1>')
             .html(this.quest.name)
             .appendTo(div);
-        var p = $('<p></p>');
+        var p = $('<p></p>').appendTo(div);
         var span1 = $('<span>Lv. </span>');
         span1.html(span1.html() + this.quest.level)
             .appendTo(p);
         $('<span></span>')
-            .html(this.quest.category)
+            .html(this.quest.quest_category)
             .appendTo(p);
     },
     _getDataBlock: function() {
@@ -130,8 +132,9 @@ Selectable.Quest.Tooltip.Quest.prototype = {
         return t;
     },
     _makeHalfBlock: function(src, word, number) {
-        return this._makeImgAndTwoPs(src, word, number)
-            .addClass("halfBlock");
+        return (this._makeImgAndTwoPs(src, word, false, number, null) ?
+            this._makeImgAndTwoPs(src, word, false, number, null).addClass("halfBlock")
+            : null);
     },
     _makeImgAndTwoPs: function(src, name, isItem, number, restriction) {
         var block = $('<div class="imgAndTwoPs"></div>');
@@ -198,17 +201,17 @@ Selectable.Quest.Tooltip.Quest.prototype = {
                 n: this.quest.ventures,
             },
             {
-                src: "icons/" + this.quest.tomestones.split(' ').join('').toLowerCase() + ".png",
+                src: this.quest.tomestones ? "icons/" + this.quest.tomestones.split(' ').join('').toLowerCase() + ".png" : null,
                 name: this.quest.tomestones,
                 n: this.quest.tomestones_n,
             },
             {
-                src: "icons/" + this.quest.bt.split(' ').join('').split(",").join('').toLowerCase() + "_currency.png",
+                src: this.quest.bt ? "icons/" + this.quest.bt.split(' ').join('').split(",").join('').toLowerCase() + "_currency.png" : null,
                 name: this.quest.bt_currency,
                 n: this.quest.bt_currency_n
             },
             {
-                src: "icons/" + this.quest.bt.split(' ').join('').split(",").join('').toLowerCase() + ".png",
+                src: this.quest.bt ? "icons/" + this.quest.bt.split(' ').join('').split(",").join('').toLowerCase() + ".png" : null,
                 name: this.quest.bt + " Relations",
                 n: this.quest.bt_reputation
             },
@@ -226,24 +229,47 @@ Selectable.Quest.Tooltip.Quest.prototype = {
         return div;
     },
     _getCompletionRewards: function() {
-        var div = $('<div class="questBlock rewards"></div>');
-        if(this.quest.rewards && this.quest.rewards.length > 0) {
+        var div = $('<div></div>');
+        if((this.quest.rewards && this.quest.rewards.length > 0) || (this.quest.other && this.quest.other.length > 0)) {
             var cr = this.quest.rewards.filter(function(rew) {
                 return !rew.optional;
             });
-            if(cr && cr.length > 0) {
+            if((cr && cr.length > 0)|| (this.quest.other && this.quest.other.length > 0)) {
+                div.addClass("questBlock").addClass("rewards");
                 div.append($('<h2>Completion Rewards</h2>'));
                 for(var i in cr) {
                     rew = cr[i];
-                    this._makeImgAndTwoPs(rew);
+                    var restr = rew.classJob ? rew.classJob : '';
+                    restr += rew.gender ? rew.gender : ''
+                    div.append(this._makeImgAndTwoPs(rew.item.licon, rew.item.name, true, rew.n, restr));
+                }
+                for(var i in this.quest.other) {
+                    rew = this.quest.other[i];
+                    div.append(this._makeImgAndTwoPs(rew.icon, rew.other, false, null, null));
+                }
+            }
+        }
+        return div;
+    },
+    _getOptionalRewards: function() {
+        var div = $('<div></div>');
+        if(this.quest.rewards && this.quest.rewards.length > 0) {
+            var or = this.quest.rewards.filter(function(rew) {
+                return rew.optional;
+            });
+            if(or && or.length > 0) {
+                div.addClass("questBlock").addClass("rewards");
+                div.append($('<h2>Optional Rewards</h2>'));
+                for(var i in or) {
+                    rew = or[i];
+                    this._makeImgAndTwoPs(rew.item.licon, rew.item.name, true, rew.n, null).appendTo(div);
                 }
             }
         }
         return div;
     },
 	getTooltip: function() {
-		var html = $('<div></div>')
-            .addClass('melsmaps-quest-tooltip-container');
+		var html = $('<div></div>');
         this._addTop(html);
         html.append(this._getDataBlock());
         html.append(this._getRequirementBlock());

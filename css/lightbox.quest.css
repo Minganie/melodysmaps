@@ -11,6 +11,7 @@
 
 #quest .melsmaps-quest-tooltip-container {
     max-height: 98%;
+    height: auto;
     overflow: auto;
     width: 480px;
 	background-color: #1c1c1c;
@@ -79,7 +80,7 @@ div.questBlock * {
 p.melsmaps-quest-seasonal {
   background-color: #4d3d1f;
   margin: 13px 0 19px;
-  padding: 0 10px;
+  padding: 10px;
   color: #ffcc66;
   border: 1px solid #ffcc66;
   border-radius: 5px;
@@ -120,10 +121,12 @@ div.questBlock div.halfBlock {
     margin: 0;
     vertical-align: middle;
 }
+.halfBlock.imgAndTwoPs > div > p {
+    max-width: 164px;
+}
 .imgAndTwoPs > div > p {
     margin: 0.5em 0;
     padding: 0;
-    max-width: 164px;
 }
 div.questBlock div.halfBlock p:first-child {
     color: #bfa34c;
