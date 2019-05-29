@@ -138,6 +138,14 @@ L.Map.MelodysMap = L.Map.extend({
                 $('#item-tooltip')
                     .css("display", "none");
             });
+            $('#quest').on('mouseenter', '.melsmaps-is-a-tooltip', function(evt) {
+                setTooltipText(evt, '#item-tooltip');
+                moveTooltip(evt, '#item-tooltip');
+            });
+            $('#quest').on('mouseleave', '.melsmaps-is-a-tooltip', function(evt) {
+                $('#item-tooltip')
+                    .css("display", "none");
+            });
             
             
 			// Leve tooltip handler

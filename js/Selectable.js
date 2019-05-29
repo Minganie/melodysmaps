@@ -83,6 +83,8 @@ Selectable = {
 				return new Selectable.Sightseeing(searchable);
             case 'NPC':
                 return new Selectable.NPC(searchable);
+            // case 'LNPC':
+                // return new Selectable.LNPC(searchable);
             case 'Levemete':
                 return new Selectable.Levemete(searchable);
             case 'Leve':
@@ -95,7 +97,7 @@ Selectable = {
     },
     
     getFull: function(full) {
-		var t = null;
+        var t = null;
         if(!full.category.getName)
             full.category = new Category(full.category);
         var searchable = {
@@ -107,54 +109,57 @@ Selectable = {
             mode: full.mode,
             sort_order: 0
         };
-		switch(full.category.getName()) {
-			case 'Trial':
-				t = new Selectable.Trial(null);
-				break;
-			case 'Dungeon':
-			case 'Raid':
-				t = new Selectable.MappedDuty(null);
-				break;
-            case 'Item':
-                t = new Selectable.Item(null);
-                t._info = $.when(full);
-                t._sources = api.item.sources(full.lid);
-                break;
-            case 'NPC':
-                t = new Selectable.NPC(null);
-                break;
-            case 'Leve':
-                t = new Selectable.Leve(null);
-                break;
-            case 'Levemete':
-                t = new Selectable.Levemete(null);
-                break;
-            case 'Logging':
-            case 'Harvesting':
-            case 'Mining':
-            case 'Quarrying':
-                t = new Selectable.Gathering(null);
-                break;
-            case 'Fishing':
-                t = new Selectable.Fishing(null);
-                break;
-            case 'Spawn':
-                t = new Selectable.Spawn(null);
-                break;
-            case 'Merchant':
-                t = new Selectable.Merchant(null);
-                break;
-            default:
-                console.error("Can't find which kind of full select-able category '" + searchable.category.getName() + "' is.");
-		}
+        switch(full.category.getName()) {
+          case 'Trial':
+            t = new Selectable.Trial(null);
+            break;
+          case 'Dungeon':
+          case 'Raid':
+            t = new Selectable.MappedDuty(null);
+            break;
+          case 'Item':
+              t = new Selectable.Item(null);
+              t._info = $.when(full);
+              t._sources = api.item.sources(full.lid);
+              break;
+          case 'NPC':
+              t = new Selectable.NPC(null);
+              break;
+          case 'Leve':
+              t = new Selectable.Leve(null);
+              break;
+          case 'Levemete':
+              t = new Selectable.Levemete(null);
+              break;
+          case 'Logging':
+          case 'Harvesting':
+          case 'Mining':
+          case 'Quarrying':
+              t = new Selectable.Gathering(null);
+              break;
+          case 'Fishing':
+              t = new Selectable.Fishing(null);
+              break;
+          case 'Spawn':
+              t = new Selectable.Spawn(null);
+              break;
+          case 'Merchant':
+              t = new Selectable.Merchant(null);
+              break;
+          case 'Quest':
+              t = new Selectable.Quest(null);
+              break;
+          default:
+              console.error("Can't find which kind of full select-able category '" + searchable.category.getName() + "' is.");
+        }
         t._searchable = searchable;
-		t._full = $.when(full);
-		return t;
+        t._full = $.when(full);
+        return t;
     }
 }
 Selectable.prototype = {
     onSelect: function() {
-        console.log("Selected this");
+        console.log("Selectable::prototype::onSelect => Selected this:");
         console.log(this);
     }
 }

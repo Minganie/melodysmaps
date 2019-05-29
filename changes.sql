@@ -102,7 +102,7 @@ with quest as (
 select questlid, 
     json_agg(rewards) as rewards 
 from (select questlid, 
-        (select row_to_json(_) from (select get_item(itemlid) as item, n, classjob, gender, optional) as _) as rewards
+        (select row_to_json(_) from (select get_item(itemlid) as item, n, classjob as class_job, gender, optional) as _) as rewards
     from quest_rewards 
     where questlid=$1)a
 group by questlid

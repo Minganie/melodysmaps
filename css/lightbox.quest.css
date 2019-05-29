@@ -113,18 +113,18 @@ div.questBlock div.halfBlock {
     margin: 0;
     float: left;
 }
-.imgAndTwoPs > img {
+.imgAndText > img {
     vertical-align: middle;
 }
-.imgAndTwoPs > div {
+.imgAndText > div {
     display: inline-block;
     margin: 0;
     vertical-align: middle;
 }
-.halfBlock.imgAndTwoPs > div > p {
+.halfBlock.imgAndText > div > p {
     max-width: 164px;
 }
-.imgAndTwoPs > div > p {
+.imgAndText > div > p {
     margin: 0.5em 0;
     padding: 0;
 }

@@ -186,9 +186,8 @@ if($conn = conn())
         }
         else if(isset($_GET['mode']) && !empty($_GET['mode']))
         {
-            $mode = $_GET['mode'];
-            $stmt = $conn->prepare("SELECT get_duty_mode(?, ?)");
-            $worked = $stmt->execute(array($duty, $mode));
+            $stmt = $conn->prepare("SELECT get_duty_each(?)");
+            $worked = $stmt->execute(array($duty));
         } else {
             $stmt = $conn->prepare("SELECT get_duty(?)");
             $worked = $stmt->execute(array($duty));
@@ -289,6 +288,16 @@ if($conn = conn())
             $f = "get_npc";
         }
         $sql = "SELECT $f(?)";
+        $stmt = $conn->prepare($sql);
+        $worked = $stmt->execute(array($npc));
+        $result = format_response($worked, $stmt);
+    }
+    
+    // Lodestone NPC
+    if(isset($_GET['lnpc']) && !empty($_GET['lnpc']))
+    {
+        $npc = $_GET['lnpc'];
+        $sql = "SELECT get_mobile(?)";
         $stmt = $conn->prepare($sql);
         $worked = $stmt->execute(array($npc));
         $result = format_response($worked, $stmt);
