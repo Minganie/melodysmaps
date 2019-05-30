@@ -1,4 +1,6 @@
-#item-tooltip, #leve-tooltip {
+#item-tooltip, 
+#leve-tooltip,
+#quest-tooltip {
     position: absolute;
     top: 0;
     left: 0;

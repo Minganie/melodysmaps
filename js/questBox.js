@@ -29,6 +29,6 @@ $.widget("melsmaps.questBox", $.melsmaps.lightbox, {
         this.show();
     },
     _reset: function() {
-        this.container.find('div').remove();
+        this.container.find('.melsmaps-quest-tooltip-container').remove();
     }
 });

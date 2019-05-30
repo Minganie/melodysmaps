@@ -13,9 +13,10 @@
     margin: 0;
 }
 
-.melsmaps-lightbox-container.melsmaps-leve-tooltip-container {
+#leve .melsmaps-lightbox-container.melsmaps-leve-tooltip-container {
     width: auto;
     height: auto;
+    overflow: auto;
 }
 
 .melsmaps-lightbox-container.melsmaps-leve-tooltip-container .melsmaps-lightbox-close {
@@ -38,7 +39,7 @@
 
 #leve .melsmaps-leve-tooltip-container {
     max-height: 98%;
-    overflow: auto;
+    overflow: hidden;
 }
 
 .melsmaps-levemete tr:nth-child(2n+1) {

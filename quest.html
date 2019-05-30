@@ -57,6 +57,7 @@
     <script src="js/Selectable.NPC.js"></script>
     <script src="js/Selectable.Levemete.js"></script>
     <script src="js/Selectable.Leve.js"></script>
+    <script src="js/Selectable.Quest.js"></script>
     <script src="js/Selectable.Recipe.js"></script>
     
     <!-- api -->
@@ -85,132 +86,88 @@
     <link rel="stylesheet" href="css/tooltip.leve.css" />
   </head>
   <body>
-    <div id="quest">
-        <div class="melsmaps-quest-container">
-            <div class="melsmaps-quest-tooltip-container">
-                <img class="banner" src="https://img.finalfantasyxiv.com/lds/pc/global/images/itemicon/c8/c8805db22af120c3119ad66c9b57674751c84673.png?4.58" alt="" width=376 height=120 />
-                <div class="questInfo">
-                    <img src="http://localhost/melodysmaps/icons/quests/msq.png" alt="" width=32 height=32 />
-                    <div>
-                        <h1>The First and the Foremost</h1>
-                        <p><span>Lv. 50</span><span>Heavensward</span></p>
-                    </div>
-                </div>
-                <div class="questBlock data">
-                    <h2>Quest Giver</h2>
-                    <h3 class="llink">Mother Miounne</h3>
-                    <p>New Gridania X: 11.7 Y: 13.5</p>
-                </div>
-                <div class="questBlock requirements">
-                    <h2>Requirements</h2>
-                    <h3>Starting Class</h3>
-                    <p>Lancer</p>
-                    <h3>Class/Job</h3>
-                    <p>All classes and job (excluding limited jobs) Lv. 1</p>
-                    <h3>Grand Company</h3>
-                    <p>Not specified</p>
-                    <h3>Quest/Duty</h3>
-                    <p>Not specified</p>
-                    <h4>Reward</h4>
-                    <div class="imgAndTwoPs halfBlock">
-                        <img src="http://localhost/melodysmaps/icons/xp.png" alt="" width=32 height=32/>
-                        <div>
-                            <p>Experience</p>
-                            <p>100</p>
-                        </div>
-                    </div>
-                    <div class="imgAndTwoPs halfBlock">
-                        <img src="http://localhost/melodysmaps/icons/gil.png" alt="" width=32 height=32/>
-                        <div>
-                            <p>Gil</p>
-                            <p>107</p>
-                        </div>
-                    </div>
-                    <div class="imgAndTwoPs halfBlock">
-                        <img src="http://localhost/melodysmaps/icons/venture.png" alt="" width=32 height=32/>
-                        <div>
-                            <p>Venture</p>
-                            <p>1</p>
-                        </div>
-                    </div>
-                    <div class="imgAndTwoPs halfBlock">
-                        <img src="http://localhost/melodysmaps/icons/allagantomestoneofpoetics.png" alt="" width=32 height=32/>
-                        <div>
-                            <p>Allagan Tomestone of Poetics</p>
-                            <p>5</p>
-                        </div>
-                    </div>
-                    <div class="imgAndTwoPs halfBlock">
-                        <img src="http://localhost/melodysmaps/icons/beast_tribes/amaljaa.png" alt="" width=32 height=32/>
-                        <div>
-                            <p>Amalj'aa Relations</p>
-                            <p>10</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="questBlock rewards">
-                    <h2>Completion Rewards</h2>
-                    <div class="imgAndTwoPs">
-                        <img src="https://img.finalfantasyxiv.com/lds/pc/global/images/itemicon/2c/2c245b33ae56b18e48b140b11304dd71508eacff.png?4.58" alt="" width=48 height=48/>
-                        <div>
-                            <p class="llink">Tomato Pie</p>
-                            <p>3</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="questBlock rewards">
-                    <h2>Optional Rewards</h2>
-                    <div class="imgAndTwoPs">
-                        <img src="https://img.finalfantasyxiv.com/lds/pc/global/images/itemicon/2c/2c245b33ae56b18e48b140b11304dd71508eacff.png?4.58" alt="" width=48 height=48/>
-                        <div>
-                            <p class="llink">Pill Bug</p>
-                            <p>99</p>
-                        </div>
-                    </div>
-                    <div class="imgAndTwoPs">
-                        <img src="https://img.finalfantasyxiv.com/lds/pc/global/images/itemicon/2c/2c245b33ae56b18e48b140b11304dd71508eacff.png?4.58" alt="" width=48 height=48/>
-                        <div>
-                            <p class="llink">Crayfish Ball</p>
-                            <p>99</p>
-                        </div>
-                    </div>
-                    <div class="imgAndTwoPs">
-                        <img src="https://img.finalfantasyxiv.com/lds/pc/global/images/itemicon/2c/2c245b33ae56b18e48b140b11304dd71508eacff.png?4.58" alt="" width=48 height=48/>
-                        <div>
-                            <p class="llink">Butterworm</p>
-                            <p>99</p>
-                        </div>
-                    </div>
-                    <div class="imgAndTwoPs">
-                        <img src="https://img.finalfantasyxiv.com/lds/pc/global/images/itemicon/2c/2c245b33ae56b18e48b140b11304dd71508eacff.png?4.58" alt="" width=48 height=48/>
-                        <div>
-                            <p class="llink">Crow Fly</p>
-                            <p>99</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div id="map">
+        <ul></ul>
     </div>
+    <div id="quest-tooltip"></div>
     <script>
     $(document).ready(function() {
-        $.ajax({
-            url: "http://localhost/melodysmaps/api/quests/d3f5b5de83a",
-            dataType: "json"
-        }).done(function(quest) {
-            console.log(quest);
+        var lids = ["47a3d1929c9", "3fe58aa572c", "af751f7539f", "2500840e7fd", "683a550da32", "57a8adf321a", "0c46fc87e4a"];
+        for(var i in lids) {
+            var lid = lids[i];
+            var li = $('<li></li>')
+                .attr('data-melsmaps-quest-lid', lid)
+                .addClass('melsmaps-is-a-quest-tooltip')
+                .html(lid);
+            $('#map>ul').append(li);
+        }
+        
+        // TOOLTIP HANDLERS
+        function setTooltipText(evt, id) {
+            // console.log(evt);
+            var tt = evt.currentTarget.attributes['data-melsmaps-tooltip'].nodeValue;
+            // console.log(tt);
+            $(id).html(tt);
+        }
+
+        function moveTooltip(evt, id) {
+            var pos = getPos(evt, id);
+            var trans = "translate(" + pos.x + "px, " + pos.y + "px)";
+            $(id)
+                .css("transform", trans)
+                .css("display", "block");
+        }
+
+        function getPos(evt, id) {
+            function isMouseInX(x, left, right) {
+                return left < x && x < right;
+            }
+            function isMouseInY(y, top, bottom) {
+                return top < y && y < bottom;
+            }
+            var x = evt.originalEvent.clientX;
+            var y = evt.originalEvent.clientY;
+            var maxx = $(document).width();
+            var maxy = $(document).height();
+            var twidth = $(id).width();
+            var theight = $(id).height();
+            
+            // Is the tooltip going to overflow the window? push right and down
+            var truex = Math.min(x, maxx - twidth);
+            var truey = Math.min(y, maxy - theight);
+            
+            var left = false;
+            var above = false;
+            
+            if(isMouseInX(x, truex, truex+twidth)) {
+                // console.log("Moving the tooltip to the left of the cursor");
+                truex = Math.max(0, x-twidth-10);
+                left = true;
+            }
+            if(isMouseInY(y, truey, truey+theight)) {
+                // console.log("Moving the tooltip to above the cursor");
+                truey = Math.max(0, y-theight-10);
+                above = true;
+            }
+            // console.log("Final position: (" + truex + ", " + truey + ")");
+            return {
+                x: truex + (left ? -10 : 10),
+                y: truey + (above ? -10 : 10)
+            }
+        }
+        $('#map').on('mouseenter', '.melsmaps-is-a-quest-tooltip', function(evt) {
+            var lid = evt.currentTarget.attributes['data-melsmaps-quest-lid'].nodeValue;
+            api("quests", lid).then(function(quest) {
+                <!-- console.log("got a quest"); -->
+                var tt = Selectable.getQuestTooltip(quest);
+                <!-- console.log(tt); -->
+                $('#quest-tooltip').html(tt);
+                moveTooltip(evt, '#quest-tooltip');
+            });
         });
-        $.ajax({
-            url: "http://localhost/melodysmaps/api/quests/b08d7bf6a75",
-            dataType: "json"
-        }).done(function(quest) {
-            console.log(quest);
-        });
-        $.ajax({
-            url: "http://localhost/melodysmaps/api/quests/05653b4d0b2",
-            dataType: "json"
-        }).done(function(quest) {
-            console.log(quest);
+        $('#map').on('mouseleave', '.melsmaps-is-a-quest-tooltip', function(evt) {
+            $('#quest-tooltip')
+                .css("display", "none");
         });
     });
     </script>

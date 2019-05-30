@@ -117,6 +117,7 @@ Selectable.Quest.Tooltip.Quest.prototype = {
               .html(this.quest.quest_giver.zone.name + ' X: ' + this.quest.quest_giver.x + ' Y: ' + this.quest.quest_giver.y)
               .appendTo(div);
         } else {
+            div.addClass("melsmaps-quest-seasonal");
             $('<p class="melsmaps-quest-seasonal"></p>')
             .html("This quest cannot be accepted. The associated seasonal event has ended.")
             .appendTo(div);
@@ -238,13 +239,19 @@ Selectable.Quest.Tooltip.Quest.prototype = {
         }
         return div;
     },
+    _needABlock: function(completion, rewards, others) {
+        if(completion)
+            return (rewards && rewards.length > 0) || (others && others.length > 0);
+        else
+            return rewards && rewards.length > 0;
+    },
     _getRewards: function(completion) {
         var div = $('<div></div>');
         if((this.quest.rewards && this.quest.rewards.length > 0) || (this.quest.other && this.quest.other.length > 0)) {
             var theseRewards = this.quest.rewards.filter(function(rew) {
                 return completion !== rew.optional;
             });
-            if((theseRewards && theseRewards.length > 0)|| (this.quest.other && this.quest.other.length > 0)) {
+            if(this._needABlock(completion, theseRewards, this.quest.other)) {
                 div.addClass("questBlock").addClass("rewards");
                 var title = (completion ? 'Completion' : 'Optional');
                 div.append($('<h2>' + title + ' Rewards</h2>'));
@@ -254,21 +261,24 @@ Selectable.Quest.Tooltip.Quest.prototype = {
                     restr += rew.gender ? rew.gender : ''
                     div.append(this._makeItemImgAndText(rew.item, rew.n, restr));
                 }
-                for(var i in this.quest.other) {
-                    rew = this.quest.other[i];
-                    div.append(this._makeImgAndText(rew.icon, rew.other, false, null, null));
+                if(completion) {
+                    for(var i in this.quest.other) {
+                        rew = this.quest.other[i];
+                        div.append(this._makeImgAndText(rew.icon, rew.other, false, null, null));
+                    }
                 }
             }
         }
         return div;
     },
     getTooltip: function() {
-		var html = $('<div></div>');
-        this._addTop(html);
-        html.append(this._getDataBlock());
-        html.append(this._getRequirementBlock());
-        html.append(this._getRewards(true));
-        html.append(this._getRewards(false));
+		var html = $('<div class="melsmaps-quest-tooltip-container"></div>');
+        var wrapper = $('<div class="melsmaps-quest-tooltip-wrapper"></div>').appendTo(html);
+        this._addTop(wrapper);
+        wrapper.append(this._getDataBlock());
+        wrapper.append(this._getRequirementBlock());
+        wrapper.append(this._getRewards(true));
+        wrapper.append(this._getRewards(false));
 		return html;
 	}
 }

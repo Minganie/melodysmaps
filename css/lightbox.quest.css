@@ -1,19 +1,9 @@
-#quest {
-    height: 100%;
+.melsmaps-quest-tooltip-container {
+    background-color: #1c1c1c;
+    padding: 1px;
 }
-.melsmaps-quest-container {
-    display: flex;
-    height: 100%;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-}
-
-#quest .melsmaps-quest-tooltip-container {
-    max-height: 98%;
-    height: auto;
-    overflow: auto;
-    width: 480px;
+.melsmaps-quest-tooltip-wrapper {
+    width: 482px;
 	background-color: #1c1c1c;
 	color: #d7d7d7;
 	border: 3px solid #9d8355;
@@ -21,36 +11,63 @@
 	padding: 1em;
     margin: 0 19px 0 0;
 }
-#quest img.banner {
+
+.melsmaps-lightbox-container .melsmaps-quest-tooltip-wrapper {
+    border: none;
+    margin: 0;
+}
+
+#quest .melsmaps-lightbox-container.melsmaps-quest-tooltip-container {
+    width: auto;
+    height: auto;
+    overflow: auto;
+}
+
+.melsmaps-lightbox-container.melsmaps-quest-tooltip-container .melsmaps-lightbox-close {
+    margin: 1em 1em 1em -1em;
+}
+
+#quest-tooltip .melsmaps-quest-tooltip-container {
+    max-height: 98vh;
+    overflow: hidden;
+    max-width: 50vw;
+}
+
+#quest .melsmaps-quest-tooltip-container {
+    max-height: 98%;
+    overflow: hidden;
+}
+
+.melsmaps-quest-tooltip-container img.banner {
   width: 376px;
   height: 120px;
   display: block;
   margin: 0 auto 0.5em auto;
   box-shadow: 0 0 4px 4px #1c1c1c;
 }
-#quest div.questInfo img {
+div.questInfo img {
 }
-#quest div.questInfo > div {
+div.questInfo > div {
   display: inline-block;
   margin: 0 0 2em 5px;
 }
-#quest div.questInfo h1 {
+div.questInfo h1 {
   font-size: 16px;
     font-weight: normal;
     line-height: 1.2;
     margin: 0;
     padding: 0;
 }
-#quest div.questInfo p {
+div.questInfo p {
   font-size: 12px;
   margin: 2px 0 0 0;
   padding: 0;
   vertical-align: baseline;
 }
-#quest div.questInfo p > span:first-child {
+div.questInfo p > span:first-child {
     margin: 0 1em 0 0;
 }
-#quest div.questInfo p > span:nth-child(2) {
+div.questInfo p > span:nth-child(2) {
     color: gray;
 }
 div.questBlock * {
@@ -58,12 +75,12 @@ div.questBlock * {
     padding: 0;
     font-size: 12px;
 }
-#quest div.questBlock {
+div.questBlock {
   background-color: #333333;
   border: solid 1px #3c3c3c;
   margin: 0 0 1em 0;
 }
-#quest div.questBlock h2 {
+div.questBlock h2 {
   background-color: #1f1f1f;
   color: #bfa34c;
   border: solid 1px #3c3c3c;
@@ -76,6 +93,9 @@ div.questBlock * {
     font-weight: bold;
     color: #73bfe6;
     line-height: 15px;
+}
+div.melsmaps-quest-seasonal {
+    border: 0;
 }
 p.melsmaps-quest-seasonal {
   background-color: #4d3d1f;

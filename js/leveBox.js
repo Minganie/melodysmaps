@@ -4,17 +4,19 @@ $.widget("melsmaps.leveBox", $.melsmaps.lightbox, {
         this.container.addClass('melsmaps-leve-tooltip-container');
         this.container.on('click', '.melsmaps-npc-link', $.proxy(function(evt) {
             var npc = $(evt.target).attr('data-melsmaps-npc-name');
+            var that = this;
             api("npcs", npc).then(function(full) {
                 var npc = Selectable.getFull(full);
-                this.hide();
+                that.hide();
                 npc.onSelect();
             });
         }, this));
         this.container.on('click', '.melsmaps-levemete-link', $.proxy(function(evt) {
             var levemete = $(evt.target).attr('data-melsmaps-levemete');
+            var that = this;
             api("levemetes", levemete).then(function(full) {
                 var npc = Selectable.getFull(full);
-                this.hide();
+                that.hide();
                 npc.onSelect();
             });
         }, this));
