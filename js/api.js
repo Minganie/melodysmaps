@@ -1,6 +1,6 @@
 api = function(type, id) {
     var url = 'api/' + type + '/' + (id ? id : '');
-    // console.log("API request to '" + url + "'");
+    console.log("API request to '" + url + "'");
     // var start = new Date();
     return $.ajax({
         url: url,

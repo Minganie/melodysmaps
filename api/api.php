@@ -281,8 +281,7 @@ if($conn = conn())
         // different functions in DB (because Leve deliveries <>
         // general NPC search)
         $npc = $_GET['npc'];
-        if(ctype_digit($npc)) {
-            $npc = ctype_digit($npc);
+        if(is_numeric($npc)) {
             $f = "get_npc_from_id";
         } else {
             $f = "get_npc";

@@ -8,35 +8,6 @@ Selectable.Quest.prototype = $.extend({}, Selectable.prototype, {
     onSelect: function() {
         $('#quest').questBox('instance').setQuest(this);
     }
-    // getIcon: function(lev) {
-        // return $()
-        // var extra = null;
-        // var part;
-        // if(lev.gc && lev.gc != '') {
-            // switch(this._resolved.gc) {
-                // case 'Maelstrom':
-                    // part = 'maelstrom';
-                    // break;
-                // case 'Order of the Twin Adder':
-                    // part = 'adder';
-                    // break;
-                // case 'Immortal Flames':
-                    // part = 'flames';
-                    // break;
-            // }
-            // extra = $('<img src="http://melodysmaps.com/icons/leves/' + part + '.png" alt="Grand company icon" width=28 height=36 />');
-        // }
-        // if(lev.type == 'Battlecraft' || lev.job == 'Disciple of War or Magic')
-            // part = 'battlecraft';
-        // else if(lev.type == 'Tradecraft' || lev.type == 'Fieldcraft')
-            // part = lev.job.toLowerCase();
-        
-        // var def_img = $('<img src="http://melodysmaps.com/icons/leves/' + part + '.png" alt="' + lev.job + ' leve icon" title="' + lev.job + ' leve" width=24 height=30 />');
-        // var span = $('<span></span>')
-            // .append(extra)
-            // .append(def_img);
-        // return span;
-    // }
 });
 Selectable.Quest.Source = {
     getLine: function(quest) {
