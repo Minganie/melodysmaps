@@ -36,6 +36,7 @@ Selectable = {
             case 'Quarrying':
                 return Selectable.Gathering.Source.getLine(source);
             case 'Fishing':
+            case 'Spearfishing':
                 return Selectable.Fishing.Source.getLine(source, item);
             case 'Merchant':
                 return Selectable.Merchant.Source.getLine(source, item);
@@ -74,6 +75,7 @@ Selectable = {
             case 'Quarrying':
                 return new Selectable.Gathering(searchable);
             case 'Fishing':
+            case 'Spearfishing':
                 return new Selectable.Fishing(searchable);
             case 'Monster':
                 return new Selectable.Mob(searchable);
@@ -110,47 +112,48 @@ Selectable = {
             sort_order: 0
         };
         switch(full.category.getName()) {
-          case 'Trial':
-            t = new Selectable.Trial(null);
-            break;
-          case 'Dungeon':
-          case 'Raid':
-            t = new Selectable.MappedDuty(null);
-            break;
-          case 'Item':
-              t = new Selectable.Item(null);
-              t._info = $.when(full);
-              t._sources = api.item.sources(full.lid);
-              break;
-          case 'NPC':
-              t = new Selectable.NPC(null);
-              break;
-          case 'Leve':
-              t = new Selectable.Leve(null);
-              break;
-          case 'Levemete':
-              t = new Selectable.Levemete(null);
-              break;
-          case 'Logging':
-          case 'Harvesting':
-          case 'Mining':
-          case 'Quarrying':
-              t = new Selectable.Gathering(null);
-              break;
-          case 'Fishing':
-              t = new Selectable.Fishing(null);
-              break;
-          case 'Spawn':
-              t = new Selectable.Spawn(null);
-              break;
-          case 'Merchant':
-              t = new Selectable.Merchant(null);
-              break;
-          case 'Quest':
-              t = new Selectable.Quest(null);
-              break;
-          default:
-              console.error("Can't find which kind of full select-able category '" + searchable.category.getName() + "' is.");
+            case 'Trial':
+                t = new Selectable.Trial(null);
+                break;
+            case 'Dungeon':
+            case 'Raid':
+                t = new Selectable.MappedDuty(null);
+                break;
+            case 'Item':
+                t = new Selectable.Item(null);
+                t._info = $.when(full);
+                t._sources = api.item.sources(full.lid);
+                break;
+            case 'NPC':
+                t = new Selectable.NPC(null);
+                break;
+            case 'Leve':
+                t = new Selectable.Leve(null);
+                break;
+            case 'Levemete':
+                t = new Selectable.Levemete(null);
+                break;
+            case 'Logging':
+            case 'Harvesting':
+            case 'Mining':
+            case 'Quarrying':
+                t = new Selectable.Gathering(null);
+                break;
+            case 'Fishing':
+            case 'Spearfishing':
+                t = new Selectable.Fishing(null);
+                break;
+            case 'Spawn':
+                t = new Selectable.Spawn(null);
+                break;
+            case 'Merchant':
+                t = new Selectable.Merchant(null);
+                break;
+            case 'Quest':
+                t = new Selectable.Quest(null);
+                break;
+            default:
+                console.error("Can't find which kind of full select-able category '" + searchable.category.getName() + "' is.");
         }
         t._searchable = searchable;
         t._full = $.when(full);
