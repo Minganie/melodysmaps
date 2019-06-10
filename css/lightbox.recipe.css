@@ -1,0 +1,117 @@
+.melsmaps-recipe-tooltip-container {
+    background-color: #1c1c1c;
+    padding: 1px;
+}
+.melsmaps-recipe-tooltip-wrapper {
+    width: 482px;
+	background-color: #1c1c1c;
+	color: #d7d7d7;
+	border: 3px solid #9d8355;
+	border-radius: 5px;
+	padding: 1em;
+    margin: 0 19px 0 0;
+}
+
+.melsmaps-lightbox-container .melsmaps-recipe-tooltip-wrapper {
+    border: none;
+    margin: 0;
+}
+
+#recipe .melsmaps-lightbox-container.melsmaps-recipe-tooltip-container {
+    width: auto;
+    height: auto;
+    overflow: auto;
+}
+
+.melsmaps-lightbox-container.melsmaps-recipe-tooltip-container .melsmaps-lightbox-close {
+    margin: 1em 1em 1em -1em;
+}
+
+#recipe-tooltip .melsmaps-recipe-tooltip-container {
+    max-height: 98vh;
+    overflow: hidden;
+    max-width: 50vw;
+}
+
+#recipe .melsmaps-recipe-tooltip-container {
+    max-height: 98%;
+    overflow: hidden;
+}
+
+.melsmaps-recipe-top {
+    display: flex;
+    padding: 1em;
+    font-size: 12px;
+}
+.melsmaps-recipe-top > img {
+    flex: 0 0 128px;
+    margin-right: 1em;
+}
+.melsmaps-recipe-top > div {
+    flex: 3 0 50%;
+}
+.melsmaps-recipe-top > p {
+    flex: 1 0 25%;
+}
+.melsmaps-recipe-top > p > span {
+    border: 1px solid grey;
+    padding: 3px;
+}
+p.melsmaps-recipe-name {
+    font-weight: bold;
+    font-size: 14px;
+}
+.melsmaps-recipe-block {
+    background-color: #333333;
+    border: solid 1px #3c3c3c;
+    margin: 0 0 1em 0;
+}
+div.melsmaps-recipe-block * {
+    margin: 0.5em;
+    padding: 0;
+    font-size: 12px;
+}
+div.melsmaps-recipe-block h2 {
+  background-color: #1f1f1f;
+  color: #bfa34c;
+  border: solid 1px #3c3c3c;
+  font-size: 12px;
+  font-weight: bold;
+  margin: 0;
+  padding: 0.5em;
+}
+#recipe .imgAndText, 
+#recipe-tooltip .imgAndText {
+    display: flex;
+    align-items: center;
+}
+#recipe .imgAndText > img, 
+#recipe-tooltip .imgAndText > img {
+    flex: 0 0 32px;
+}
+#recipe .imgAndText > span:nth-child(2), 
+#recipe-tooltip .imgAndText > span:nth-child(2) {
+    flex: 0 0 0;
+}
+#recipe .imgAndText > span:nth-child(3), 
+#recipe-tooltip .imgAndText > span:nth-child(3) {
+    flex: 1 1 50%;
+}
+#recipe table,
+#recipe-tooltip table {
+    width: 100%;
+}
+#recipe table td,
+#recipe-tooltip table td {
+    width: 50%;
+    color: #bbac94;
+}
+#recipe table td > span,
+#recipe-tooltip table td > span {
+    width: 50%;
+    color: white;
+}
+#recipe h3,
+#recipe-tooltip h3 {
+    color: #bbac94;
+}

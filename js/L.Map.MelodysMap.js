@@ -157,6 +157,16 @@ L.Map.MelodysMap = L.Map.extend({
                 $('#leve-tooltip')
                     .css("display", "none");
             });
+            
+            // Recipe tooltip handler
+            $('#item').on('mouseenter', '.melsmaps-recipe-tooltip', function(evt) {
+                setTooltipText(evt, '#recipe-tooltip');
+                moveTooltip(evt, '#recipe-tooltip');
+            });
+            $('#item').on('mouseleave', '.melsmaps-recipe-tooltip', function(evt) {
+                $('#recipe-tooltip')
+                    .css("display", "none");
+            });
         }, this);
     },
     

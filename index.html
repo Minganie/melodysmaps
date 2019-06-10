@@ -77,12 +77,14 @@
     <link rel="stylesheet" href="css/lightbox.vista.css" />
     <link rel="stylesheet" href="css/lightbox.leve.css" />
     <link rel="stylesheet" href="css/lightbox.quest.css" />
+    <link rel="stylesheet" href="css/lightbox.recipe.css" />
     <script src="js/lightbox.js"></script>
     <script src="js/itemBox.js"></script>
     <script src="js/dutyBox.js"></script>
     <script src="js/vistaBox.js"></script>
     <script src="js/leveBox.js"></script>
     <script src="js/questBox.js"></script>
+    <script src="js/recipeBox.js"></script>
     
     <!-- Tooltips -->
     <link rel="stylesheet" href="css/tooltip.item.css" />
@@ -95,9 +97,11 @@
     <div id="vista"></div>
     <div id="leve"></div>
     <div id="quest"></div>
+    <div id="recipe"></div>
     <div id="map"></div>
     <div id="item-tooltip"></div>
     <div id="leve-tooltip"></div>
+    <div id="recipe-tooltip"></div>
     <script>
     $(document).ready(function() {
         $('#search').search();
@@ -106,6 +110,7 @@
         $('#vista').vistaBox();
         $('#leve').leveBox();
         $('#quest').questBox();
+        $('#recipe').recipeBox();
     
         // Global 'cause select-able things need to put themselves on the map
         melsmap = L.melodysMap('map', {
