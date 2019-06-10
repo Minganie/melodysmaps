@@ -20,7 +20,6 @@ Selectable.Recipe.Source = {
             .append(img)
             .attr('data-melsmaps-tooltip', tt[0].outerHTML)
             .append($('<span>' + recipe.name + ' (' + recipe.discipline + ')</span>'));
-            console.log(li);
         return li;
     }
 };
