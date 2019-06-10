@@ -1,6 +1,7 @@
 #item-tooltip, 
 #leve-tooltip,
-#quest-tooltip {
+#quest-tooltip,
+#recipe-tooltip {
     position: absolute;
     top: 0;
     left: 0;

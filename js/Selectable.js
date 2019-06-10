@@ -20,6 +20,9 @@ Selectable = {
     getQuestTooltip: function(tooltippable) {
         return Selectable.Quest.Tooltip.get(tooltippable).getTooltip();
     },
+    getRecipeTooltip: function(tooltippable) {
+        return Selectable.Recipe.Tooltip.get(tooltippable).getTooltip();
+    },
     getNPCLink: function(npc) {
         return $('<a></a>')
             .addClass('melsmaps-npc-link')
@@ -93,6 +96,8 @@ Selectable = {
                 return new Selectable.Leve(searchable);
             case 'Quest':
                 return new Selectable.Quest(searchable);
+            case 'Recipe':
+                return new Selectable.Recipe(searchable);
             default:
                 console.error("Can't find which kind of select-able category '" + searchable.category.getName() + "' is.");
         }
