@@ -34,9 +34,26 @@ CREATE TABLE rarity (
 );
 GRANT SELECT ON TABLE ffxiv.rarity TO ffxivro;
 GRANT INSERT, UPDATE, DELETE ON TABLE ffxiv.rarity TO ffxivro;
-INSERT INTO rarity (name) VALUES ('Common'), ('Uncommon'), ('Rare'), ('Epic');
+INSERT INTO rarity (name) VALUES ('Common'), ('Uncommon'), ('Rare'), ('Epic'), ('Magic');
 
 ALTER TABLE items DROP COLUMN category;
 ALTER TABLE items ADD COLUMN rarity text REFERENCES rarity(name);
+ALTER TABLE items ADD COLUMN disc text REFERENCES discipline_groups(name);
+DROP TABLE item_discipline;
 DROP TRIGGER IF EXISTS add_item_lid ON ffxiv.items;
 DROP TRIGGER IF EXISTS replace_item_lid ON ffxiv.items;
+
+-- RUN MOLESTONE HERE
+
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA PLD', 'Gladiator');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA PLD', 'Paladin');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
