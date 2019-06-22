@@ -2,7 +2,6 @@
 -- pg_restore.exe -U postgres -d postgres --create C:\xampp\htdocs\melodysmaps\ffxivall20190524.backup
 ALTER DATABASE ffxiv SET search_path TO ffxiv, public;
 
-DROP VIEW vbaits;
 CREATE OR REPLACE VIEW ffxiv.vbaits AS
  SELECT items.lcat3 as category,
     items.lid,
@@ -43,17 +42,145 @@ DROP TABLE item_discipline;
 DROP TRIGGER IF EXISTS add_item_lid ON ffxiv.items;
 DROP TRIGGER IF EXISTS replace_item_lid ON ffxiv.items;
 
+drop function if exists get_item_disciplines(text);
+CREATE OR REPLACE FUNCTION ffxiv.get_item(
+	itemlid text)
+    RETURNS json
+    LANGUAGE 'sql'
+AS $BODY$
+  SELECT json_build_object(
+ 'lid', i.lid,
+    'licon', i.licon,
+    'name', i.name,
+    'category', get_category('Item'),
+    'bonuses', get_item_bonuses(lid),
+    'disciplines', disc,
+    'effects', get_item_effects(lid),
+    'interests', get_item_interests(lid),
+    'level', i.level,
+    'g_rarity', i.g_rarity,
+    'lcat2', i.lcat2,
+    'lcat3', i.lcat3,
+    'required_level', i.required_level,
+    'is_unique', i.is_unique,
+    'untradable', i.untradable,
+    'advanced_melding', i.advanced_melding,
+    'unsellable', i.unsellable,
+    'market_prohibited', i.market_prohibited,
+    'sell_price', i.sell_price,
+    'note', i.note,
+    'recast', i.recast,
+    'damage', i.damage,
+    'auto_attack', i.auto_attack,
+    'delay', i.delay,
+    'block_strength', i.block_strength,
+    'block_rate', i.block_rate,
+    'defense', i.defense,
+    'magic_defense', i.magic_defense,
+    'materia_slots', i.materia_slots,
+    'repair_class', i.repair_class,
+    'repair_level', i.repair_level,
+    'repair_material', i.repair_material,
+    'melding_class', i.melding_class,
+    'melding_level', i.melding_level,
+    'convertible', i.convertible,
+    'desynth_class', i.desynth_class,
+    'desynthesizable', i.desynthesizable,
+    'dyeable', i.dyeable,
+    'projectable', i.projectable,
+    'crest_worthy', i.crest_worthy,
+    'meld_ilvl', i.meld_ilvl,
+    'fish_conditions', get_fish_conditions(i.lid)
+  )
+   FROM items i
+   WHERE lid = $1
+$BODY$;
+
+
 -- RUN MOLESTONE HERE
 
 INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA PLD', 'Gladiator');
 INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA PLD', 'Paladin');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
-INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ARC BRD', 'Archer');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ARC BRD', 'Bard');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('MRD WAR', 'Marauder');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('MRD WAR', 'Warrior');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('CNJ WHM', 'Conjurer');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('CNJ WHM', 'White Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ROG NIN', 'Rogue');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ROG NIN', 'Ninja');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ACN SMN SCH', 'Arcanist');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ACN SMN SCH', 'Summoner');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ACN SMN SCH', 'Scholar');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ACN SMN', 'Arcanist');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ACN SMN', 'Summoner');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL MNK', 'Pugilist');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL MNK', 'Monk');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('LNC DRG', 'Lancer');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('LNC DRG', 'Dragoon');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('BLU', 'Blue Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('THM BLM', 'Thaumaturge');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('THM BLM', 'Black Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('THM ACN BLM SMN RDM BLU', 'Thaumaturge');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('THM ACN BLM SMN RDM BLU', 'Black Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('THM ACN BLM SMN RDM BLU', 'Arcanist');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('THM ACN BLM SMN RDM BLU', 'Summoner');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('THM ACN BLM SMN RDM BLU', 'Red Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('THM ACN BLM SMN RDM BLU', 'Blue Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL MNK SAM', 'Pugilist');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL MNK SAM', 'Monk');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL MNK SAM', 'Samurai');
+INSERT INTO discipline_group_lists (disc_group, disc) 
+select 'Disciple of Magic', name from dom;
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ARC ROG BRD NIN MCH', 'Archer');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ARC ROG BRD NIN MCH', 'Rogue');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ARC ROG BRD NIN MCH', 'Bard');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ARC ROG BRD NIN MCH', 'Ninja');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ARC ROG BRD NIN MCH', 'Machinist');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL ROG MNK NIN SAM', 'Pugilist');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL ROG MNK NIN SAM', 'Rogue');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL ROG MNK NIN SAM', 'Monk');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL ROG MNK NIN SAM', 'Ninja');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL ROG MNK NIN SAM', 'Samurai');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('CNJ WHM SCH AST', 'Conjurer');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('CNJ WHM SCH AST', 'White Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('CNJ WHM SCH AST', 'Scholar');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('CNJ WHM SCH AST', 'Astrologian');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA THM PLD BLM', 'Gladiator');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA THM PLD BLM', 'Thaumaturge');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA THM PLD BLM', 'Paladin');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA THM PLD BLM', 'Black Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA MRD LNC PLD WAR DRG DRK', 'Gladiator');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA MRD LNC PLD WAR DRG DRK', 'Marauder');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA MRD LNC PLD WAR DRG DRK', 'Lancer');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA MRD LNC PLD WAR DRG DRK', 'Paladin');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA MRD LNC PLD WAR DRG DRK', 'Warrior');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA MRD LNC PLD WAR DRG DRK', 'Dragoon');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA MRD LNC PLD WAR DRG DRK', 'Dark Knight');
+INSERT INTO discipline_group_lists (disc_group, disc) 
+select 'Disciple of War', name from dow;
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL LNC MNK DRG SAM', 'Pugilist');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL LNC MNK DRG SAM', 'Lancer');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL LNC MNK DRG SAM', 'Monk');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL LNC MNK DRG SAM', 'Dragoon');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('PGL LNC MNK DRG SAM', 'Samurai');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ARC BRD MCH', 'Archer');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ARC BRD MCH', 'Bard');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('ARC BRD MCH', 'Machinist');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA MRD PLD WAR DRK', 'Gladiator');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA MRD PLD WAR DRK', 'Marauder');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA MRD PLD WAR DRK', 'Paladin');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA MRD PLD WAR DRK', 'Warrior');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA MRD PLD WAR DRK', 'Dark Knight');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA CNJ THM PLD WHM BLM', 'Gladiator');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA CNJ THM PLD WHM BLM', 'Conjurer');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA CNJ THM PLD WHM BLM', 'Thaumaturge');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA CNJ THM PLD WHM BLM', 'Paladin');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA CNJ THM PLD WHM BLM', 'White Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA CNJ THM PLD WHM BLM', 'Black Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA CNJ PLD WHM', 'Gladiator');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA CNJ PLD WHM', 'Conjurer');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA CNJ PLD WHM', 'Paladin');
+INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('GLA CNJ PLD WHM', 'White Mage');
+INSERT INTO discipline_group_lists (disc_group, disc) 
+select 'All Classes', name from disciplines;
