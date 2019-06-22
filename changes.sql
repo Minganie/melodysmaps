@@ -60,53 +60,61 @@ INSERT INTO discipline_group_lists (disc_group, disc) VALUES ('', '');
 
 
 --------- SHOPS
-DROP TABLE IF EXISTS merchant_currency_tabs;
+DROP TABLE IF EXISTS bought_where_payment;
+DROP TABLE IF EXISTS bought_where;
+DROP TABLE IF EXISTS merchant_prices_list;
+DROP TABLE IF EXISTS merchant_goods_list;
+DROP TABLE IF EXISTS merchant_sales;
 DROP TABLE IF EXISTS merchant_second_tabs;
 DROP TABLE IF EXISTS merchant_first_tabs;
+DROP TABLE IF EXISTS merchant_currency_tabs;
+DROP TABLE IF EXISTS merchant_goods;
+DROP TABLE IF EXISTS merchant_prices;
+DROP TYPE IF EXISTS merchant_sale_type;
+DROP TYPE IF EXISTS merchant_good_type;
+DROP TYPE IF EXISTS merchant_price_type;
+
+DROP TRIGGER add_merchant_lid ON ffxiv.merchants;
+DROP TRIGGER replace_merchant_lid ON ffxiv.merchants;
+
+CREATE TYPE merchant_sale_type AS ENUM ('Gil', 'Currency', 'Seals', 'Credits');
 CREATE TABLE merchant_first_tabs (
     merchant text references merchants(lid),
+    type merchant_sale_type not null,
     tab      text,
-    PRIMARY KEY (merchant, tab)
+    PRIMARY KEY (merchant, type, tab)
 );
 GRANT SELECT ON merchant_first_tabs TO ffxivro;
 GRANT INSERT, UPDATE, DELETE ON merchant_first_tabs TO ffxivrw;
 
 CREATE TABLE merchant_second_tabs (
     merchant text,
+    type merchant_sale_type not null,
     tab      text,
     subtab   text,
-    FOREIGN KEY (merchant, tab) REFERENCES merchant_first_tabs(merchant, tab),
-    PRIMARY KEY (merchant, tab, subtab)
+    FOREIGN KEY (merchant, type, tab) REFERENCES merchant_first_tabs(merchant, type, tab),
+    PRIMARY KEY (merchant, type, tab, subtab)
 );
 GRANT SELECT ON merchant_second_tabs TO ffxivro;
 GRANT INSERT, UPDATE, DELETE ON merchant_second_tabs TO ffxivrw;
 
 CREATE TYPE merchant_good_type AS ENUM ('Items', 'Venture', 'Action');
-CREATE TABLE merchant_good (
+CREATE TYPE merchant_price_type AS ENUM ('Gil', 'Items', 'Tokens and Items', 'Tokens', 'Seals', 'FCC');
+CREATE TABLE merchant_sales (
     id SERIAL PRIMARY KEY,
-    type merchant_good_type not null,
+    merchant text references merchants(lid),
+    type merchant_sale_type NOT NULL,
+    tab text,
+    subtab text,
+    -- GOOD
+    good_type merchant_good_type not null,
     venture int,
     actionName text,
     actionIcon text,
     actionEffect text,
-    actionDuration int
-);
-GRANT SELECT ON merchant_good TO ffxivro;
-GRANT INSERT, UPDATE, DELETE ON merchant_good TO ffxivrw;
-CREATE TABLE merchant_good_list (
-    merchant_good references merchant_good(id),
-    item text references items(lid),
-    hq boolean,
-    primary key(merchant_good, item, hq)
-);
-GRANT SELECT ON merchant_good_list TO ffxivro;
-GRANT INSERT, UPDATE, DELETE ON merchant_good_list TO ffxivrw;
-
-
-CREATE TYPE merchant_price_type AS ENUM ('Gil', 'Items', 'Tokens and Items', 'Tokens', 'Seals', 'FCC');
-CREATE TABLE merchant_price (
-    id serial primary key,
-    type merchant_price_type,
+    actionDuration int,
+    -- PRICE
+    price_type merchant_price_type not null,
     gil int,
     token_name text,
     token_n int,
@@ -114,32 +122,31 @@ CREATE TABLE merchant_price (
     rank text references grand_company_ranks(name),
     gc text references grand_companies(name),
     fcc_rank int,
-    fcc_credits int
-);
-GRANT SELECT ON merchant_price TO ffxivro;
-GRANT INSERT, UPDATE, DELETE ON merchant_price TO ffxivrw;
-
-CREATE TABLE merchant_price_list (
-    merchant_price references merchant_price(id),
-    item text references items(lid),
-    hq boolean,
-    primary key(merchant_price, item, hq)
-);
-GRANT SELECT ON merchant_price_list TO ffxivro;
-GRANT INSERT, UPDATE, DELETE ON merchant_price_list TO ffxivrw;
-
-CREATE TYPE merchant_sale_type AS ENUM ('Gil', 'Currency', 'Seals', 'Credits');
-CREATE TABLE merchant_sales (
-    id SERIAL PRIMARY KEY,
-    merchant text references merchant(lid),
-    type sale_type NOT NULL,
-    tab text,
-    subtab text,
-    merch int not null references merchant_good(id),
-    price int not null references merchant_price(id),
-    FOREIGN KEY (merchant, tab) REFERENCES merchant_first_tabs(merchant, tab),
-    FOREIGN KEY (merchant, tab, subtab) REFERENCES merchant_second_tabs (merchant, tab, subtab),
-    UNIQUE(merchant, merch, price)
+    fcc_credits int,
+    
+    FOREIGN KEY (merchant, type, tab) REFERENCES merchant_first_tabs(merchant, type, tab),
+    FOREIGN KEY (merchant, type, tab, subtab) REFERENCES merchant_second_tabs (merchant, type, tab, subtab)
 );
 GRANT SELECT ON merchant_sales TO ffxivro;
 GRANT INSERT, UPDATE, DELETE ON merchant_sales TO ffxivrw;
+GRANT USAGE ON merchant_sales_id_seq TO ffxivro;
+
+CREATE TABLE merchant_goods_list (
+    merchant_sale int REFERENCES merchant_sales(id) ON DELETE CASCADE,
+    item text references items(lid),
+    hq boolean,
+    n int not null,
+    primary key(merchant_sale, item, hq)
+);
+GRANT SELECT ON merchant_goods_list TO ffxivro;
+GRANT INSERT, UPDATE, DELETE ON merchant_goods_list TO ffxivrw;
+
+CREATE TABLE merchant_prices_list (
+    merchant_sale int REFERENCES merchant_sales(id) ON DELETE CASCADE,
+    item text references items(lid),
+    hq boolean,
+    n int not null,
+    primary key(merchant_sale, item, hq)
+);
+GRANT SELECT ON merchant_prices_list TO ffxivro;
+GRANT INSERT, UPDATE, DELETE ON merchant_prices_list TO ffxivrw;
