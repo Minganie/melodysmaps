@@ -93,3 +93,53 @@ CREATE TABLE merchant_prices_list (
 );
 GRANT SELECT ON merchant_prices_list TO ffxivro;
 GRANT INSERT, UPDATE, DELETE ON merchant_prices_list TO ffxivrw;
+
+-- get_all_tabs(merchantlid)
+-- {
+    -- gil: {zero: [sale, sale...]
+        -- one: [tab, tab...]
+        -- }
+    -- currency: []
+    -- seals:
+    -- credits:
+-- }
+-- tab= {
+    -- name: ""
+    -- sales: [sale, sale...]
+    -- subtabs: [tab, tab...]
+-- }
+-- sale= {
+    -- good: {item, venture, action}
+    -- price: {gil, item, token, itemtoken, fcc}
+-- }
+with 
+
+these_sales as (
+select merchant, tab, subtab, id
+from merchant_sales where merchant='a783601ac62' and type='Gil'::merchant_sale_type
+),
+
+zero as (
+select json_agg(id) as sales
+from these_sales
+where tab IS NULL AND subtab IS NULL),
+
+twot as (select merchant, tab, subtab, json_agg(id) as sales
+from merchant_sales 
+where merchant='a783601ac62' and type='Gil'::merchant_sale_type
+group by merchant, tab, subtab),
+onetwithtwot as (
+select tab, json_agg(row_to_json((select x from (select subtab as name, sales)x))) as subtabs
+from twot
+group by tab
+),
+alltwithtwot as (
+select json_agg(row_to_json((select x from (select tab as name, subtabs)x)))
+from onetwithtwot
+)
+select * from zero
+-- get currencies
+-- get currency
+-- get item merchants
+-- get_merchant
+-- get merchants
