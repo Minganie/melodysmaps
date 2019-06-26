@@ -1,8 +1,16 @@
 -- pg_dump -F c -f ffxiv20190624.backup ffxiv
--- pg_restore.exe -U postgres -d postgres --create D:\Programmes\xampp\htdocs\melodysmaps\ffxivall20190521.backup
+-- pg_restore.exe -U postgres -d postgres --clean --create D:\Programmes\xampp\htdocs\melodysmaps\ffxiv20190625.backup
 -- pg_restore.exe -U postgres -d postgres --clean --create C:\xampp\htdocs\melodysmaps\ffxiv20190624.backup
 ALTER DATABASE ffxiv SET search_path TO ffxiv, public;
 
+-- FIX ZONES VS SUBZONES
+UPDATE quests SET zone='The Dravanian Hinterlands' WHERE zone='Matoya''s Cave';
+DELETE FROM zones WHERE name='Company Workshop'
+    or name='Matoya''s Cave'
+    or name='Topmast Apartment Lobby';
+DELETE FROM invis_zones WHERE name='Company Workshop';
+
+-- Remove old tables that didn't know you could pay or buy with more than one item
 DROP TABLE IF EXISTS bought_where_payment;
 DROP TABLE IF EXISTS bought_where;
 DROP TABLE IF EXISTS merchant_prices_list;
@@ -17,9 +25,11 @@ DROP TYPE IF EXISTS merchant_sale_type;
 DROP TYPE IF EXISTS merchant_good_type;
 DROP TYPE IF EXISTS merchant_price_type;
 
+-- I'll deal with lids later
 DROP TRIGGER add_merchant_lid ON ffxiv.merchants;
 DROP TRIGGER replace_merchant_lid ON ffxiv.merchants;
 
+-- For realz now
 CREATE TYPE merchant_sale_type AS ENUM ('Gil', 'Currency', 'Seals', 'Credits');
 CREATE TABLE merchant_first_tabs (
     merchant text references merchants(lid),
@@ -93,6 +103,8 @@ CREATE TABLE merchant_prices_list (
 );
 GRANT SELECT ON merchant_prices_list TO ffxivro;
 GRANT INSERT, UPDATE, DELETE ON merchant_prices_list TO ffxivrw;
+
+-- now fix all the get_* functions involving shops
 
 -- get_all_tabs(merchantlid)
 -- {
