@@ -33,8 +33,10 @@ DROP TRIGGER add_merchant_lid ON ffxiv.merchants;
 DROP TRIGGER replace_merchant_lid ON ffxiv.merchants;
 
 -- For realz now
+DROP VIEW vsearchables;
+
 ALTER TABLE merchants 
-    ADD CONSTRAINT merchants_mobile_fkey FOREIGN KEY (lid) REFERENCES mobiles(lid),
+    --ADD CONSTRAINT merchants_mobile_fkey FOREIGN KEY (lid) REFERENCES mobiles(lid),
     DROP CONSTRAINT merchants_pkey,
     DROP CONSTRAINT merchants_lid_key,
     ADD CONSTRAINT merchants_pkey PRIMARY KEY (lid),
@@ -46,6 +48,230 @@ ALTER TABLE mobiles
     DROP COLUMN x,
     DROP COLUMN y,
     DROP COLUMN map;
+CREATE OR REPLACE VIEW ffxiv.vsearchables AS
+ SELECT 0 AS id,
+    items.lid,
+    'Item'::text AS category,
+    'Item'::text AS category_name,
+    items.name,
+    items.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM items
+UNION
+ SELECT regions.gid AS id,
+    regions.lid,
+    'Region'::text AS category,
+    'Region'::text AS category_name,
+    regions.name,
+    regions.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM regions
+UNION
+ SELECT zones.gid AS id,
+    zones.lid,
+    'Zone'::text AS category,
+    'Zone'::text AS category_name,
+    zones.name,
+    zones.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM zones
+UNION
+ SELECT areas.gid AS id,
+    areas.lid,
+    'Area'::text AS category,
+    'Area'::text AS category_name,
+    areas.name,
+    areas.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM areas
+UNION
+ SELECT nodes.gid AS id,
+    nodes.name AS lid,
+    'Fishing'::text AS category,
+    'Fishing Hole'::text AS category_name,
+    nodes.name,
+    nodes.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM nodes
+  WHERE nodes.category = 'Fishing'::text
+UNION
+ SELECT nodes.gid AS id,
+    nodes.name AS lid,
+    'Spearfishing'::text AS category,
+    'Spearfishing waters'::text AS category_name,
+    nodes.name,
+    nodes.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM nodes
+  WHERE nodes.category = 'Spearfishing'::text
+UNION
+ SELECT nodes.gid AS id,
+    nodes.name AS lid,
+    'Mining'::text AS category,
+    'Mining Node'::text AS category_name,
+    nodes.name,
+    nodes.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM nodes
+  WHERE nodes.category = 'Mining'::text
+UNION
+ SELECT nodes.gid AS id,
+    nodes.name AS lid,
+    'Quarrying'::text AS category,
+    'Quarrying Node'::text AS category_name,
+    nodes.name,
+    nodes.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM nodes
+  WHERE nodes.category = 'Quarrying'::text
+UNION
+ SELECT nodes.gid AS id,
+    nodes.name AS lid,
+    'Logging'::text AS category,
+    'Logging Node'::text AS category_name,
+    nodes.name,
+    nodes.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM nodes
+  WHERE nodes.category = 'Logging'::text
+UNION
+ SELECT nodes.gid AS id,
+    nodes.name AS lid,
+    'Harvesting'::text AS category,
+    'Harvesting Node'::text AS category_name,
+    nodes.name,
+    nodes.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM nodes
+  WHERE nodes.category = 'Harvesting'::text
+UNION
+ SELECT 0 AS id,
+    mm_mobiles.name AS lid,
+    'Monster'::text AS category,
+    'Monster'::text AS category_name,
+    mm_mobiles.name,
+    mm_mobiles.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM mm_mobiles
+UNION
+ SELECT 0 AS id,
+    m.lid,
+    'Merchant'::text AS category,
+    'Merchant Stall'::text AS category_name,
+    ((mm.name || ' ('::text) || (SELECT z.name FROM zones as z where ST_contains(z.geom, st_geometryn(mm.geom, 1)) LIMIT 1)) || ')'::text AS name,
+    mm.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM merchants as m
+     JOIN mobiles as mm ON m.lid=mm.lid
+UNION
+ SELECT xivdb_npcs.gid AS id,
+    xivdb_npcs.gid::text AS lid,
+    'npc'::text AS category,
+    'NPC'::text AS category_name,
+    ((xivdb_npcs.name || ' ('::text) || xivdb_npcs.zone) || ')'::text AS name,
+    xivdb_npcs.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM xivdb_npcs
+UNION
+ SELECT vtrials.id,
+    vtrials.lid,
+    'Trial'::text AS category,
+    'Trial'::text AS category_name,
+    vtrials.name,
+    vtrials.real_name,
+    vtrials.mode,
+    vtrials.sort_order
+   FROM vtrials
+UNION
+ SELECT vdungeons.id,
+    vdungeons.lid,
+    'Dungeon'::text AS category,
+    'Dungeon'::text AS category_name,
+    vdungeons.name,
+    vdungeons.real_name,
+    vdungeons.mode,
+    vdungeons.sort_order
+   FROM vdungeons
+UNION
+ SELECT vraids.id,
+    vraids.lid,
+    'Raid'::text AS category,
+    'Raid'::text AS category_name,
+    vraids.name,
+    vraids.real_name,
+    vraids.mode,
+    vraids.sort_order
+   FROM vraids
+UNION
+ SELECT sightseeing.gid AS id,
+    to_char(sightseeing.gid, 'FM000'::text) AS lid,
+    'Sightseeing'::text AS category,
+    'Sightseeing Entry'::text AS category_name,
+    to_char(sightseeing.gid, 'FM000'::text) AS name,
+    to_char(sightseeing.gid, 'FM000'::text) AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM sightseeing
+UNION
+ SELECT lm.gid AS id,
+    lm.name AS lid,
+    'Levemete'::text AS category,
+    'Levemete'::text AS category_name,
+    ((((((lm.name || ' ('::text) || (( SELECT z.name
+           FROM zones z
+          WHERE st_contains(z.geom, lm.geom)))) || ', '::text) || (( SELECT min(l.lvl) AS min
+           FROM leves l
+          WHERE l.levemete = lm.name))) || '-'::text) || (( SELECT max(l.lvl) AS max
+           FROM leves l
+          WHERE l.levemete = lm.name))) || ')'::text AS name,
+    lm.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM levemetes lm
+UNION
+ SELECT l.gid AS id,
+    l.name AS lid,
+    'Leve'::text AS category,
+    'Levequest'::text AS category_name,
+    l.name,
+    l.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM leves l
+UNION
+ SELECT 0 AS id,
+    a.lid,
+    'Quest'::text AS category,
+    'Quest'::text AS category_name,
+    a.name,
+    a.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM quests a
+UNION
+ SELECT 0 AS id,
+    r.lid,
+    'Recipe'::text AS category,
+    'Recipe'::text AS category_name,
+    ((r.name || ' ('::text) || r.discipline) || ')'::text AS name,
+    r.name AS real_name,
+    NULL::text AS mode,
+    NULL::integer AS sort_order
+   FROM recipes r
+  ORDER BY 6, 8;
 -- because I've discovered npcs can be in several spots, geom is multipoint now
 -- I'm going to need a function to create a multipoint geom now from a series of (x,y,zone)
 CREATE TYPE zoned_coords AS (x real, y real, zone text);
@@ -158,7 +384,7 @@ INSERT INTO immaterials(name, icon) VALUES
     ('Yellow Crafters''s Scrip', 'https://img.finalfantasyxiv.com/lds/h/b/RFlwSqbdB54J0HLFqvJ0TNU7kU.png'), 
     ('Yellow Gatherers''s Scrip', 'https://img.finalfantasyxiv.com/lds/h/D/qp79vkP79nFgPeDrx53Er59OPg.png'),
     ('White Crafters''s Scrip', 'https://img.finalfantasyxiv.com/lds/h/U/rJKUbxNkQVeN72t6rfKgBPbAoI.png'), 
-    ('White Gatherers''s Scrip', 'https://img.finalfantasyxiv.com/lds/h/F/Jud8K4-LquMpsdmomg3-NLbTTY.png')
+    ('White Gatherers''s Scrip', 'https://img.finalfantasyxiv.com/lds/h/F/Jud8K4-LquMpsdmomg3-NLbTTY.png'),
     ('Allagan Tomestone of Poetics', 'https://img.finalfantasyxiv.com/lds/h/p/yLKCqTGCJ_XMtEbBMBnPMlJR8s.png'),
     ('Titan Cobaltpiece', 'https://img.finalfantasyxiv.com/lds/h/I/pfJyIgGQrDNczK2kC25Bz-ezMo.png'),
     ('Rainbowtide Psashp', 'https://img.finalfantasyxiv.com/lds/h/g/7qgI94imE1F4mkoIdFe4U9dE80.png'),
@@ -172,9 +398,20 @@ INSERT INTO immaterials(name, icon) VALUES
     ('Kojin Sango', 'https://img.finalfantasyxiv.com/lds/h/Y/-jYbCURBTKmYaSCTokNqtf2mcM.png'),
     ('Namazu Koban', 'https://img.finalfantasyxiv.com/lds/h/v/oq0mt2vhDKy57eMiDv-zOUy2nc.png')
     ;
-ALTER TABLE beast_tribes DROP CONSTRAINT beast_tribes_currency_unique,
+ALTER TABLE quests DROP CONSTRAINT quests_bt_currency_fkey,
+    ADD CONSTRAINT quests_bt_currency_fkey FOREIGN KEY (bt_currency) REFERENCES currency(name);
+ALTER TABLE beast_tribes 
+    DROP CONSTRAINT beast_tribes_currency_key,
     ADD CONSTRAINT beast_tribes_currency_fkey FOREIGN KEY (currency) REFERENCES immaterials(name);
-ALTER TABLE duty_encounter_tokens DROP CONSTRAINT duty_boss_tokens_token_fkey, ADD CONSTRAINT duty_boss_tokens_token_fkey FOREIGN KEY (token) REFERENCES immaterials(name);
+-- and here you run into that little landmine of duty chests... give them index like the encounters, sigh...
+ALTER TABLE duty_chests
+    ADD COLUMN idx int,
+    DROP CONSTRAINT duty_chests_ukey,
+    ADD CONSTRAINT duty_chests_ukey UNIQUE (duty, idx);
+
+ALTER TABLE duty_encounter_tokens 
+    DROP CONSTRAINT duty_boss_tokens_token_fkey, 
+    ADD CONSTRAINT duty_boss_tokens_token_fkey FOREIGN KEY (token) REFERENCES immaterials(name);
 ALTER TABLE pvp_tokens DROP CONSTRAINT pvp_tokens_token_fkey, ADD CONSTRAINT pvp_tokens_token_fkey FOREIGN KEY (token) REFERENCES immaterials(name);
 ALTER TABLE quests DROP CONSTRAINT quests_tomestones_fkey, ADD CONSTRAINT quests_tomestones_fkey FOREIGN KEY (tomestones) REFERENCES immaterials(name);
 DROP TABLE currency;
@@ -249,8 +486,6 @@ BEGIN
     RETURN good;
 END;
 $BODY$;
-
--- FIXME: beast tribe currencies are items aren't they? but the molestone for merchants isn't getting that lid...
 
 CREATE OR REPLACE FUNCTION get_merchant_price (sale merchant_sales)
     returns json
@@ -510,3 +745,7 @@ FROM (
     WHERE mgl.item=$1
 )a;
 $BODY$;
+
+-- RUN THE MOLESTONE
+ALTER TABLE merchants 
+    ADD CONSTRAINT merchants_mobile_fkey FOREIGN KEY (lid) REFERENCES mobiles(lid);
