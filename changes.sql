@@ -5,6 +5,9 @@ ALTER DATABASE ffxiv SET search_path TO ffxiv, public;
 
 -- FIX ZONES VS SUBZONES
 UPDATE quests SET zone='The Dravanian Hinterlands' WHERE zone='Matoya''s Cave';
+---- TEMP FIX 
+INSERT INTO invis_zones (name, geom, code, a, b, e, f) 
+SELECT name, geom, code, a,b,e,f FROM zones WHERE name='Matoya''s Cave';
 DELETE FROM zones WHERE name='Company Workshop'
     or name='Matoya''s Cave'
     or name='Topmast Apartment Lobby';
@@ -30,6 +33,34 @@ DROP TRIGGER add_merchant_lid ON ffxiv.merchants;
 DROP TRIGGER replace_merchant_lid ON ffxiv.merchants;
 
 -- For realz now
+ALTER TABLE merchants 
+    ADD CONSTRAINT merchants_mobile_fkey FOREIGN KEY (lid) REFERENCES mobiles(lid),
+    DROP CONSTRAINT merchants_pkey,
+    DROP CONSTRAINT merchants_lid_key,
+    ADD CONSTRAINT merchants_pkey PRIMARY KEY (lid),
+    DROP COLUMN gid,
+    DROP COLUMN name, 
+    DROP COLUMN geom;
+ALTER TABLE mobiles 
+    ALTER COLUMN geom TYPE geometry(MultiPoint, 4326) USING ST_Multi(geom),
+    DROP COLUMN x,
+    DROP COLUMN y,
+    DROP COLUMN map;
+-- because I've discovered npcs can be in several spots, geom is multipoint now
+-- I'm going to need a function to create a multipoint geom now from a series of (x,y,zone)
+CREATE TYPE zoned_coords AS (x real, y real, zone text);
+CREATE OR REPLACE FUNCTION get_multipoint(VARIADIC c zoned_coords[])
+    RETURNS geometry(MultiPoint, 4326)
+    LANGUAGE 'sql'
+AS $BODY$
+    SELECT ST_Collect(get_xiv_zone_geom(x, y, zone))
+    FROM 
+    (
+        SELECT (c).x as x, (c).y as y, (c).zone as zone
+        FROM(SELECT unnest(c) as c)a
+    )b;
+$BODY$;
+
 CREATE TYPE merchant_sale_type AS ENUM ('Gil', 'Currency', 'Seals', 'Credits');
 CREATE TABLE merchant_first_tabs (
     merchant text references merchants(lid),
@@ -116,15 +147,33 @@ CREATE TABLE immaterials(
 GRANT SELECT ON immaterials TO ffxivro;
 GRANT INSERT, UPDATE, DELETE ON immaterials TO ffxivrw;
 INSERT INTO immaterials(name, icon) VALUES 
-    ('Gil', 'icons/currency/gil.png'), 
-    ('Company Credits', ''), 
-    ('Storm Seals', ''), 
-    ('Serpent Seals', ''), 
-    ('Flame Seals', ''), 
-    ('Allagan Tomestone of Verity', ''), 
-    ('Allagan Tomestone of Genesis', ''), 
-    ('Allagan Tomestone of Mendacity', ''), 
-    ('Allagan Tomestone of Poetics', '');
+    ('Gil', 'icons/currency/gil.png'),
+    ('Company Credits', 'icons/currency/freecompanycredits.png'), 
+    ('Wolf Mark', 'https://img.finalfantasyxiv.com/lds/h/k/OPI7V9dIFw_6-OmnV02TG-ZARw.png'),
+    ('Allied Seal', 'https://img.finalfantasyxiv.com/lds/h/x/5loDl_ED5NG37Aa8mPwnGFxUQ8.png'),
+    ('Centurio Seal', 'https://img.finalfantasyxiv.com/lds/h/d/vq92ub8-5YUHdRKR1pZ24aQ0mE.png'), 
+    ('Storm Seals', 'https://img.finalfantasyxiv.com/lds/h/U/CCNK6X-ZCF7GuNMs8wCscgepGM.png'), 
+    ('Serpent Seals', 'https://img.finalfantasyxiv.com/lds/h/N/Ixq2noiX81fAWg5gn1j2_1T1hg.png'), 
+    ('Flame Seals', 'https://img.finalfantasyxiv.com/lds/h/h/7LOaAVLlcypX_l9QjCvZQy5Ot0.png'), 
+    ('Yellow Crafters''s Scrip', 'https://img.finalfantasyxiv.com/lds/h/b/RFlwSqbdB54J0HLFqvJ0TNU7kU.png'), 
+    ('Yellow Gatherers''s Scrip', 'https://img.finalfantasyxiv.com/lds/h/D/qp79vkP79nFgPeDrx53Er59OPg.png'),
+    ('White Crafters''s Scrip', 'https://img.finalfantasyxiv.com/lds/h/U/rJKUbxNkQVeN72t6rfKgBPbAoI.png'), 
+    ('White Gatherers''s Scrip', 'https://img.finalfantasyxiv.com/lds/h/F/Jud8K4-LquMpsdmomg3-NLbTTY.png')
+    ('Allagan Tomestone of Poetics', 'https://img.finalfantasyxiv.com/lds/h/p/yLKCqTGCJ_XMtEbBMBnPMlJR8s.png'),
+    ('Titan Cobaltpiece', 'https://img.finalfantasyxiv.com/lds/h/I/pfJyIgGQrDNczK2kC25Bz-ezMo.png'),
+    ('Rainbowtide Psashp', 'https://img.finalfantasyxiv.com/lds/h/g/7qgI94imE1F4mkoIdFe4U9dE80.png'),
+    ('Sylphic Goldleaf', 'https://img.finalfantasyxiv.com/lds/h/i/tseLKFAHet6_DsP9qTvIanx9Pc.png'),
+    ('Ixali Oaknot', 'https://img.finalfantasyxiv.com/lds/h/n/Q5Wvc6byqyJO6xOTsqodWVseA8.png'),
+    ('Steel Amalj''ok', 'https://img.finalfantasyxiv.com/lds/h/a/gPSbmFS9zkkyhWQF_qviwczJYk.png'),
+    ('Vanu Whitebone', 'https://img.finalfantasyxiv.com/lds/h/4/cKP9n0UbuxMAficgw-QPT2cSMI.png'),
+    ('Carved Kupo Nut', 'https://img.finalfantasyxiv.com/lds/h/8/fSIyOkmSt3xoogPFnWFdNN65_U.png'),
+    ('Ananta Dreamstaff', 'https://img.finalfantasyxiv.com/lds/h/V/6SS4KVY-PXgKkXiK1iT2TNrE_c.png'),
+    ('Black Copper Gil', 'https://img.finalfantasyxiv.com/lds/h/D/EF4K6-InlG87wu0aSQyNJ7xz_A.png'),
+    ('Kojin Sango', 'https://img.finalfantasyxiv.com/lds/h/Y/-jYbCURBTKmYaSCTokNqtf2mcM.png'),
+    ('Namazu Koban', 'https://img.finalfantasyxiv.com/lds/h/v/oq0mt2vhDKy57eMiDv-zOUy2nc.png')
+    ;
+ALTER TABLE beast_tribes DROP CONSTRAINT beast_tribes_currency_unique,
+    ADD CONSTRAINT beast_tribes_currency_fkey FOREIGN KEY (currency) REFERENCES immaterials(name);
 ALTER TABLE duty_encounter_tokens DROP CONSTRAINT duty_boss_tokens_token_fkey, ADD CONSTRAINT duty_boss_tokens_token_fkey FOREIGN KEY (token) REFERENCES immaterials(name);
 ALTER TABLE pvp_tokens DROP CONSTRAINT pvp_tokens_token_fkey, ADD CONSTRAINT pvp_tokens_token_fkey FOREIGN KEY (token) REFERENCES immaterials(name);
 ALTER TABLE quests DROP CONSTRAINT quests_tomestones_fkey, ADD CONSTRAINT quests_tomestones_fkey FOREIGN KEY (tomestones) REFERENCES immaterials(name);
@@ -429,10 +478,10 @@ CREATE OR REPLACE FUNCTION ffxiv.get_merchant(
 AS $BODY$
 
 select json_build_object(
-    'id', gid,
-    'lid', lid,
-    'name', name,
-    'label', name || ' (' || (select name from zones as z where st_contains(z.geom, m.geom)) || ')',
+    'id', m.gid,
+    'lid', m.lid,
+    'name', m.name,
+    'label', m.name || ' (' || (select m.name from zones as z where st_contains(z.geom, m.geom)) || ')',
 	'category', get_category('Merchant'),
     'requirement', get_requirement(requires),
 	'all_tabs', get_all_tabs(lid),
