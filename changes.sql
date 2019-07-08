@@ -1,17 +1,8 @@
 -- pg_dump -F c -f ffxiv20190624.backup ffxiv
--- pg_restore.exe -U postgres -d postgres --clean --create D:\Programmes\xampp\htdocs\melodysmaps\ffxiv20190625.backup
+-- cd D:\Programmes\Postgres\11\bin
+-- pg_restore.exe -U postgres -d postgres --clean --create D:\Programmes\xampp\htdocs\melodysmaps\ffxiv20190705.backup
 -- pg_restore.exe -U postgres -d postgres --clean --create C:\xampp\htdocs\melodysmaps\ffxiv20190625.backup
-ALTER DATABASE ffxiv SET search_path TO ffxiv, public;
-
--- FIX ZONES VS SUBZONES
-UPDATE quests SET zone='The Dravanian Hinterlands' WHERE zone='Matoya''s Cave';
----- TEMP FIX 
-INSERT INTO invis_zones (name, geom, code, a, b, e, f) 
-SELECT name, geom, code, a,b,e,f FROM zones WHERE name='Matoya''s Cave';
-DELETE FROM zones WHERE name='Company Workshop'
-    or name='Matoya''s Cave'
-    or name='Topmast Apartment Lobby';
-DELETE FROM invis_zones WHERE name='Company Workshop';
+-- ALTER DATABASE ffxiv SET search_path TO ffxiv, public;
 
 -- Remove old tables that didn't know you could pay or buy with more than one item
 DROP TABLE IF EXISTS bought_where_payment;
@@ -31,6 +22,8 @@ DROP TYPE IF EXISTS merchant_price_type;
 -- I'll deal with lids later
 DROP TRIGGER add_merchant_lid ON ffxiv.merchants;
 DROP TRIGGER replace_merchant_lid ON ffxiv.merchants;
+DROP TRIGGER add_duty_lid ON ffxiv.duties_each;
+DROP TRIGGER replace_duty_lid ON ffxiv.duties_each;
 
 -- For realz now
 DROP VIEW vsearchables;
@@ -367,8 +360,7 @@ GRANT INSERT, UPDATE, DELETE ON merchant_prices_list TO ffxivrw;
 DROP TABLE IF EXISTS immaterials;
 CREATE TABLE immaterials(
     name text PRIMARY KEY,
-    icon text not null,
-    deprecated boolean not null DEFAULT false
+    icon text not null
 );
 GRANT SELECT ON immaterials TO ffxivro;
 GRANT INSERT, UPDATE, DELETE ON immaterials TO ffxivrw;
@@ -396,7 +388,8 @@ INSERT INTO immaterials(name, icon) VALUES
     ('Ananta Dreamstaff', 'https://img.finalfantasyxiv.com/lds/h/V/6SS4KVY-PXgKkXiK1iT2TNrE_c.png'),
     ('Black Copper Gil', 'https://img.finalfantasyxiv.com/lds/h/D/EF4K6-InlG87wu0aSQyNJ7xz_A.png'),
     ('Kojin Sango', 'https://img.finalfantasyxiv.com/lds/h/Y/-jYbCURBTKmYaSCTokNqtf2mcM.png'),
-    ('Namazu Koban', 'https://img.finalfantasyxiv.com/lds/h/v/oq0mt2vhDKy57eMiDv-zOUy2nc.png')
+    ('Namazu Koban', 'https://img.finalfantasyxiv.com/lds/h/v/oq0mt2vhDKy57eMiDv-zOUy2nc.png'),
+    ('Allagan Tomestone of Goetia', 'https://img.finalfantasyxiv.com/lds/h/V/azNdNNaNg7gYB4jT7_fCvBUTsM.png')
     ;
 ALTER TABLE quests DROP CONSTRAINT quests_bt_currency_fkey,
     ADD CONSTRAINT quests_bt_currency_fkey FOREIGN KEY (bt_currency) REFERENCES currency(name);
@@ -405,24 +398,121 @@ ALTER TABLE beast_tribes
     ADD CONSTRAINT beast_tribes_currency_fkey FOREIGN KEY (currency) REFERENCES immaterials(name);
 -- and here you run into that little landmine of duty chests... give them index like the encounters, sigh...
 ALTER TABLE duty_chests
-    ADD COLUMN idx int,
     DROP CONSTRAINT duty_chests_ukey,
     ADD CONSTRAINT duty_chests_ukey UNIQUE (duty, idx);
+ALTER TABLE pvps 
+    ALTER COLUMN rank_3_xp DROP NOT NULL,
+    ALTER COLUMN rank_3_wolf DROP NOT NULL;
+CREATE OR REPLACE VIEW ffxiv.vdungeons AS
+ SELECT 0::int as id,
+    d.lid,
+    d.name ||
+        CASE d.mode
+            WHEN 'Regular'::text THEN ''::text
+            WHEN 'Hard'::text THEN ' (Hard)'::text
+            WHEN 'Extreme'::text THEN ' (Extreme)'::text
+            WHEN 'Savage'::text THEN ' (Savage)'::text
+            WHEN 'Ultimate'::text THEN ' (Ultimate)'::text
+            ELSE NULL::text
+        END AS name,
+    d.name AS real_name,
+    d.mode,
+    m.sort_order
+   FROM duties dn
+     JOIN duties_each d ON d.name = dn.name
+     JOIN modes m ON d.mode = m.name
+  WHERE dn.cat = 'Dungeon'::text
+  ORDER BY d.name, m.sort_order;
+CREATE OR REPLACE VIEW ffxiv.vraids AS
+ SELECT 0::int as id,
+    d.lid,
+    d.name ||
+        CASE d.mode
+            WHEN 'Regular'::text THEN ''::text
+            WHEN 'Hard'::text THEN ' (Hard)'::text
+            WHEN 'Extreme'::text THEN ' (Extreme)'::text
+            WHEN 'Savage'::text THEN ' (Savage)'::text
+            WHEN 'Ultimate'::text THEN ' (Ultimate)'::text
+            ELSE NULL::text
+        END AS name,
+    d.name AS real_name,
+    d.mode,
+    m.sort_order
+   FROM duties dn
+     JOIN duties_each d ON d.name = dn.name
+     JOIN modes m ON d.mode = m.name
+  WHERE dn.cat = 'Raid'::text
+  ORDER BY d.name, m.sort_order;
+CREATE OR REPLACE VIEW ffxiv.vtrials AS
+ SELECT 0::int as id,
+    d.lid,
+    d.name ||
+        CASE d.mode
+            WHEN 'Regular'::text THEN ''::text
+            WHEN 'Hard'::text THEN ' (Hard)'::text
+            WHEN 'Extreme'::text THEN ' (Extreme)'::text
+            WHEN 'Savage'::text THEN ' (Savage)'::text
+            WHEN 'Ultimate'::text THEN ' (Ultimate)'::text
+            ELSE NULL::text
+        END AS name,
+    d.name AS real_name,
+    d.mode,
+    m.sort_order
+   FROM duties dn
+     JOIN duties_each d ON dn.name = d.name
+     JOIN modes m ON d.mode = m.name
+  WHERE dn.cat = 'Trial'::text
+  ORDER BY d.name, m.sort_order;
+BEGIN;
+    ALTER TABLE duty_encounters
+        DROP CONSTRAINT duty_bosses_duty_ref_fkey;
+    ALTER TABLE duty_chests
+        DROP CONSTRAINT duty_chests_duty_ref_fkey;
+    ALTER TABLE duty_maps
+        DROP CONSTRAINT duty_maps_duty_ref_fkey;
+    ALTER TABLE duty_trash_drops
+        DROP CONSTRAINT duty_trash_drops_duty_ref_fkey;
+    ALTER TABLE quest_requirements
+        DROP CONSTRAINT quest_requirements_dutylid_fkey;
+    ALTER TABLE duties_each
+        DROP CONSTRAINT duties_each_pkey,
+        DROP CONSTRAINT duties_each_lid_key,
+        ADD CONSTRAINT duties_each_pkey PRIMARY KEY (lid),
+        DROP COLUMN id;
+    ALTER TABLE duty_encounters
+        ADD CONSTRAINT duty_bosses_duty_ref_fkey FOREIGN KEY (duty) REFERENCES ffxiv.duties_each (lid);
+    ALTER TABLE duty_chests
+        ADD CONSTRAINT duty_chests_duty_ref_fkey FOREIGN KEY (duty) REFERENCES ffxiv.duties_each (lid);
+    ALTER TABLE duty_maps
+        ADD CONSTRAINT duty_maps_duty_ref_fkey FOREIGN KEY (duty) REFERENCES ffxiv.duties_each (lid);
+    ALTER TABLE duty_trash_drops
+        ADD CONSTRAINT duty_trash_drops_duty_ref_fkey FOREIGN KEY (duty) REFERENCES ffxiv.duties_each (lid);
+    ALTER TABLE quest_requirements
+        ADD CONSTRAINT quest_requirements_dutylid_fkey FOREIGN KEY (dutylid) REFERENCES ffxiv.duties_each (lid);
+COMMIT;
 
+ALTER TABLE pvp_tokens 
+    DROP CONSTRAINT pvp_tokens_token_fkey;
+ -- FIX DUTIES HERE
 ALTER TABLE duty_encounter_tokens 
     DROP CONSTRAINT duty_boss_tokens_token_fkey, 
     ADD CONSTRAINT duty_boss_tokens_token_fkey FOREIGN KEY (token) REFERENCES immaterials(name);
-ALTER TABLE pvp_tokens DROP CONSTRAINT pvp_tokens_token_fkey, ADD CONSTRAINT pvp_tokens_token_fkey FOREIGN KEY (token) REFERENCES immaterials(name);
-ALTER TABLE quests DROP CONSTRAINT quests_tomestones_fkey, ADD CONSTRAINT quests_tomestones_fkey FOREIGN KEY (tomestones) REFERENCES immaterials(name);
+ALTER TABLE pvp_tokens 
+    ADD CONSTRAINT pvp_tokens_token_fkey FOREIGN KEY (token) REFERENCES immaterials(name);
+ALTER TABLE quests 
+    DROP CONSTRAINT quests_tomestones_fkey, 
+    ADD CONSTRAINT quests_tomestones_fkey FOREIGN KEY (tomestones) REFERENCES immaterials(name),
+    DROP CONSTRAINT quests_bt_currency_fkey,
+    ADD CONSTRAINT quests_bt_currency_fkey FOREIGN KEY (bt_currency) REFERENCES immaterials(name);
 DROP TABLE currency;
+
 CREATE OR REPLACE FUNCTION get_immaterial(name text)
     RETURNS json
     LANGUAGE 'sql'
 AS $BODY$
     SELECT json_build_object(
         'name', name,
-        'icon', icon,
-        'deprecated', deprecated
+        'icon', icon
     )
     FROM immaterials
     WHERE name=$1;
@@ -444,6 +534,7 @@ BEGIN
 END;
 $BODY$;
 
+-- Back to merchants...
 CREATE OR REPLACE FUNCTION get_merchant_good (sale merchant_sales)
     returns json
     LANGUAGE 'plpgsql'
