@@ -710,7 +710,9 @@ BEGIN
         IF ntabs = 0 THEN
             SELECT json_agg(get_merchant_sale(id)) INTO STRICT tabs FROM merchant_sales WHERE merchant=$1 AND type=sale_type;
             -- tabs = [{sale}, {sale}, ...]
-            all_tabs := all_tabs || '"zero":' ||tabs::text||'}';
+            IF tabs IS NOT NULL THEN
+                all_tabs := all_tabs || '"zero":' ||tabs::text;
+            END IF;
         ELSE
             all_tabs := all_tabs || '"one":[';
             FOR _tab IN SELECT tab FROM merchant_first_tabs WHERE merchant=$1 and type=sale_type LOOP
@@ -727,8 +729,7 @@ BEGIN
                         GROUP BY tab
                     )a;
                     -- tabs = {tab} where tab = {name: '', sales: []}
-                    -- all_tabs := all_tabs || tabs::text;
-                    all_tabs := all_tabs || '{"tab":1}';
+                    all_tabs := all_tabs || tabs::text;
                 ELSE
                     FOR _subtab IN SELECT subtab FROM merchant_second_tabs WHERE merchant=$1 AND type=sale_type AND tab=_tab LOOP
                         SELECT json_build_object(
@@ -752,8 +753,7 @@ BEGIN
                             GROUP BY tab
                         )c;
                         -- tabs = {tab} where tab = {name: '', subtabs: [{tab}, {tab}, ...]}
-                        -- all_tabs := all_tabs || tabs::text;
-                        all_tabs := all_tabs || '{"tab":1}';
+                        all_tabs := all_tabs || tabs::text;
                     END LOOP;
                 END IF;
                 all_tabs := all_tabs || ',';
@@ -782,6 +782,68 @@ from mobiles as m
 join zones as z on st_intersects(z.geom, m.geom)
 WHERE m.lid=$1
 group by m.lid;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION ffxiv.get_vertices_multi_point(
+	geomin geometry)
+    RETURNS json
+    LANGUAGE 'sql'
+AS $BODY$
+with dumps as (
+	SELECT 	(st_dumppoints(geomin)).geom as geom
+), latlng as(
+ SELECT row_number() OVER () AS gid,
+	st_x(dumps.geom) AS lng,
+	st_y(dumps.geom) AS lat
+	from dumps
+), parts as(
+	SELECT 
+		gid,
+		('[' || lat::text || ',' || lng::text || ']')::json as coord
+	FROM latlng
+)
+	 SELECT json_agg(parts.coord) AS coords
+   FROM parts;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION ffxiv.get_vertices(
+	geom geometry)
+    RETURNS json
+    LANGUAGE 'sql'
+AS $BODY$
+select
+	case	when (st_geometrytype(geom)) = 'ST_Point'		 then get_vertices_point(geom)
+			when (st_geometrytype(geom)) = 'ST_MultiPolygon' then get_vertices_multi_poly(geom)
+			when (st_geometrytype(geom)) = 'ST_Polygon'		 then get_vertices_multi_poly(st_multi(geom))
+            when (st_geometrytype(geom)) = 'ST_MultiPoint'   then get_vertices_multi_point(geom)
+			else null::json
+	end;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION ffxiv.get_bounds_multi_point(
+	geomin geometry)
+    RETURNS json
+    LANGUAGE 'sql'
+AS $BODY$
+	select json_build_array(json_build_array(
+		st_ymin(st_buffer(geomin, 0.2)), st_xmin(st_buffer(geomin, 0.2))),
+	json_build_array(
+		st_ymax(st_buffer(geomin, 0.2)), st_xmax(st_buffer(geomin, 0.2))))
+;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION ffxiv.get_bounds(
+	geom geometry)
+    RETURNS json
+    LANGUAGE 'sql'
+AS $BODY$
+select
+	case	when (st_geometrytype(geom)) = 'ST_Point'		 then get_bounds_point(geom)
+            when (st_geometrytype(geom)) = 'ST_MultiPoint'   then get_bounds_multi_point(geom)
+			when (st_geometrytype(geom)) = 'ST_MultiPolygon' then get_bounds_multi_poly(geom)
+			when (st_geometrytype(geom)) = 'ST_Polygon'		 then get_bounds_multi_poly(st_multi(geom))
+			else null::json
+	end;
 $BODY$;
 
 CREATE OR REPLACE FUNCTION ffxiv.get_merchant(
