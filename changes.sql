@@ -1,7 +1,8 @@
--- pg_dump -F c -f ffxiv20190624.backup ffxiv
+-- pg_dump -F c -f ffxiv20190708.backup ffxiv
 -- cd D:\Programmes\Postgres\11\bin
+-- cd C:\Program Files\PostgreSQL\11\bin
 -- pg_restore.exe -U postgres -d postgres --clean --create D:\Programmes\xampp\htdocs\melodysmaps\ffxiv20190705.backup
--- pg_restore.exe -U postgres -d postgres --clean --create C:\xampp\htdocs\melodysmaps\ffxiv20190625.backup
+-- pg_restore.exe -U postgres -d postgres --clean --create C:\xampp\htdocs\melodysmaps\ffxiv20190708.backup
 -- ALTER DATABASE ffxiv SET search_path TO ffxiv, public;
 
 -- Remove old tables that didn't know you could pay or buy with more than one item
@@ -28,8 +29,9 @@ DROP TRIGGER replace_duty_lid ON ffxiv.duties_each;
 -- For realz now
 DROP VIEW vsearchables;
 
+DELETE FROM merchants;
 ALTER TABLE merchants 
-    --ADD CONSTRAINT merchants_mobile_fkey FOREIGN KEY (lid) REFERENCES mobiles(lid),
+    ADD CONSTRAINT merchants_mobile_fkey FOREIGN KEY (lid) REFERENCES mobiles(lid),
     DROP CONSTRAINT merchants_pkey,
     DROP CONSTRAINT merchants_lid_key,
     ADD CONSTRAINT merchants_pkey PRIMARY KEY (lid),
@@ -266,9 +268,9 @@ UNION
    FROM recipes r
   ORDER BY 6, 8;
 -- because I've discovered npcs can be in several spots, geom is multipoint now
--- I'm going to need a function to create a multipoint geom now from a series of (x,y,zone)
+-- I'm going to need a function to create a multipoint geom now from a series of (x,y,zone), given as string cause jdbc urghn
 CREATE TYPE zoned_coords AS (x real, y real, zone text);
-CREATE OR REPLACE FUNCTION get_multipoint(VARIADIC c zoned_coords[])
+CREATE OR REPLACE FUNCTION get_multipoint(c text)
     RETURNS geometry(MultiPoint, 4326)
     LANGUAGE 'sql'
 AS $BODY$
@@ -276,7 +278,7 @@ AS $BODY$
     FROM 
     (
         SELECT (c).x as x, (c).y as y, (c).zone as zone
-        FROM(SELECT unnest(c) as c)a
+        FROM(SELECT unnest(c::zoned_coords[]) as c)a
     )b;
 $BODY$;
 
@@ -326,6 +328,8 @@ CREATE TABLE merchant_sales (
     gc text references grand_companies(name),
     fcc_rank int,
     fcc_credits int,
+    -- REQUIRES
+    requires text REFERENCES requirements(name),
     
     FOREIGN KEY (merchant, type, tab) REFERENCES merchant_first_tabs(merchant, type, tab),
     FOREIGN KEY (merchant, type, tab, subtab) REFERENCES merchant_second_tabs (merchant, type, tab, subtab)
@@ -493,7 +497,9 @@ COMMIT;
 
 ALTER TABLE pvp_tokens 
     DROP CONSTRAINT pvp_tokens_token_fkey;
- -- FIX DUTIES HERE
+    
+ -- RUN MOLESTONE'S DUTYLISTER HERE
+ 
 ALTER TABLE duty_encounter_tokens 
     DROP CONSTRAINT duty_boss_tokens_token_fkey, 
     ADD CONSTRAINT duty_boss_tokens_token_fkey FOREIGN KEY (token) REFERENCES immaterials(name);
@@ -646,7 +652,7 @@ BEGIN
             price := json_build_object(
                 'type', 'FCC',
                 'credits', sale.fcc_credits,
-                'rank', sale.fcc_rank,,
+                'rank', sale.fcc_rank,
                 'token', get_immaterial('Company Credits')
             );
     END CASE;
@@ -684,53 +690,13 @@ $BODY$;
     -- good: {item, venture, action}
     -- price: {gil, item, token, itemtoken, fcc}
 -- }
-
-CREATE OR REPLACE FUNCTION better_json_merge(leftarg json, rightarg json)
-    RETURNS json
-    LANGUAGE 'plpgsql'
-AS $BODY$
-DECLARE
-    res jsonb := leftarg;
-    leftargb jsonb := leftarg::jsonb;
-    rightargb jsonb := rightarg::jsonb;
-    leftvalue jsonb;
-    rightvalue jsonb;
-    overwrite jsonb;
-    kv record;
-BEGIN
-    IF json_typeof(leftarg) = 'object' AND json_typeof(rightarg) = 'object' THEN
-        FOR kv IN SELECT * FROM jsonb_each(rightargb) LOOP
-            IF leftargb ? kv.key THEN
-                -- merge recursively...
-                leftvalue := leftargb->kv.key;
-                rightvalue := kv.value;
-                overwrite := leftvalue::json <+< rightvalue::json;
-            ELSE
-                overwrite = kv.value;
-            END IF;
-            res := res || jsonb_build_object(kv.key, overwrite);
-        END LOOP;
-    ELSIF json_typeof(leftarg) = 'array' AND json_typeof(rightarg) = 'array' THEN
-        res:= leftargb || rightargb;
-    ELSE
-        RAISE EXCEPTION 'Incompatible json merge types: (%) <+< (%)', json_typeof(leftarg), json_typeof(rightarg);
-    END IF;
-    RETURN res::json;
-END;
-$BODY$;
-
-CREATE OPERATOR <+< (
-    FUNCTION = better_json_merge,
-    LEFTARG = json,
-    RIGHTARG = json
-);
-
+DROP FUNCTION if exists get_all_tabs(text);
 CREATE OR REPLACE FUNCTION get_merchant_tabs(merchantlid text)
     RETURNS json
     LANGUAGE 'plpgsql'
 AS $BODY$
 DECLARE
-    all_tabs json := '{}'::json;
+    all_tabs text := '{';
     tabs json;
     ntabs int;
     nsubtabs int;
@@ -738,13 +704,15 @@ DECLARE
     _subtab text;
     sale_type merchant_sale_type;
 BEGIN
-    FOR sale_type IN SELECT enum_range(NULL::merchant_sale_type) LOOP
+    FOR sale_type IN SELECT unnest(enum_range(NULL::merchant_sale_type)) LOOP
+        all_tabs := all_tabs || '"' || sale_type::text || '":{';
         SELECT count(tab) INTO STRICT ntabs FROM merchant_first_tabs WHERE merchant=$1 and type=sale_type;
         IF ntabs = 0 THEN
             SELECT json_agg(get_merchant_sale(id)) INTO STRICT tabs FROM merchant_sales WHERE merchant=$1 AND type=sale_type;
             -- tabs = [{sale}, {sale}, ...]
-            all_tabs := all_tabs <+ json_build_object(sale_type::text, json_build_object('zero', tabs));
+            all_tabs := all_tabs || '"zero":' ||tabs::text||'}';
         ELSE
+            all_tabs := all_tabs || '"one":[';
             FOR _tab IN SELECT tab FROM merchant_first_tabs WHERE merchant=$1 and type=sale_type LOOP
                 SELECT count(subtab) INTO STRICT nsubtabs FROM merchant_second_tabs WHERE merchant=$1 AND type=sale_type AND tab=_tab;
                 IF nsubtabs = 0 THEN
@@ -758,8 +726,9 @@ BEGIN
                         WHERE merchant=$1 AND type=sale_type AND tab=_tab
                         GROUP BY tab
                     )a;
-                    -- tabs = [{tab}] where tab = {name: '', sales: []}
-                    all_tabs := all_tabs <+ json_build_object(sale_type::text, json_build_object('one', tabs));
+                    -- tabs = {tab} where tab = {name: '', sales: []}
+                    -- all_tabs := all_tabs || tabs::text;
+                    all_tabs := all_tabs || '{"tab":1}';
                 ELSE
                     FOR _subtab IN SELECT subtab FROM merchant_second_tabs WHERE merchant=$1 AND type=sale_type AND tab=_tab LOOP
                         SELECT json_build_object(
@@ -782,14 +751,21 @@ BEGIN
                             )b
                             GROUP BY tab
                         )c;
-                        -- tabs = [{tab}] where tab = {name: '', subtabs: [{tab}, {tab}, ...]}
-                        all_tabs := all_tabs <+ json_build_object(sale_type::text, json_build_object('one', tabs));
+                        -- tabs = {tab} where tab = {name: '', subtabs: [{tab}, {tab}, ...]}
+                        -- all_tabs := all_tabs || tabs::text;
+                        all_tabs := all_tabs || '{"tab":1}';
                     END LOOP;
                 END IF;
+                all_tabs := all_tabs || ',';
             END LOOP;
+            all_tabs := trim(trailing ',' from all_tabs);
+            all_tabs := all_tabs || ']';
         END IF;
+        all_tabs := all_tabs || '},';
     END LOOP;
-    RETURN all_tabs;
+    all_tabs := trim(trailing ',' from all_tabs);
+    all_tabs := all_tabs || '}';
+    RETURN all_tabs::json;
 END;
 $BODY$;
 
@@ -797,28 +773,37 @@ DROP FUNCTION IF EXISTS get_currencies();
 DROP FUNCTION IF EXISTS get_currency(text);
 
 -- get_merchant
+CREATE OR REPLACE FUNCTION get_merchant_zone(merchantlid text)
+    RETURNS text
+    LANGUAGE 'sql'
+AS $BODY$
+select string_agg(z.name, ', ')
+from mobiles as m
+join zones as z on st_intersects(z.geom, m.geom)
+WHERE m.lid=$1
+group by m.lid;
+$BODY$;
+
 CREATE OR REPLACE FUNCTION ffxiv.get_merchant(
 	merchantlid text)
     RETURNS json
     LANGUAGE 'sql'
 AS $BODY$
-
 select json_build_object(
-    'id', m.gid,
+    'id', 0::int,
     'lid', m.lid,
     'name', m.name,
-    'label', m.name || ' (' || (select m.name from zones as z where st_contains(z.geom, m.geom)) || ')',
+    'label', m.name || ' (' || get_merchant_zone(m.lid) || ')',
 	'category', get_category('Merchant'),
     'requirement', get_requirement(requires),
-	'all_tabs', get_all_tabs(lid),
-    'zone', get_zone((select lid from zones as z where st_contains(z.geom, m.geom))),
+	'all_tabs', get_merchant_tabs(m.lid),
 	'geom', get_vertices(geom),
 	'bounds', get_bounds(geom),
 	'centroid', get_centroid_coords(geom)
 )
-from merchants as m
-where lid=$1;
-
+from merchants as s
+    join mobiles as m ON s.lid=m.lid
+where s.lid=$1;
 $BODY$;
 
 -- get item merchants
@@ -837,6 +822,59 @@ FROM (
 )a;
 $BODY$;
 
--- RUN THE MOLESTONE
-ALTER TABLE merchants 
-    ADD CONSTRAINT merchants_mobile_fkey FOREIGN KEY (lid) REFERENCES mobiles(lid);
+INSERT INTO requirements (name, icon) VALUES 
+    ('Neutral with the Vanu Vanu', 'icons/traits/vanu.png'),
+    ('Neutral with the Vath', 'icons/traits/vath.png'),
+    ('Neutral with the Moogles', 'icons/traits/moogles.png'),
+    ('Neutral with the Ananta', 'icons/traits/ananta.png'),
+    ('Neutral with the Kojin', 'icons/traits/kojin.png'),
+    ('Neutral with the Namazu', 'icons/traits/namazu.png')
+;
+
+-- RUN THE MOLESTONE'S SHOPLISTER HERE
+
+DROP FUNCTION get_token(text);
+CREATE OR REPLACE FUNCTION ffxiv.get_encounter_loot(
+	dutylid text)
+    RETURNS json
+    LANGUAGE 'sql'
+AS $BODY$
+    WITH items_per_encounter AS
+    (
+        SELECT
+            de.gid,
+            json_agg(get_item(del.itemlid)) as items
+        FROM duty_encounter_loot AS del
+   JOIN duty_encounters AS de ON del.encounter = de.gid
+        WHERE de.duty=dutylid
+        GROUP BY de.gid
+    ),
+    tokens_per_encounter AS
+    (
+        SELECT
+            de.gid,
+            json_agg(json_build_object(
+                'qty', det.qty, 
+                'token', get_immaterial(det.token)
+                )) AS tokens
+        FROM duty_encounter_tokens AS det
+   JOIN duty_encounters as de ON det.encounter = de.gid
+        WHERE de.duty=dutylid
+        GROUP BY de.gid
+    )
+    
+    SELECT json_agg(json_build_object(
+        'encounter', de.name,
+        'geom', get_vertices(de.geom),
+        'bounds', get_bounds(de.geom),
+        'tokens', tokens,
+        'items', items
+    ))
+    FROM duties_each AS d
+        LEFT JOIN duty_encounters AS de ON de.duty = d.lid
+        LEFT JOIN tokens_per_encounter AS tpe ON tpe.gid = de.gid
+        LEFT JOIN items_per_encounter AS ipe ON ipe.gid = de.gid
+    WHERE d.lid = dutylid;
+$BODY$;
+
+UPDATE zones SET lid=name WHERE lid is null;
