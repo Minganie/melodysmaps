@@ -25,3 +25,26 @@ ul {
 li {
     list-style: none;
 }
+.melsmaps-merchant-popup table td.melsmaps-item-name-hq-n-block,
+.melsmaps-merchant-popup table td .melsmaps-item-name-hq-n-block {
+    display: flex;
+    align-items: center;
+    margin: 0.2em 0;
+}
+.melsmaps-merchant-popup table td ul li .melsmaps-item-name-hq-n-block > img,
+.melsmaps-item-name-hq-n-block > img {
+    height: 32px;
+    width: 32px;
+    margin: 0.5em 1em 0.5em 0.5em;
+}
+.melsmaps-item-name-hq-n-block > div {
+    text-align: left;
+}
+.melsmaps-item-name-hq-n-block p:first-child {
+    font-weight: bold;
+}
+td.melsmaps-item-name-hq-n-block p {
+    margin: 0;
+    width: 300px;
+    white-space: normal;
+}

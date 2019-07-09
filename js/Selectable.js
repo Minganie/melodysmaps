@@ -29,6 +29,44 @@ Selectable = {
             .attr('data-melsmaps-npc-name', npc.name)
             .html(npc.name + ' in ' + npc.zone.name);
     },
+    getItemImageNameHqNumberBlock: function(item, hq, n) {
+        var tt = Selectable.Item.Tooltip.get(item);
+        var hqContent = '';
+        if(hq)
+            hqContent = '<img src="icons/hq.png" alt="High quality item" width=16 height=16 />';
+        var block = $('<div class="melsmaps-item-name-hq-n-block"></div>');
+        $('<img alt="" width=32 height=32 />')
+            .attr("src", item.licon)
+            .appendTo(block);
+        var rightDiv = $('<div></div>')
+            .appendTo(block);
+        var p = $('<p></p>')
+            .appendTo(rightDiv);
+        $('<span class="melsmaps-is-a-tooltip llink"></span>')
+            .attr('data-melsmaps-tooltip', tt.getTooltip().outerHTML)
+            .html(item.name)
+            .appendTo(p);
+        $('<span></span>')
+            .html(hqContent)
+            .appendTo(p);
+        rightDiv.append($('<p>' + n.toLocaleString('en-US') + '</p>'));
+        return block;
+    },
+    getImmaterialImageNameNumberBlock: function(immaterial, number) {
+        var block = $('<div class="melsmaps-item-name-hq-n-block"></div>');
+        $('<img alt="" width=32 height=32 />')
+            .attr("src", immaterial.icon)
+            .appendTo(block);
+        var rightDiv = $('<div></div>')
+            .appendTo(block);
+        var p = $('<p></p>')
+            .appendTo(rightDiv);
+        $('<span></span>')
+            .html(immaterial.name)
+            .appendTo(p);
+        rightDiv.append($('<p>' + number.toLocaleString('en-US') + '</p>'));
+        return block;
+    },
     getSourceLine: function(source, item, hq, nq) {
         if(!source.category.getName)
             source.category = new Category(source.category);

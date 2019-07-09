@@ -5,15 +5,189 @@ Selectable.Merchant = function(searchable) {
     }
 };
 Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, {
+    _addToMap: function(group) {
+        var that = this;
+        return this._full.then(function(full) {
+            var point = L.namedMultiPointLayer([full], {
+                name: full.name, 
+                minZoom: 7,
+                maxZoom: 10,
+                inLegend: true,
+                legendGroup: group,
+                pointStyle: full.category.getPointStyle(),
+                nameClass: 'melsmaps-tooltip',
+                searchable: {}
+            });
+            // console.log(that.getTooltip(full));
+            point.bindTooltip(that.getTooltip(full), {
+                permanent: true,
+                className: 'melsmaps-tooltip',
+                direction: 'right',
+                offset: [5, 0]
+            });
+            point.bindPopup(that.getPopup(full));
+            point.addTo(melsmap);
+            return point; 
+        });
+
+	},
+    
     getTooltip: function(tooltippable) {
+        // console.log("get tooltip");
 		return tooltippable.name;
 	},
 	
     _getPopupSubtitle: function(popupable) {
-        var zone = (popupable && popupable.zone && popupable.zone.name ? popupable.zone.name : "?")
+        var zone = '?'; var re = /\((.+)\)/g;
+        if(popupable && popupable.label)
+            zone = re.exec(popupable.label)[1];
         return $('<h2></h2>')
             .append(zone)
             .append(' Merchant');
+    },
+    
+    _getItemLi: function(item, hq, n) {
+        return $('<li></li>')
+            .html(Selectable.getItemImageNameHqNumberBlock(item, hq, n));
+    },
+    _getItemGoodOrPrice: function(item) {
+        var html = $('<td></td>');
+        var ul = $('<ul></ul>').appendTo(html);
+        var list = item.goods || item.items;
+        for(var i in list) {
+            item = list[i];
+            ul.append(this._getItemLi(item.item, item.hq, item.n));
+        }
+        return html;
+    },
+    
+    _getItemGood: function(good) {
+        return this._getItemGoodOrPrice(good);
+    },
+    _getVentureGood: function(good) {
+        var html = $('<td></td>');
+        var immaterial = {
+            name: good.item.name,
+            icon: good.item.licon
+        };
+        $('<li></li>')
+            .html(Selectable.getImmaterialImageNameNumberBlock(immaterial, good.venture))
+            .appendTo(html);
+        return html;
+    },
+    _getActionGood: function(good) {
+        var html = $('<td class="melsmaps-item-name-hq-n-block"></td>');
+        $('<img alt="" width=32 height=32 />')
+            .attr("src", good.icon)
+            .appendTo(html);
+        var rightDiv = $('<div></div>')
+            .appendTo(html);
+        $('<p></p>')
+            .html(good.name)
+            .appendTo(rightDiv);
+        $('<p></p>')
+            .html(good.effect)
+            .appendTo(rightDiv);
+        $('<p></p>')
+            .html('Duration: ' + good.duration + 'h')
+            .appendTo(rightDiv);
+        return html;
+    },
+    
+    _getGood: function(good) {
+        switch(good.type) {
+            case "Items":
+                return this._getItemGood(good);
+            case "Venture":
+                return this._getVentureGood(good);
+            case "Action":
+                return this._getActionGood(good);
+            default:
+                console.error("Unknown good type?");
+                console.error(good);
+        }
+    },
+    
+    _getGilPrice: function(price) {
+        var html = $('<td>' + price.n_gil.toLocaleString('en-US') + ' <img src="' + price.gil.icon + '" alt="gil" width32= height=32 /></td>');
+        return html;
+    },
+    _getItemsPrice: function(price) {
+        return this._getItemGoodOrPrice(price);
+    },
+    _getTokenLi: function(token, n) {
+        return $('<li></li>')
+            .html(Selectable.getImmaterialImageNameNumberBlock(token, n));
+    },
+    _getTokensItemsPrice: function(price) {
+        var html = $('<td></td>');
+        var ul = $('<ul></ul>')
+            .appendTo(html);
+        ul.append(this._getTokenLi(price.token, price.token_n));
+        for(var i in price.items) {
+            var item = price.items[i];
+            ul.append(this._getItemLi(item.item, item.hq, item.n));
+        }
+        return html;
+    },
+    _getTokensPrice: function(price) {
+        var html = $('<td></td>');
+        var ul = $('<ul></ul>')
+            .appendTo(html);
+        ul.append(this._getTokenLi(price.token, price.token_n));
+        return html;
+    },
+    _getSealsPrice: function(price) {
+        var base;
+        switch(price.gc) {
+            case 'Immortal Flames':
+                base = 83100;
+                break;
+            case 'Maelstrom':
+                base = 83000;
+                break;
+            case 'Order of the Twin Adder':
+                base = 83050;
+                break;
+        }
+        var rankImgSrc = ('000000' + (base + price.ranki)).slice(-6) + '.tex.png';
+        var html = $('<td></td>');
+        var ul = $('<ul></ul>')
+            .appendTo(html);
+        $('<li></li>')
+            .append($('<img src="' + price.token.icon + '" width=32 height=32 alt="" />'))
+            .append(price.seals.toLocaleString('en-US'))
+            .appendTo(ul);
+        $('<li></li>')
+            .append($('<img src="icons/gcranks/' + rankImgSrc + '" alt="" width=32 height=32 />'))
+            .append(price.rank)
+            .appendTo(ul);
+        return html;
+    },
+    _getFCCPrice: function(price) {
+        var html = $('<td></td>');
+        html.append(Selectable.getImmaterialImageNameNumberBlock(price.token, price.credits));
+        return html;
+    },
+    
+    _getPrice: function(price) {
+        switch(price.type) {
+            case "Gil":
+                return this._getGilPrice(price);
+            case "Items":
+                return this._getItemsPrice(price);
+            case "Tokens and Items":
+                return this._getTokensItemsPrice(price);
+            case "Tokens":
+                return this._getTokensPrice(price);
+            case "Seals":
+                return this._getSealsPrice(price);
+            case "FCC":
+                return this._getFCCPrice(price);
+            default:
+                console.error("Unknown price type?");
+                console.error(price);
+        }
     },
 	
 	_getPopupContent: function(popupable) {
@@ -34,7 +208,7 @@ Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, 
             var supraTabName = i;
 			var supraTabInv = popupable.all_tabs[i];
 			// console.log(supraTabInv);
-			var available = ($.isEmptyObject(supraTabInv) ? 'available' : 'unavailable');
+			var available = ($.isEmptyObject(supraTabInv) ? 'unavailable' : 'available');
 			if(firstc && available == 'available') {
 				var active = ' active';
 				firstc = false;
@@ -55,14 +229,15 @@ Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, 
 					supraTabHtml.append(this._makeTabList(supraTabInv["zero"]));
 				} else {
 					// ONE OR TWO TABS
-					console.log("One or two tabs in supra tab " + supraTabName);
+					// console.log("One or two tabs in supra tab " + supraTabName);
 					var tabList = $('<ul></ul>')
                         .appendTo(supraTabHtml);
 					var tabs = $('<div></div>')
                         .appendTo(supraTabHtml);
 					var t = 0;
-					for(var tab in supraTabInv) {
-						var tabInv = supraTabInv[tab];
+                    // console.log(supraTabInv);
+					for(var j in supraTabInv["one"]) {
+						var tab = supraTabInv["one"][j];
 						if(firstt) {
 							var active = ' active';
 							firstt = false;
@@ -73,22 +248,22 @@ Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, 
                                 .appendTo(tabs);
                         $('<li></li>')
                             .addClass('available' + active + ' tab-name-' + c + '-' + t)
-                            .html(tab)
+                            .html(tab.name)
                             .appendTo(tabList);
-						console.log(tabInv);
-						if(!this._hasTabs(tabInv)) {
-							tabContent.append(this._makeTabList(tabInv));
+						// console.log(tab);
+						if(tab.sales) {
+							tabContent.append(this._makeTabList(tab.sales));
 						} else {
-							console.log("Found subtabs for " + supraTabName + " " + tab);
+							// console.log("Found subtabs for " + supraTabName + " -> " + tab.name);
 							var subTabList = $('<ul></ul>')
                                 .appendTo(tabContent);
 							var subtabs = $('<div></div>')
                                 .appendTo(tabContent);
 							var st = 0;
-							for(var subtab in tabInv) {
-								console.log("Treating subtab " + subtab);
-								var subTabInv = tabInv[subtab];
-								console.log(subTabInv);
+							for(var k in tab["subtabs"]) {
+								var subTab = tab["subtabs"][k];
+								// console.log("Treating subtab " + subTab["name"]);
+								// console.log(subTab);
 								if(firstst) {
 									var active = ' active';
 									firstst = false;
@@ -99,9 +274,9 @@ Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, 
                                     .appendTo(subtabs);
                                 $('<li></li>')
                                     .addClass('available' + active + ' tab-name-' + c + '-' + t + '-' + st)
-                                    .html(subtab)
+                                    .html(subTab.name)
                                     .appendTo(subTabList);
-								subTabContent.append(this._makeTabList(subTabInv));
+								subTabContent.append(this._makeTabList(subTab["sales"]));
 								st++;
 							}
 						}
@@ -115,18 +290,7 @@ Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, 
 		return html;
 	},
 	
-	// _makeTab(json) {
-		// var tabList = '<ul>';
-		// var tabs = '<div>';
-		// return {
-			// tablist: tabList + '</ul>',
-			// tabs: tabs + '</div>'
-		// };
-	// },
-	
-	
 	_makeTabList: function(list) {
-        console.log(list);
 		var html = $('<table></table>');
 		for(var i in list) {
             var tr = $('<tr></tr>')
@@ -134,44 +298,47 @@ Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, 
 			var row = list[i];
 			var good = row.good;
 			var price = row.price;
-			console.log(row);
+			// console.log(row);
+            
+            tr.append(this._getGood(good));
+            tr.append(this._getPrice(price));
 			
-            var td = $('<td></td>')
-                .append(Selectable.getItemTooltippedImage(good))
-                .appendTo(tr);
-            $('<td></td>')
-                .html(good.name)
-                .appendTo(tr);
-			var priceTd = $('<td></td>')
-                .appendTo(tr);
-            var priceUl = $('<ul></ul>')
-                .appendTo(priceTd);
-			var iconTd = $('<td></td>')
-                .appendTo(tr);
-            var iconUl = $('<ul></ul>')
-                .appendTo(iconTd);
-			var nameTd = $('<td></td>')
-                .appendTo(tr);
-            var nameUl = $('<ul></ul>')
-                .appendTo(nameTd);
-			for(var i in price) {
-				var p = price[i];
+            // var td = $('<td></td>')
+                // .append(Selectable.getItemTooltippedImage(good))
+                // .appendTo(tr);
+            // $('<td></td>')
+                // .html(good.name)
+                // .appendTo(tr);
+			// var priceTd = $('<td></td>')
+                // .appendTo(tr);
+            // var priceUl = $('<ul></ul>')
+                // .appendTo(priceTd);
+			// var iconTd = $('<td></td>')
+                // .appendTo(tr);
+            // var iconUl = $('<ul></ul>')
+                // .appendTo(iconTd);
+			// var nameTd = $('<td></td>')
+                // .appendTo(tr);
+            // var nameUl = $('<ul></ul>')
+                // .appendTo(nameTd);
+			// for(var i in price) {
+				// var p = price[i];
 				// console.log(p);
-				$('<li></li>')
-                    .html(p.price.toLocaleString('en'))
-                    .appendTo(priceUl);
-				$('<li><img src="' + p.currency.icon + '" title="' + p.currency.name + '" alt="Currency icon" width="32" height="32" /></li>')
-                    .appendTo(iconUl);
-				$('<li></li>')
-                    .html((p.currency.name ? p.currency.name : ''))
-                    .appendTo(nameUl);
-			}
+				// $('<li></li>')
+                    // .html(p.price.toLocaleString('en'))
+                    // .appendTo(priceUl);
+				// $('<li><img src="' + p.currency.icon + '" title="' + p.currency.name + '" alt="Currency icon" width="32" height="32" /></li>')
+                    // .appendTo(iconUl);
+				// $('<li></li>')
+                    // .html((p.currency.name ? p.currency.name : ''))
+                    // .appendTo(nameUl);
+			// }
 			
-			if(row && row.requirement) {
-                $('<td></td>')
-                    .append(row.requirement.getDiv())
-                    .appendTo(tr);
-			}
+			// if(row && row.requirement) {
+                // $('<td></td>')
+                    // .append(row.requirement.getDiv())
+                    // .appendTo(tr);
+			// }
 		}
 		return html;
 	}

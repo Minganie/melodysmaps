@@ -248,13 +248,13 @@ ul.duty.trial li.mode:nth-child(even) {
 .melsmaps-merchant-popup tr td {
 	height: 100%;
 }
-
 .melsmaps-merchant-popup table td ul {
 	display: flex;
 	flex-direction: column;
 	margin: 0;
 	height: 100%;
 	justify-content: space-around;
+    align-items: flex-start;
 }
 .melsmaps-merchant-popup table td ul li,
 .melsmaps-merchant-popup table td ul li * {

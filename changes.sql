@@ -1,7 +1,7 @@
 -- pg_dump -F c -f ffxiv20190708.backup ffxiv
 -- cd D:\Programmes\Postgres\11\bin
 -- cd C:\Program Files\PostgreSQL\11\bin
--- pg_restore.exe -U postgres -d postgres --clean --create D:\Programmes\xampp\htdocs\melodysmaps\ffxiv20190705.backup
+-- pg_restore.exe -U postgres -d postgres --clean --create D:\Programmes\xampp\htdocs\melodysmaps\ffxiv20190708.backup
 -- pg_restore.exe -U postgres -d postgres --clean --create C:\xampp\htdocs\melodysmaps\ffxiv20190708.backup
 -- ALTER DATABASE ffxiv SET search_path TO ffxiv, public;
 
@@ -377,10 +377,10 @@ INSERT INTO immaterials(name, icon) VALUES
     ('Storm Seals', 'https://img.finalfantasyxiv.com/lds/h/U/CCNK6X-ZCF7GuNMs8wCscgepGM.png'), 
     ('Serpent Seals', 'https://img.finalfantasyxiv.com/lds/h/N/Ixq2noiX81fAWg5gn1j2_1T1hg.png'), 
     ('Flame Seals', 'https://img.finalfantasyxiv.com/lds/h/h/7LOaAVLlcypX_l9QjCvZQy5Ot0.png'), 
-    ('Yellow Crafters''s Scrip', 'https://img.finalfantasyxiv.com/lds/h/b/RFlwSqbdB54J0HLFqvJ0TNU7kU.png'), 
-    ('Yellow Gatherers''s Scrip', 'https://img.finalfantasyxiv.com/lds/h/D/qp79vkP79nFgPeDrx53Er59OPg.png'),
-    ('White Crafters''s Scrip', 'https://img.finalfantasyxiv.com/lds/h/U/rJKUbxNkQVeN72t6rfKgBPbAoI.png'), 
-    ('White Gatherers''s Scrip', 'https://img.finalfantasyxiv.com/lds/h/F/Jud8K4-LquMpsdmomg3-NLbTTY.png'),
+    ('Yellow Crafters'' Scrip', 'https://img.finalfantasyxiv.com/lds/h/b/RFlwSqbdB54J0HLFqvJ0TNU7kU.png'), 
+    ('Yellow Gatherers'' Scrip', 'https://img.finalfantasyxiv.com/lds/h/D/qp79vkP79nFgPeDrx53Er59OPg.png'),
+    ('White Crafters'' Scrip', 'https://img.finalfantasyxiv.com/lds/h/U/rJKUbxNkQVeN72t6rfKgBPbAoI.png'), 
+    ('White Gatherers'' Scrip', 'https://img.finalfantasyxiv.com/lds/h/F/Jud8K4-LquMpsdmomg3-NLbTTY.png'),
     ('Allagan Tomestone of Poetics', 'https://img.finalfantasyxiv.com/lds/h/p/yLKCqTGCJ_XMtEbBMBnPMlJR8s.png'),
     ('Titan Cobaltpiece', 'https://img.finalfantasyxiv.com/lds/h/I/pfJyIgGQrDNczK2kC25Bz-ezMo.png'),
     ('Rainbowtide Psashp', 'https://img.finalfantasyxiv.com/lds/h/g/7qgI94imE1F4mkoIdFe4U9dE80.png'),
@@ -534,7 +534,7 @@ BEGIN
     IF seals <> 'Seals' THEN
         RAISE EXCEPTION 'Trying to get seals without the magic word?';
     END IF;
-    SELECT particule INTO STRICT part FROM grand_companies WHERE name=$1;
+    SELECT particle INTO STRICT part FROM grand_companies WHERE name=$1;
     res := get_immaterial(part || ' Seals');
     RETURN res;
 END;
@@ -608,7 +608,7 @@ BEGIN
                     'hq', hq,
                     'n', n
                 ) as item
-                FROM merchant_goods_list
+                FROM merchant_prices_list
                 WHERE merchant_sale=sale.id
             )a;
             price := json_build_object(
@@ -623,7 +623,7 @@ BEGIN
                     'hq', hq,
                     'n', n
                 ) as item
-                FROM merchant_goods_list
+                FROM merchant_prices_list
                 WHERE merchant_sale=sale.id
             )a;
             price := json_build_object(
@@ -645,6 +645,7 @@ BEGIN
                 'type', 'Seals',
                 'seals', sale.seals,
                 'rank', sale.rank,
+                'ranki', (select gcr.rank from grand_company_ranks as gcr where gcr.name=sale.rank),
                 'gc', sale.gc,
                 'token', get_immaterial(sale.gc, 'Seals')
             );
@@ -729,34 +730,31 @@ BEGIN
                         GROUP BY tab
                     )a;
                     -- tabs = {tab} where tab = {name: '', sales: []}
-                    all_tabs := all_tabs || tabs::text;
+                    all_tabs := all_tabs || tabs::text || ',';
                 ELSE
-                    FOR _subtab IN SELECT subtab FROM merchant_second_tabs WHERE merchant=$1 AND type=sale_type AND tab=_tab LOOP
-                        SELECT json_build_object(
-                            'name', tab,
-                            'subtabs', subtabs
-                        ) INTO STRICT tabs
+                    SELECT json_build_object(
+                        'name', tab,
+                        'subtabs', subtabs
+                    ) INTO STRICT tabs
+                    FROM (
+                        SELECT tab, json_agg(subtabs) as subtabs
                         FROM (
-                            SELECT tab, json_agg(subtabs) as subtabs
+                            SELECT tab, json_build_object(
+                                'name', subtab,
+                                'sales', sales
+                            ) as subtabs
                             FROM (
-                                SELECT tab, json_build_object(
-                                    'name', subtab,
-                                    'sales', sales
-                                ) as subtabs
-                                FROM (
-                                    SELECT tab, subtab, json_agg(get_merchant_sale(id)) as sales
-                                    FROM merchant_sales
-                                    WHERE merchant=$1 AND type=sale_type AND tab=_tab AND subtab=_subtab
-                                    GROUP BY tab, subtab
-                                )a
-                            )b
-                            GROUP BY tab
-                        )c;
-                        -- tabs = {tab} where tab = {name: '', subtabs: [{tab}, {tab}, ...]}
-                        all_tabs := all_tabs || tabs::text;
-                    END LOOP;
+                                SELECT tab, subtab, json_agg(get_merchant_sale(id)) as sales
+                                FROM merchant_sales
+                                WHERE merchant=$1 AND type=sale_type AND tab=_tab
+                                GROUP BY tab, subtab
+                            )a
+                        )b
+                        GROUP BY tab
+                    )c;
+                    -- tabs = {tab} where tab = {name: '', subtabs: [{tab}, {tab}, ...]}
+                    all_tabs := all_tabs || tabs::text || ',';
                 END IF;
-                all_tabs := all_tabs || ',';
             END LOOP;
             all_tabs := trim(trailing ',' from all_tabs);
             all_tabs := all_tabs || ']';

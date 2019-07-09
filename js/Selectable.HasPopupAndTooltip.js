@@ -14,8 +14,10 @@ Selectable.HasPopupAndTooltip.prototype = $.extend({}, Selectable.HasPopup.proto
 	},
 	
 	onSelect: function() {
+        // console.log(this);
 		var that = this;
 		this._full.then(function(full) {
+            // console.log(full);
 			that._addToMap().then(function(lyr) {
                 melsmap.once('zoomend', function() {
                     lyr.openPopup();
