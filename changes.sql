@@ -43,6 +43,69 @@ ALTER TABLE mobiles
     DROP COLUMN x,
     DROP COLUMN y,
     DROP COLUMN map;
+
+CREATE OR REPLACE FUNCTION get_game_coords_point(geomin geometry)
+    RETURNS json
+    LANGUAGE 'sql'
+AS $BODY$
+select json_build_object(
+	'zone', z.name,
+	'x', z.mxeg*st_x(geomin)+z.nxeg,
+	'y', z.myeg*st_y(geomin)+z.nyeg
+	)
+FROM vzones AS z
+WHERE st_contains(z.geom, geomin);
+$BODY$;
+
+CREATE OR REPLACE FUNCTION get_game_coords(geom geometry)
+    RETURNS json
+    LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+    res json;
+BEGIN
+    CASE st_geometrytype(geom)
+        WHEN 'ST_Point' THEN
+            res := get_game_coords_point(geom);
+    ELSE
+        RAISE EXCEPTION 'Unsupported geometry type: %', st_geometrytype(geom);
+    END CASE;
+    RETURN res;
+END;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION get_mobile_zones(merchantlid text)
+    RETURNS json
+    LANGUAGE 'sql'
+AS $BODY$
+select json_agg(coords)
+from (
+    select get_game_coords((st_dump(geom)).geom) as coords
+    from mobiles as m
+    where m.lid=$1
+)a;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION ffxiv.get_mobile(
+	lid text)
+    RETURNS json
+    LANGUAGE 'sql'
+AS $BODY$
+SELECT json_build_object(
+    'id', 0,
+    'lid', n.lid,
+    'name', n.name,
+    'label', n.name,
+    'zones', array_to_string(get_mobile_zones($1), ', '),
+    'category', get_category('npc'),
+    'geom', get_vertices(n.geom),
+    'bounds', get_bounds(n.geom),
+    'centroid', get_centroid_coords(n.geom)
+)
+FROM mobiles as n
+WHERE lid = $1;
+$BODY$;
+
 CREATE OR REPLACE VIEW ffxiv.vsearchables AS
  SELECT 0 AS id,
     items.lid,
@@ -495,6 +558,30 @@ BEGIN;
         ADD CONSTRAINT quest_requirements_dutylid_fkey FOREIGN KEY (dutylid) REFERENCES ffxiv.duties_each (lid);
 COMMIT;
 
+CREATE OR REPLACE FUNCTION ffxiv.get_duty_each(
+	dutylid text)
+    RETURNS json
+    LANGUAGE 'sql'
+AS $BODY$
+    SELECT json_build_object(
+        'lid', de.lid,
+        'name', de.name,
+        'mode', de.mode,
+        'banner', de.banner_url,
+        'label', de.name || ' (' || de.mode || ')',
+        'geom', get_vertices(d.geom),
+        'bounds', get_bounds(d.geom),
+        'centroid', get_centroid_coords(d.geom),
+        'category', get_category(d.cat),
+        'nruns', de.nruns,
+        'level', de.level,
+        'modes', get_modes(de.name)
+    )
+    FROM duties_each as de
+        JOIN duties as d ON de.name=d.name
+    WHERE de.lid=dutylid;
+$BODY$;
+
 ALTER TABLE pvp_tokens 
     DROP CONSTRAINT pvp_tokens_token_fkey;
     
@@ -771,16 +858,7 @@ DROP FUNCTION IF EXISTS get_currencies();
 DROP FUNCTION IF EXISTS get_currency(text);
 
 -- get_merchant
-CREATE OR REPLACE FUNCTION get_merchant_zone(merchantlid text)
-    RETURNS text
-    LANGUAGE 'sql'
-AS $BODY$
-select string_agg(z.name, ', ')
-from mobiles as m
-join zones as z on st_intersects(z.geom, m.geom)
-WHERE m.lid=$1
-group by m.lid;
-$BODY$;
+
 
 CREATE OR REPLACE FUNCTION ffxiv.get_vertices_multi_point(
 	geomin geometry)
@@ -853,10 +931,11 @@ select json_build_object(
     'id', 0::int,
     'lid', m.lid,
     'name', m.name,
-    'label', m.name || ' (' || get_merchant_zone(m.lid) || ')',
+    'label', m.name || ' (' || (SELECT array_to_string(get_mobile_zones($1), ', ')) || ')',
 	'category', get_category('Merchant'),
     'requirement', get_requirement(requires),
 	'all_tabs', get_merchant_tabs(m.lid),
+    'zones', array_to_string(get_mobile_zones($1), ', '),
 	'geom', get_vertices(geom),
 	'bounds', get_bounds(geom),
 	'centroid', get_centroid_coords(geom)

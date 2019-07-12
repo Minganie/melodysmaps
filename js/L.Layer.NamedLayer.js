@@ -25,7 +25,7 @@ L.Layer.NamedLayer = L.Layer.extend({
 		
         for(var i in features) {
             var feature = features[i];
-            // console.log(feature);
+            console.log(feature);
             this._bounds[0][1] = Math.min(this._bounds[0][1], feature.bounds[0][1]);
             this._bounds[0][0] = Math.min(this._bounds[0][0], feature.bounds[0][0]);
             this._bounds[1][0] = Math.max(this._bounds[1][0], feature.bounds[1][0]);
@@ -33,6 +33,7 @@ L.Layer.NamedLayer = L.Layer.extend({
             // console.log(this._bounds);
             // console.log('minx < maxx ? ' + (this._bounds[0][1] < this._bounds[1][1]));
             // console.log('miny < maxy ? ' + (this._bounds[0][0] < this._bounds[1][0]));
+            console.log(feature.centroid);
             
             this.options.pointStyle.className = this.options.nameClass || this.options.pointStyle.className;
             var point = L.marker(feature.centroid, this.options.pointStyle);

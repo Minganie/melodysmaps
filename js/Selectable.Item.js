@@ -84,14 +84,10 @@ Selectable.Item.Tooltip.Item.prototype = {
 	
 	getUsers: function() {
 		// Used by
-		var uses = '';
-		for(var i in this.item.disciplines) {
-			uses += this.item.disciplines[i].abbrev + ' ';
-		}
 		var html = $('<div></div>')
             .addClass('melsmaps-item-users');
         $('<p></p>')
-            .html(uses)
+            .html(this.item.disciplines)
             .appendTo(html);
         $('<p></p>')
             .html('Lv. ' + this.item.required_level)

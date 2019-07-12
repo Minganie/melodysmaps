@@ -1,7 +1,10 @@
 Selectable.Quest = function(searchable) {
     this._searchable = searchable;
     if(searchable && searchable.lid) {
-        this._full = api("quests", searchable.lid);
+        this._full = api("quests", searchable.lid).then(function(quest) {
+            console.log(quest);
+            return quest;
+        });
     }
 }
 Selectable.Quest.prototype = $.extend({}, Selectable.prototype, {

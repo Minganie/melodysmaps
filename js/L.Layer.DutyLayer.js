@@ -15,6 +15,7 @@ L.Layer.DutyLayer = L.Layer.NamedPointLayer.extend({
         
         for(var i in features) {
             var feature = features[i];
+            console.log(feature);
             
             var icon = null;
             var group = null;

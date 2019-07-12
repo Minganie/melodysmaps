@@ -8,7 +8,7 @@ Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, 
     _addToMap: function(group) {
         var that = this;
         return this._full.then(function(full) {
-            var point = L.namedMultiPointLayer([full], {
+            var point = L.namedPointLayer([full], {
                 name: full.name, 
                 minZoom: 7,
                 maxZoom: 10,
@@ -38,11 +38,8 @@ Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, 
 	},
 	
     _getPopupSubtitle: function(popupable) {
-        var zone = '?'; var re = /\((.+)\)/g;
-        if(popupable && popupable.label)
-            zone = re.exec(popupable.label)[1];
         return $('<h2></h2>')
-            .append(zone)
+            .append(popupable && popupable.zone ? popupable.zone : '?')
             .append(' Merchant');
     },
     
@@ -303,37 +300,6 @@ Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, 
             tr.append(this._getGood(good));
             tr.append(this._getPrice(price));
 			
-            // var td = $('<td></td>')
-                // .append(Selectable.getItemTooltippedImage(good))
-                // .appendTo(tr);
-            // $('<td></td>')
-                // .html(good.name)
-                // .appendTo(tr);
-			// var priceTd = $('<td></td>')
-                // .appendTo(tr);
-            // var priceUl = $('<ul></ul>')
-                // .appendTo(priceTd);
-			// var iconTd = $('<td></td>')
-                // .appendTo(tr);
-            // var iconUl = $('<ul></ul>')
-                // .appendTo(iconTd);
-			// var nameTd = $('<td></td>')
-                // .appendTo(tr);
-            // var nameUl = $('<ul></ul>')
-                // .appendTo(nameTd);
-			// for(var i in price) {
-				// var p = price[i];
-				// console.log(p);
-				// $('<li></li>')
-                    // .html(p.price.toLocaleString('en'))
-                    // .appendTo(priceUl);
-				// $('<li><img src="' + p.currency.icon + '" title="' + p.currency.name + '" alt="Currency icon" width="32" height="32" /></li>')
-                    // .appendTo(iconUl);
-				// $('<li></li>')
-                    // .html((p.currency.name ? p.currency.name : ''))
-                    // .appendTo(nameUl);
-			// }
-			
 			// if(row && row.requirement) {
                 // $('<td></td>')
                     // .append(row.requirement.getDiv())
@@ -348,7 +314,7 @@ Selectable.Merchant.Source = {
         merchant.iconSize = 24;
         var img = merchant.category.getGoldIcon();
         var a = $('<a></a>')
-            .html(merchant.name + ' (' + merchant.zone.name + ')');
+            .html(merchant.name + ' (' + merchant.zones + ')');
         var li = $('<li></li>')
             .addClass('melsmaps-item-source-link')
             .append(img)
