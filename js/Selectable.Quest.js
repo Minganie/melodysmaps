@@ -1,10 +1,7 @@
 Selectable.Quest = function(searchable) {
     this._searchable = searchable;
     if(searchable && searchable.lid) {
-        this._full = api("quests", searchable.lid).then(function(quest) {
-            console.log(quest);
-            return quest;
-        });
+        this._full = api("quests", searchable.lid);
     }
 }
 Selectable.Quest.prototype = $.extend({}, Selectable.prototype, {
@@ -87,8 +84,9 @@ Selectable.Quest.Tooltip.Quest.prototype = {
               .html(this.quest.quest_giver.label)
               .data('selectable', Selectable.getFull(this.quest.quest_giver))
               .appendTo(div);
+          var zone = this.quest.quest_giver.zones[0];
           $('<p></p>')
-              .html(this.quest.quest_giver.zone.name + ' X: ' + this.quest.quest_giver.x + ' Y: ' + this.quest.quest_giver.y)
+              .html(zone.zone + ' X: ' + zone.x + ' Y: ' + zone.y)
               .appendTo(div);
         } else {
             div.addClass("melsmaps-quest-seasonal");
@@ -176,12 +174,12 @@ Selectable.Quest.Tooltip.Quest.prototype = {
                 n: this.quest.xp,
             },
             {
-                src: "icons/gil.png",
+                src: "icons/currency/gil.png",
                 name: "Gil",
                 n: this.quest.gil,
             },
             {
-                src: "icons/venture.png",
+                src: "https://img.finalfantasyxiv.com/lds/h/O/_QQKl_lCLsTeYBJfC8YvHrpmhE.png",
                 name: "Venture",
                 n: this.quest.ventures,
             },
@@ -201,7 +199,7 @@ Selectable.Quest.Tooltip.Quest.prototype = {
                 n: this.quest.bt_reputation
             },
             {
-                src: "icons/seal.png",
+                src: "https://img.finalfantasyxiv.com/lds/h/U/CCNK6X-ZCF7GuNMs8wCscgepGM.png",
                 name: "Seals",
                 n: this.quest.gc_seals
             }

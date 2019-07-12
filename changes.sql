@@ -2,7 +2,7 @@
 -- cd D:\Programmes\Postgres\11\bin
 -- cd C:\Program Files\PostgreSQL\11\bin
 -- pg_restore.exe -U postgres -d postgres --clean --create D:\Programmes\xampp\htdocs\melodysmaps\ffxiv20190708.backup
--- pg_restore.exe -U postgres -d postgres --clean --create C:\xampp\htdocs\melodysmaps\ffxiv20190708.backup
+-- pg_restore.exe -U postgres -d postgres --clean --create C:\xampp\htdocs\melodysmaps\ffxiv20190712.backup
 -- ALTER DATABASE ffxiv SET search_path TO ffxiv, public;
 
 -- Remove old tables that didn't know you could pay or buy with more than one item
@@ -44,14 +44,44 @@ ALTER TABLE mobiles
     DROP COLUMN y,
     DROP COLUMN map;
 
+-- because cookie-cutter != square...
+DROP VIEW IF EXISTS vzones;
+CREATE OR REPLACE VIEW ffxiv.vzones AS
+WITH zones_with_cdhg AS (
+ SELECT z.gid,
+    z.name,
+    z.code,
+    CASE WHEN s.geom IS NULL THEN z.geom ELSE s.geom END AS geom,
+    z.a,
+    z.b,
+    z.e,
+    z.f,
+    CASE WHEN s.geom IS NULL THEN st_xmin(z.geom) ELSE  st_xmin(s.geom) END AS c,
+    CASE WHEN s.geom IS NULL THEN st_xmax(z.geom) ELSE  st_xmax(s.geom) END AS d,
+    CASE WHEN s.geom IS NULL THEN st_ymin(z.geom) ELSE  st_ymin(s.geom) END AS h,
+    CASE WHEN s.geom IS NULL THEN st_ymax(z.geom) ELSE  st_ymax(s.geom) END AS g
+   FROM zones as z
+    LEFT JOIN zones_square AS s ON z.name=s.zone
+)
+SELECT gid, name, code, geom, a, b, c, d, e, f, g, h,
+    (d - c) / (b - a)::double precision AS mxge,
+    c - (d - c) / (b - a)::double precision * a::double precision AS nxge,
+    (b - a)::double precision / (d - c) AS mxeg,
+    a::double precision - (b - a)::double precision / (d - c) * c AS nxeg,
+    (h - g) / (f - e)::double precision AS myge,
+    g - (h - g) / (f - e)::double precision * e::double precision AS nyge,
+    (e - f)::double precision / (g - h) AS myeg,
+    f::double precision - (e - f)::double precision / (g - h) * h AS nyeg
+FROM zones_with_cdhg;
+
 CREATE OR REPLACE FUNCTION get_game_coords_point(geomin geometry)
     RETURNS json
     LANGUAGE 'sql'
 AS $BODY$
 select json_build_object(
 	'zone', z.name,
-	'x', z.mxeg*st_x(geomin)+z.nxeg,
-	'y', z.myeg*st_y(geomin)+z.nyeg
+	'x', round((z.mxeg*st_x(geomin)+z.nxeg)::numeric, 1),
+	'y', round((z.myeg*st_y(geomin)+z.nyeg)::numeric, 1)
 	)
 FROM vzones AS z
 WHERE st_contains(z.geom, geomin);
@@ -74,7 +104,7 @@ BEGIN
 END;
 $BODY$;
 
-CREATE OR REPLACE FUNCTION get_mobile_zones(merchantlid text)
+CREATE OR REPLACE FUNCTION get_mobile_zones(lid text)
     RETURNS json
     LANGUAGE 'sql'
 AS $BODY$
@@ -83,6 +113,17 @@ from (
     select get_game_coords((st_dump(geom)).geom) as coords
     from mobiles as m
     where m.lid=$1
+)a;
+$BODY$;
+
+CREATE OR REPLACE FUNCTION get_mobile_zone_names(zones json)
+    RETURNS text
+    LANGUAGE 'sql'
+AS $BODY$
+select string_agg(zo->>'zone', ', ') 
+from
+(
+    SELECT json_array_elements($1) as zo
 )a;
 $BODY$;
 
@@ -96,7 +137,8 @@ SELECT json_build_object(
     'lid', n.lid,
     'name', n.name,
     'label', n.name,
-    'zones', array_to_string(get_mobile_zones($1), ', '),
+    'zone_names', get_mobile_zone_names(get_mobile_zones($1)),
+    'zones', get_mobile_zones($1),
     'category', get_category('npc'),
     'geom', get_vertices(n.geom),
     'bounds', get_bounds(n.geom),
@@ -931,11 +973,12 @@ select json_build_object(
     'id', 0::int,
     'lid', m.lid,
     'name', m.name,
-    'label', m.name || ' (' || (SELECT array_to_string(get_mobile_zones($1), ', ')) || ')',
+    'label', m.name || ' (' || get_mobile_zone_names(get_mobile_zones($1)) || ')',
 	'category', get_category('Merchant'),
     'requirement', get_requirement(requires),
 	'all_tabs', get_merchant_tabs(m.lid),
-    'zones', array_to_string(get_mobile_zones($1), ', '),
+    'zone_names', get_mobile_zone_names(get_mobile_zones($1)),
+    'zones', get_mobile_zones($1),
 	'geom', get_vertices(geom),
 	'bounds', get_bounds(geom),
 	'centroid', get_centroid_coords(geom)
@@ -1017,3 +1060,4 @@ AS $BODY$
 $BODY$;
 
 UPDATE zones SET lid=name WHERE lid is null;
+UPDATE areas SET lid=name WHERE lid is null;

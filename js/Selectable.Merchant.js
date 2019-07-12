@@ -314,7 +314,7 @@ Selectable.Merchant.Source = {
         merchant.iconSize = 24;
         var img = merchant.category.getGoldIcon();
         var a = $('<a></a>')
-            .html(merchant.name + ' (' + merchant.zones + ')');
+            .html(merchant.name + ' (' + merchant.zone_names + ')');
         var li = $('<li></li>')
             .addClass('melsmaps-item-source-link')
             .append(img)
