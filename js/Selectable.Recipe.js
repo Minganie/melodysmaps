@@ -128,7 +128,6 @@ Selectable.Recipe.Tooltip.Recipe.prototype = {
         return d;
     },
     _addDetails: function() {
-        console.log(this.recipe);
         var div = $('<div class="melsmaps-recipe-block"></div>');
         div.append($('<h2>Recipe Details</h2>'));
         var t = '<table><tr><td>Total Crafted <span>' + this.recipe.nb + '</span></td><td>Difficulty <span>' + this.recipe.difficulty + '</span></td></tr><tr><td>Durability <span>' + this.recipe.durability + '</span></td><td>Maximum Quality <span>' + this.recipe.max_quality + '</span></td></tr><tr><td>Quality <span>' + this.recipe.quality + '</span></td><td></td></tr></table>';
