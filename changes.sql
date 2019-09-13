@@ -4,13 +4,6 @@
 -- pg_restore.exe -U postgres -d postgres --clean --create D:\Programmes\xampp\htdocs\melodysmaps\ffxiv20190716.backup
 -- pg_restore.exe -U postgres -d postgres --clean --create C:\xampp\htdocs\melodysmaps\ffxiv20190829.backup
 
-CREATE TABLE quest_action_requirements (
-    questlid text references quests(lid),
-    action text references requirements(name),
-    primary key (questlid, action)
-);
-GRANT SELECT ON quest_action_requirements TO ffxivro;
-GRANT INSERT, UPDATE, DELETE ON quest_action_requirements TO ffxivrw;
 CREATE OR REPLACE FUNCTION ffxiv.adjust_geom_to_less_marker()
     RETURNS trigger
     LANGUAGE 'plpgsql'
