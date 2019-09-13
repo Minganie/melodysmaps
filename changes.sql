@@ -157,9 +157,6 @@ AS $BODY$
 $BODY$;
 
 
-CREATE TYPE hunt_rank AS ENUM ('B Rank', 'A Rank', 'S Rank', 'SS Rank');
-ALTER TABLE mm_mobiles ADD COLUMN rank hunt_rank;
-
 -- when unique doesn't mean what you think it does... but first let's fix "is_fate"
 UPDATE mm_unique_mobiles as mu
 SET is_fate = true
