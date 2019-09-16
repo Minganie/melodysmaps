@@ -137,6 +137,7 @@ Selectable.Quest.Tooltip.Quest.prototype = {
         return block;
     },
     _getRequirementBlock: function() {
+		console.log(this.quest);
         var div = $('<div class="questBlock requirements"></div>')
             .append($('<h2>Requirements</h2>'))
             .append($('<h3>Starting Class</h3>'));
@@ -144,20 +145,36 @@ Selectable.Quest.Tooltip.Quest.prototype = {
             .html(this.quest.starting_class ? this.quest.starting_class : "Not specified")
             .appendTo(div);
         $('<h3>Class/Job</h3>').appendTo(div);
-        $('<p></p>')
+        var classP = $('<p></p>')
             .html(this.quest.class_requirement ? this.quest.class_requirement : "Not specified")
             .appendTo(div);
+		if(this.quest.action_requirements) {
+			classP.addClass('melsmaps-quest-has-action');
+            for(var i in this.quest.action_requirements) {
+				var action = this.quest.action_requirements[i];
+				console.log(action);
+				$('<div class="melsmaps-quest-action-requirement"></div>')
+					.append($('<h4 class="melsmaps-quest-action-requirement">Required Action</h4>'))
+					.append(this._makeImgAndText(action.icon, action.name, false, null, null))
+					.appendTo(div);
+			}
+		}
         $('<h3>Grand Company</h3>').appendTo(div);
         $('<p></p>')
             .html(this._getGcText())
             .appendTo(div);
         $('<h3>Quest/Duty</h3>').appendTo(div);
-        if(this.quest.requirements) {
+        if(this.quest.duty_requirements) {
             var ul = $('<ul></ul>');
-            for(var i in this.quest.requirements) {
-                var d = this.quest.requirements[i];
+            for(var i in this.quest.duty_requirements) {
+                var d = this.quest.duty_requirements[i];
+				if(d.type == 'Duty')
                 $('<li class="llink melsmaps-duty-link"></li>')
                     .attr("data-melsmaps-duty-lid", d.lid)
+                    .html(d.name + ' (' + d.mode + ')')
+                    .appendTo(ul);
+				else
+                $('<li class="llink"></li>')
                     .html(d.name + ' (' + d.mode + ')')
                     .appendTo(ul);
             }
