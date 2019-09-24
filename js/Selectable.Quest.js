@@ -137,7 +137,7 @@ Selectable.Quest.Tooltip.Quest.prototype = {
         return block;
     },
     _getRequirementBlock: function() {
-		console.log(this.quest);
+		// console.log(this.quest);
         var div = $('<div class="questBlock requirements"></div>')
             .append($('<h2>Requirements</h2>'))
             .append($('<h3>Starting Class</h3>'));
