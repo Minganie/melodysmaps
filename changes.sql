@@ -19,6 +19,7 @@ select 'Duty'::required_duty_type as t, name, mode, lid, level from duties_each
 union
 select 'Stage'::required_duty_type as t, name, 'Regular' as mode, name as lid, 50 from carnivale_stages
 order by 2,3;
+GRANT SELECT ON duty_requirements TO ffxivro;
 
 ALTER TABLE quest_requirements RENAME TO quest_duty_requirements;
 ALTER TABLE quest_duty_requirements 
