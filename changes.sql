@@ -58,3 +58,20 @@ INSERT INTO requirements (name, icon) VALUES ('Allied with the Namazu', 'icons/t
 
 ALTER TABLE merchants DROP CONSTRAINT merchants_requires_fkey,
 ADD CONSTRAINT merchants_requires_fkey FOREIGN KEY (requires) REFERENCES requirements(name);
+
+CREATE OR REPLACE FUNCTION ffxiv.get_merchant_sale(
+	saleid integer)
+    RETURNS json
+    LANGUAGE 'sql'
+
+    COST 100
+    VOLATILE 
+AS $BODY$
+    SELECT json_build_object(
+        'price', get_merchant_price(merchant_sales),
+        'good', get_merchant_good(merchant_sales),
+		'requires', get_requirement(requires)
+    )
+    FROM merchant_sales
+    WHERE id = $1;
+$BODY$;
