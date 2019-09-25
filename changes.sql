@@ -63,9 +63,7 @@ CREATE OR REPLACE FUNCTION ffxiv.get_merchant_sale(
 	saleid integer)
     RETURNS json
     LANGUAGE 'sql'
-
-    COST 100
-    VOLATILE 
+	STABLE
 AS $BODY$
     SELECT json_build_object(
         'price', get_merchant_price(merchant_sales),
