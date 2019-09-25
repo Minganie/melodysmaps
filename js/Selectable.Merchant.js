@@ -187,6 +187,33 @@ Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, 
         }
     },
 	
+	_getRequirement: function(requirement) {
+		var html = null;
+		if(requirement) {
+			var html = $('<div></div>')
+				.addClass('req')
+				.attr('title', 'Requires ' + requirement.name);
+			var generic_img = $('<img />')
+				.attr({
+					src: "http://www.melodysmaps.com/icons/traits/requires.png",
+					height: (requirement && requirement.iconSize ? requirement.iconSize : 32),
+					width: (requirement && requirement.iconSize ? requirement.iconSize : 32)
+				});
+			var specific_img = $('<img />')
+				.attr({
+					src: "http://www.melodysmaps.com/" + requirement.icon,
+					height: (requirement && requirement.iconSize ? requirement.iconSize : 32),
+					width: (requirement && requirement.iconSize ? requirement.iconSize : 32)
+				});
+			var span = $('<span></span>')
+				.html(requirement.name);
+			html.append(generic_img)
+				.append(specific_img)
+				.append(span);
+		}
+		return html;
+	},
+	
 	_getPopupContent: function(popupable) {
 		var html = $('<div></div>')
             .addClass('melsmaps-merchant-popup');
@@ -293,18 +320,11 @@ Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, 
             var tr = $('<tr></tr>')
                 .appendTo(html);
 			var row = list[i];
-			var good = row.good;
-			var price = row.price;
 			// console.log(row);
             
-            tr.append(this._getGood(good));
-            tr.append(this._getPrice(price));
-			
-			// if(row && row.requirement) {
-                // $('<td></td>')
-                    // .append(row.requirement.getDiv())
-                    // .appendTo(tr);
-			// }
+            tr.append(this._getGood(row.good));
+            tr.append(this._getPrice(row.price));
+			tr.append(this._getRequirement(row.requires));
 		}
 		return html;
 	}
