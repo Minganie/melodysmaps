@@ -29,12 +29,3 @@ geom
 FROM duty_maps_t;
 DROP TRIGGER compute_coefficients ON duty_maps_t;
 ALTER TABLE duty_maps_t DROP COLUMN c, DROP COLUMN d, DROP COLUMN g, DROP COLUMN h;
-
-
-CREATE TRIGGER add_duty_map_from_raster
-AFTER UPDATE ON duty_map_rasters
-FOR EACH ROW EXECUTE FUNCTION add_duty_map();
-
-CREATE TRIGGER set_duty_lid
-BEFORE UPDATE ON duty_map_rasters
-FOR EACH ROW EXECUTE FUNCTION find_which_duty();
