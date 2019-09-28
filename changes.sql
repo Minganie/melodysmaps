@@ -217,8 +217,8 @@ WHERE a.gid<>b.gid AND a.mmumob=b.mmumob AND st_intersects(a.geom, b.geom);
 DELETE FROM mobs_clustered WHERE gid=170;
 -- move offending marker south
 -- fill gap with new markers
--- recreate marker
-INSERT INTO xivdb_mobs (x, y, mmumob, geom) values (19.3, 10.2, 1528, st_geomfromtext('POINT(77.5777446418032 30.5937568544928)', 4326));
+-- move marker back in place
+UPDATE xivdb_mobs SET geom=st_geomfromtext('POINT(77.5777446418032 30.5937568544928)', 4326) WHERE gid=10951;
 
 BEGIN;
 ALTER TABLE mm_unique_mobiles DROP CONSTRAINT mm_unique_mobiles_ukey;
