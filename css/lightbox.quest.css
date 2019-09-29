@@ -163,3 +163,15 @@ div.questBlock.rewards > div:nth-child(even) {
 div.questBlock.rewards > div:nth-child(odd) {
     background-color: #333333;
 }
+div.questBlock.requirements > p.melsmaps-quest-has-action {
+	margin: 0 0 0 0.5em;
+}
+div.melsmaps-quest-action-requirement {
+	background-color: #3d3d3d;
+	border-radius: 5xp;
+	margin: 5px;
+}
+div.questBlock.requirements h4.melsmaps-quest-action-requirement {
+	background-color: #3d3d3d;
+	color: #a3cc52;
+}
