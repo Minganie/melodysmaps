@@ -58,16 +58,24 @@ Selectable.Item.Tooltip.Item.prototype = {
             .appendTo(html);
         var u_p = $('<p></p>')
             .addClass('melsmaps-item-unique')
-            .html((this.item.unique ? 'Unique ' : '') + (this.item.untradable ? 'Untradable' : ''))
+            .html((this.item.is_unique ? 'Unique ' : '') + (this.item.untradable ? 'Untradable' : ''))
             .appendTo(sub_div);
         var name_p = $('<p></p>')
             .addClass('melsmaps-item-name')
             .html(this.item.name)
             .appendTo(sub_div);
         var cat3_p = $('<p></p>')
-            .addClass('melsmals-item-lcat3')
+            .addClass('melsmaps-item-lcat3')
             .html(this.item.lcat3)
             .appendTo(sub_div);
+		var glamour_div = $('<div class="melsmaps-item-glamour"></div>')
+			.appendTo(html);
+		var crestClass = 'crestable' + (this.item.crest_worthy ? ' on' : '');
+		var dresserClass = 'dresserable' + (this.item.dresser_able ? ' on' : '');
+		var armoireClass = 'armoireable' + (this.item.armoire_able ? ' on' : '');
+		glamour_div.append('<div class="' + crestClass + '"></div>')
+			.append('<div class="' + dresserClass + '"></div>')
+			.append('<div class="' + armoireClass + '"></div>');
 		return html;
 	},
 	

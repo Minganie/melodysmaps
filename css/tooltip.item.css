@@ -35,8 +35,36 @@
 .melsmaps-weapon-header>div:first-child {
 	display: inline-block;
 }
-.melsmaps-weapon-header>div:last-child {
+.melsmaps-weapon-header>div:nth-child(2) {
 	display: inline-block;
+}
+.melsmaps-weapon-header>div.melsmaps-item-glamour {
+	position: absolute;
+	top: 1em;
+	right: 1em;
+}
+.melsmaps-weapon-header>div.melsmaps-item-glamour>div {
+	display: inline-block;
+	width:32px;
+	height:32px;
+}
+.melsmaps-item-tooltip-wrapper div.crestable {
+	background: url('../icons/crest_able.png');
+}
+.melsmaps-item-tooltip-wrapper div.crestable.on {
+	background: url('../icons/crest_able.on.png');
+}
+.melsmaps-item-tooltip-wrapper div.dresserable {
+	background: url('../icons/dresser_able.png');
+}
+.melsmaps-item-tooltip-wrapper div.dresserable.on {
+	background: url('../icons/dresser_able.on.png');
+}
+.melsmaps-item-tooltip-wrapper div.armoireable {
+	background: url('../icons/armoire_able.png');
+}
+.melsmaps-item-tooltip-wrapper div.armoireable.on {
+	background: url('../icons/armoire_able.on.png');
 }
 .melsmaps-item-unique {
 	font-size: 0.7em;
