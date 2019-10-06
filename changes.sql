@@ -4,10 +4,11 @@
 -- pg_restore.exe -U postgres -d postgres --clean --create D:\Programmes\xampp\htdocs\melodysmaps\ffxiv20190716.backup
 -- pg_restore.exe -U postgres -d postgres --clean --create C:\xampp\htdocs\melodysmaps\ffxiv20190829.backup
 
+DROP VIEW IF EXISTS vhunting_logs;
 DROP TABLE IF EXISTS hunting_log_kills;
-DROP TABLE IF EXISTS hunting_log_level;
-DROP TABLE IF EXISTS hunting_log_rank;
-DROP TABLE IF EXISTS hunting_log;
+DROP TABLE IF EXISTS hunting_log_levels;
+DROP TABLE IF EXISTS hunting_log_ranks;
+DROP TABLE IF EXISTS hunting_logs;
 CREATE TABLE hunting_logs(
 	id serial PRIMARY KEY,
 	name text NOT NULL UNIQUE,
@@ -82,17 +83,46 @@ CREATE TABLE hunting_log_levels(
 GRANT SELECT ON hunting_log_levels TO ffxivro;
 GRANT INSERT, UPDATE, DELETE ON hunting_log_levels TO ffxivrw;
 GRANT USAGE ON hunting_log_levels_id_seq TO ffxivro;
- 
+
+DROP VIEW IF EXISTS zones_and_dungeons;
+CREATE VIEW zones_and_dungeons AS
+SELECT name
+FROM zones
+UNION
+SELECT name
+FROM duties
+WHERE cat='Dungeon'
+ORDER BY 1;
+
 CREATE TABLE hunting_log_kills(
 	hunting_log_level int NOT NULL REFERENCES hunting_log_levels(id),
 	mob text NOT NULL REFERENCES mm_mobiles(name),
 	n int check(n > 0),
-	zone text NOT NULL REFERENCES zones(name),
+	zone text,
 	area text, -- would be nice to have a fkey, but my toponyms are not numerous enough
 	PRIMARY KEY (hunting_log_level, mob)
 );
 GRANT SELECT ON hunting_log_kills TO ffxivro;
 GRANT INSERT, UPDATE, DELETE ON hunting_log_kills TO ffxivrw;
+
+CREATE OR REPLACE FUNCTION hunting_log_kills_fkey()
+	RETURNS trigger
+ LANGUAGE 'plpgsql'
+ AS $BODY$
+ DECLARE
+	_name text;
+ BEGIN
+	SELECT name INTO STRICT _name 
+	FROM zones_and_dungeons 
+	WHERE name=NEW.zone;
+	RETURN NEW;
+ END;
+ $BODY$;
+ 
+CREATE TRIGGER hunting_log_kills_fkey
+BEFORE INSERT OR UPDATE ON hunting_log_kills
+FOR EACH ROW
+EXECUTE FUNCTION hunting_log_kills_fkey();
 
 DROP VIEW IF EXISTS vhunting_log;
 CREATE VIEW vhunting_logs AS
