@@ -93,6 +93,7 @@ SELECT name
 FROM duties
 WHERE cat='Dungeon'
 ORDER BY 1;
+GRANT SELECT ON zones_and_dungeons TO ffxivro;
 
 CREATE TABLE hunting_log_kills(
 	hunting_log_level int NOT NULL REFERENCES hunting_log_levels(id),
