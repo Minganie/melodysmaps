@@ -70,6 +70,10 @@
     <link rel="stylesheet" href="css/search.css" />
     <script src="js/Category.js"></script>
     <script src="js/search.js"></script>
+	
+	<!-- geom lists like hunting log -->
+    <script src="js/MultiGeoms.js"></script>
+    <link rel="stylesheet" href="css/MultiGeoms.css" />
     
     <!-- lightboxes -->
     <link rel="stylesheet" href="css/lightbox.css" />
@@ -93,6 +97,7 @@
 </head>
 <body>
     <div class="search"><input type="text" name="search" id="search" placeholder="Search..." /></div>
+	<div id="multi-geoms"></div>
     <div id="item"></div>
     <div id="duty"></div>
     <div id="vista"></div>
@@ -106,6 +111,7 @@
     <script>
     $(document).ready(function() {
         $('#search').search();
+		$('#multi-geoms').multiGeoms();
         $('#item').itemBox();
         $('#duty').dutyBox();
         $('#vista').vistaBox();
