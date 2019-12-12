@@ -1,10 +1,8 @@
 L.Control.MelodysLegend = L.Control.GroupedLayers.extend({
+	_melsLayerList: [],
 	
 	_addItem: function (obj) {
-        // console.log(obj);
-        // var name = (obj ? (obj.layer ? ( obj.layer.options ? obj.layer.options.name : '') : '') : '');
-		// console.log("MelsLegend::_additem, map has layer " + name + "? " + this._map.hasLayer(obj.layer));
-        
+		
 		var label = document.createElement('div'),
 		  input,
 		  checked = this._map.hasLayer(obj.layer),
@@ -85,7 +83,7 @@ L.Control.MelodysLegend = L.Control.GroupedLayers.extend({
 		} else {
 		  container = this._baseLayersList;
 		}
-
+		
 		container.appendChild(label);
 
 		return label;
@@ -138,6 +136,18 @@ L.Control.MelodysLegend = L.Control.GroupedLayers.extend({
             });
             this._map.flyToBounds(bounds);
         }
+	},
+	
+	addOverlay: function(layer, name, group) {
+		var melsId = group + name;
+		if(this._melsLayerList.includes(melsId)) {
+			this._map.flyToBounds(layer.getBounds());
+		} else {
+			this._melsLayerList.push(melsId);
+			this._addLayer(layer, name, group, true);
+			this._update();
+		}
+		return this;
 	}
 });
 
