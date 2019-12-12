@@ -1,11 +1,8 @@
 Selectable.Gathering = function(searchable) {
     this._searchable = searchable;
-	if(searchable && searchable.id) {
+	if(searchable && (searchable.id || searchable.gid)) {
 		var that = this;
-		this._full = api("nodes", searchable.id);
-	} else if(searchable && searchable.gid) {
-		var that = this;
-		this._full = api("nodes", searchable.gid);
+		this._full = api("nodes", searchable.id || searchable.gid);
 	}
 };
 Selectable.Gathering.prototype = $.extend({}, Selectable.DefaultPolygon.prototype, {
