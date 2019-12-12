@@ -1,8 +1,11 @@
 Selectable.Fishing = function(searchable) {
     this._searchable = searchable;
-	if(searchable && searchable.name) {
+	if(searchable && searchable.id) {
 		var that = this;
-		this._full = api("nodes", searchable.name);
+		this._full = api("nodes", searchable.id);
+	} else if(searchable && searchable.gid) {
+		var that = this;
+		this._full = api("nodes", searchable.gid);
 	}
 };
 Selectable.Fishing.prototype = $.extend({}, Selectable.Gathering.prototype, {
