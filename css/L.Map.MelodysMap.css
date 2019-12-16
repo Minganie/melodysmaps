@@ -184,6 +184,24 @@ ul.duty.trial li.mode:nth-child(even) {
 .fishing_data tr:first-child td {
 	border: 1px solid grey;
 }
+.melsmaps-fishing-clock,
+.melsmaps-fishing-weather-watcher {
+	width: 49%;
+	display: inline-block;
+	margin: 0.2rem;
+	border: 1px solid black;
+	border-radius: 5px;
+	min-height: 40px;
+	font-size: 1.2rem;
+	line-height: 40px;
+	padding-left: 50px;
+}
+.melsmaps-fishing-clock {
+	background: url('../icons/clock.png');
+	background-size: 30px 30px;
+	background-position: 5px center;
+	background-repeat: no-repeat;
+}
 /* Merchant */
 .melsmaps-merchant-popup {
 	padding: 1em;

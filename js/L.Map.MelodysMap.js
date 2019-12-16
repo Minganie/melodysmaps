@@ -167,6 +167,27 @@ L.Map.MelodysMap = L.Map.extend({
                 $('#recipe-tooltip')
                     .css("display", "none");
             });
+			
+			// FISHING POPUP handler
+			this.on('popupopen', function(e) {
+				var div = $(e.popup._content).find('.melsmaps-fishing-popup');
+				if(div && div.length > 0) {
+					var clock = div.find('.melsmaps-fishing-clock');
+					var weather = div.find('.melsmaps-fishing-weather-watcher');
+					this.intervalId = setInterval(function() {
+						clock.html(gt.time.melodysGetTime());
+						var zone = weather.attr('data-melsmaps-zone');
+						var w = gt.skywatcher.getViewModel()[zone];
+						weather.css('background', 'url("icons/weather/' + w + '.png") no-repeat 5px center');
+						weather.html(w);
+					}, 1000);
+				}
+			});
+			// Fishing popup handler
+			this.on('popupclose', function(e) {
+				if(this.intervalId)
+					clearInterval(this.intervalId);
+			});
         }, this);
     },
     

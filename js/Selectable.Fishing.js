@@ -8,13 +8,17 @@ Selectable.Fishing = function(searchable) {
 Selectable.Fishing.prototype = $.extend({}, Selectable.Gathering.prototype, {
     
     _getPopupContent: function(popupable) {
-		var html = $('<table></table>');
+		var html = $('<div class="melsmaps-fishing-popup"></div>');
+		var conds = $('<div></div>').appendTo(html);
+		var time = $('<div class="melsmaps-fishing-clock"></div>').appendTo(conds);
+		var weather = $('<div class="melsmaps-fishing-weather-watcher" data-melsmaps-zone="' + popupable.zone + '"></div>').appendTo(conds);
+		var table = $('<table></table>').appendTo(html);
 		var ok = (popupable && popupable.baits && popupable.fishes && popupable.fishing_table);
 		
 		if(ok) {
 			// Header: target fish
             var thead = $('<thead></thead>')
-                .appendTo(html);
+                .appendTo(table);
             var trh = $('<tr></tr>')
                 .appendTo(thead);
             $('<th></th>')
@@ -28,7 +32,7 @@ Selectable.Fishing.prototype = $.extend({}, Selectable.Gathering.prototype, {
 			
 			// Body: bait and rates
             var tbody = $('<tbody></tbody>')
-                .appendTo(html);
+                .appendTo(table);
 			for(var i in popupable.baits) {
 				var tr = $('<tr></tr>')
                     .appendTo(tbody);
