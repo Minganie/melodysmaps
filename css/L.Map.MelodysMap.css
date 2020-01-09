@@ -171,18 +171,8 @@ ul.duty.trial li.mode:nth-child(even) {
 	background-color: #2a292a;
 }
 /* Fishing */
-.fishing_data {
-	text-align: center;
-	border-collapse: collapse;
-}
-.fishing_data tr td {
-	border: 1px solid grey;
-}
-.fishing_data tr:first-child td:first-child {
-	border: none;
-}
-.fishing_data tr:first-child td {
-	border: 1px solid grey;
+.melsmaps-fishing-popup table thead tr {
+	vertical-align: top;
 }
 .melsmaps-fishing-clock,
 .melsmaps-fishing-weather-watcher {
@@ -202,6 +192,52 @@ ul.duty.trial li.mode:nth-child(even) {
 	background-position: 5px center;
 	background-repeat: no-repeat;
 }
+.melsmaps-fishing-light {
+	width: 1rem;
+	height: 1rem;
+	background-color: grey;
+	margin: 0.5rem auto;
+	border-radius: 1rem;
+}
+.melsmaps-fishing-light.green {
+	background-color: green;
+}
+.melsmaps-fishing-light.red {
+	background-color: red;
+}
+.melsmaps-fishing-folklore {
+	height: 1rem;
+	background: url('../icons/fishing/folklore.png');
+	background-position: center;
+	background-size: 1rem;
+	background-repeat: no-repeat;
+	margin: 0.1rem;
+}
+.melsmaps-fishing-snagging {
+	height: 1rem;
+	background: url('../icons/fishing/snagging.png');
+	background-position: center;
+	background-size: 1rem;
+	background-repeat: no-repeat;
+	margin: 0.1rem;
+}
+.melsmaps-fishing-fisheyes {
+	height: 1rem;
+	background: url('../icons/fishing/fisheyes.png');
+	background-position: center;
+	background-size: 1rem;
+	background-repeat: no-repeat;
+	margin: 0.1rem;
+}
+.melsmaps-fishing-predator {
+	height: 1rem;
+	background: url('../icons/fishing/folklore.png');
+	background-position: center;
+	background-size: 1rem;
+	background-repeat: no-repeat;
+	margin: 0.1rem;
+}
+
 /* Merchant */
 .melsmaps-merchant-popup {
 	padding: 1em;

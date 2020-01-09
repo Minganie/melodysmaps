@@ -9163,7 +9163,7 @@ gt.skywatcher = {
                 if (!zone)
                     continue;
                 var zoneView = { id: zone.id, weather: [] };
-                zoneView.name = gt.skywatcher.getShortZoneName(zone.name);
+                zoneView.name = zone.name;
                 regionView.zones.push(zoneView);
 
                 // Now fill in the zone weather

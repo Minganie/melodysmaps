@@ -93,6 +93,7 @@
 	
 	<!-- Time and weather tools, <3 Garland Tools' Clorifex -->
 	<script src="js/garlandPart.js"></script>
+	<script src="js/gt.bell.fish.js"></script>
     
     <!-- Tooltips -->
     <link rel="stylesheet" href="css/tooltip.item.css" />
@@ -111,6 +112,7 @@
     <div id="item-tooltip"></div>
     <div id="leve-tooltip"></div>
     <div id="recipe-tooltip"></div>
+	<div id="clock"></div>
     <script>
     $(document).ready(function() {
         $('#search').search();
@@ -121,6 +123,10 @@
         $('#leve').leveBox();
         $('#quest').questBox();
         $('#recipe').recipeBox();
+		
+		var i = setInterval(function() {
+			$('#clock').trigger('melsmaps-tick', [gt.time.melodysGetTime(), gt.skywatcher.getViewModel()]);
+		}, 1000);
     
         // Global 'cause select-able things need to put themselves on the map
         melsmap = L.melodysMap('map', {
@@ -131,7 +137,7 @@
             zoomControl: false
         }).setView([55, 85], 4);
         
-        var attri = 'With data from <a href="https://na.finalfantasyxiv.com/lodestone/playguide/db/">The Lodestone</a>, <a href="http://en.ff14angler.com/">Cat became hungry</a>, <a href="http://http://www.garlandtools.org/">Garland Tools</a>, friends and Melody\'s Sweat, Blood & Tears';
+        var attri = 'With data from <a href="https://na.finalfantasyxiv.com/lodestone/playguide/db/">The Lodestone</a>, <a href="http://en.ff14angler.com/">Cat became hungry</a>, <a href="http://http://www.garlandtools.org/">Garland Tools</a>, friends and Melody\'s Sweat, Blood & Tears || Find me on <a href="https://discord.gg/yNacsau">Discord</a>';
         // Low res tiles
         var eorzea = L.tileLayer('http://melodysmaps.com/eorzea/{z}/{x}/{y}.png', {
             minZoom: 4,
