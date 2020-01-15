@@ -230,12 +230,22 @@ ul.duty.trial li.mode:nth-child(even) {
 	margin: 0.1rem;
 }
 .melsmaps-fishing-predator {
-	height: 1rem;
-	background: url('../icons/fishing/folklore.png');
-	background-position: center;
-	background-size: 1rem;
-	background-repeat: no-repeat;
+	height: 24px;
 	margin: 0.1rem;
+	position: relative;
+}
+.melsmaps-fishing-predator > img,
+.melsmaps-fishing-predator > p {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 24px;
+	height: 24px;
+	margin: 0;
+	padding: 0;
+	font-size: 24px;
+	color: white;
+	line-height: 24px;
 }
 
 /* Merchant */

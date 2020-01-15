@@ -9171,7 +9171,7 @@ gt.skywatcher = {
                     zoneView.weather.push(weather);
                     return zoneView.weather.length >= maxWeather;
                 });
-				melodysMap[zoneView.name] = zoneView.weather[1];
+				melodysMap[zoneView.name] = [zoneView.weather[0], zoneView.weather[1]];
             }
         }
 

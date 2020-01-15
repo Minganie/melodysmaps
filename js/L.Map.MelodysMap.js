@@ -180,9 +180,9 @@ L.Map.MelodysMap = L.Map.extend({
 						var zone = weather.attr('data-melsmaps-zone');
 						if(zone.indexOf('Gridania') !== -1)
 							zone = 'Gridania';
-						var w = gt.skywatcher.getViewModel()[zone];
-						weather.css('background', 'url("icons/weather/' + w + '.png") no-repeat 5px center');
-						weather.html(w);
+						var sky = gt.skywatcher.getViewModel()[zone];
+						weather.css('background', 'url("icons/weather/' + sky[1] + '.png") no-repeat 5px center');
+						weather.html(sky[1]);
 						var node = div.parent().parent().find('h1').first().text();
 						
 						// fishes
@@ -192,12 +192,16 @@ L.Map.MelodysMap = L.Map.extend({
 								// console.log("Fish is " + f + " at " + node);
 								var info = gt.bell.fish.find(function(entry) {return entry.name===f && entry.title===node;});
 								if(info) {	// in case we disagree on the name of the node...
-									if(info.weather || info.during) {
+									if(info.weather || info.during || info.transition) {
 										// console.log("For fish " + f + " there's a restriction");
 										var wok = true;
+										var tok = true;
 										var dok = true;
 										if(info.weather) {
-											wok = info.weather.includes(w);
+											wok = info.weather.includes(sky[1]);
+										}
+										if(info.transition) {
+											tok = info.transition.includes(sky[0]) && info.weather.includes(sky[1]);
 										}
 										if(info.during) {
 											var currentHour = parseInt(h.substring(0,2), 10);
@@ -207,7 +211,7 @@ L.Map.MelodysMap = L.Map.extend({
 												dok = currentHour >= info.during.start || currentHour < info.during.end;
 											}
 										}
-										if(wok && dok) {
+										if(wok && dok && tok) {
 											// Restrictions met
 											$(th).find('.melsmaps-fishing-light').addClass('green').removeClass('red');
 										} else {

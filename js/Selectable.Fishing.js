@@ -57,6 +57,13 @@ Selectable.Fishing.prototype = $.extend({}, Selectable.Gathering.prototype, {
 					timeMarker.append(inter);
 					var weatherMarker = $('<div class="melsmaps-fishing-tt-weather"></div>').appendTo(tt);
 					if(info.weather) {
+						if(info.transition) {
+							for(var i in info.transition) {
+								var name = info.transition[i];
+								weatherMarker.append($('<img src="icons/weather/' + name + '.png">'));
+							}
+							weatherMarker.append($('<span>&rarr;</span>'));
+						}
 						for(var i in info.weather) {
 							var name = info.weather[i];
 							weatherMarker.append($('<img src="icons/weather/' + name + '.png">'));
@@ -74,10 +81,13 @@ Selectable.Fishing.prototype = $.extend({}, Selectable.Gathering.prototype, {
 					if(info.fishEyes === 1) {
 						th.append($('<div class="melsmaps-fishing-fisheyes" title="Fish Eyes"></div>'));
 					}
-					if(info.predator === 1) {
-						th.append($('<div class="melsmaps-fishing-predator"></div>'));
-						console.log(f + " is a predator fish");
-						conosole.log(info.predator);
+					if(info.predator) {
+						for(var i in info.predator) {
+							var pred = info.predator[i];
+							var licon = gt.melsmaps.fishTranslator[pred.name];
+							$('<div class="melsmaps-fishing-predator" title="Predator: ' + pred.predatorAmount + 'x ' + pred.name + '"><img src="' + licon + '" width=24 height=24><p>'+pred.predatorAmount+'</p></div>')
+								.appendTo(th);
+						}
 					}
 				}
 			}
