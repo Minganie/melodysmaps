@@ -7,7 +7,7 @@ Category = function(data) {
         
         getRedIcon: function() {
             return img = $('<img />')
-                .attr('src', 'http://www.melodysmaps.com/' + data.red_icon)
+                .attr('src', 'https://melodysmaps.com/' + data.red_icon)
                 .attr('alt', data.pretty_name + ' icon')
                 .attr('width', (data.iconSize ? data.iconSize : iconSize))
                 .attr('height', (data.iconSize ? data.iconSize : iconSize));
@@ -15,7 +15,7 @@ Category = function(data) {
         
         getGoldIcon: function() {
             return img = $('<img />')
-                .attr('src', 'http://www.melodysmaps.com/' + data.gold_icon)
+                .attr('src', 'https://melodysmaps.com/' + data.gold_icon)
                 .attr('alt', data.pretty_name + ' icon')
                 .attr('width', (data.iconSize ? data.iconSize : iconSize))
                 .attr('height', (data.iconSize ? data.iconSize : iconSize));
@@ -50,7 +50,7 @@ Category = function(data) {
 		getPointStyle: function() {
             return {
                 icon: L.icon({
-					iconUrl: 'http://www.melodysmaps.com/' + data.map_icon,
+					iconUrl: 'https://melodysmaps.com/' + data.map_icon,
 					iconSize: [32, 32]
 				})
             };
