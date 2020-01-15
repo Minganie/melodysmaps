@@ -23,10 +23,13 @@ $.widget('melsmaps.search', $.ui.autocomplete, {
         },
         
         _renderItem: function (ul, item) {
+			var name = item.name;
+			if(item.real_name.includes('<i>'))
+				name = item.real_name;
             var li = $( "<li></li>" )
                 .attr( "data-value", item.value )
                 .append(item.category.getRedIcon())
-                .append($('<span></span>').html(item.name).attr('title', item.category.getTooltip()))
+                .append($('<span></span>').html(name).attr('title', item.category.getTooltip()))
                 .appendTo(ul);
             return li;
         }
