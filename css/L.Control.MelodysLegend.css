@@ -3,6 +3,10 @@
 	color: #d7d7d7;
 	border: 3px solid #9d8355;
 	border-radius: 5px;
+	overflow: scroll;
+}
+.melsmaps-legend.leaflet-control-layers > form {
+	max-height: 94vh;
 }
 .melsmaps-legend.leaflet-control-layers * {
 	background: none;

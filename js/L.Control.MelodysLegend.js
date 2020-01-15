@@ -1,5 +1,21 @@
 L.Control.MelodysLegend = L.Control.GroupedLayers.extend({
 	_melsLayerList: [],
+	_initLayout: function (baseLayers, groupedOverlays, options) {
+		L.Control.GroupedLayers.prototype._initLayout.call(this);
+		
+		var ze_map = this._map;
+		
+		// per https://gis.stackexchange.com/questions/104507/disable-panning-dragging-on-leaflet-map-for-div-within-map/106777
+		// Disable dragging when user's cursor enters the element
+		this.getContainer().addEventListener('mouseover', function () {
+			ze_map.dragging.disable();
+		});
+
+		// Re-enable dragging when user's cursor leaves the element
+		this.getContainer().addEventListener('mouseout', function () {
+			ze_map.dragging.enable();
+		});
+	},
 	
 	_addItem: function (obj) {
 		
