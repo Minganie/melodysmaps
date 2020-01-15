@@ -201,17 +201,17 @@ Selectable.Quest.Tooltip.Quest.prototype = {
                 n: this.quest.ventures,
             },
             {
-                src: this.quest.tomestones ? "icons/" + this.quest.tomestones.split(' ').join('').toLowerCase() + ".png" : null,
-                name: this.quest.tomestones,
+                src: this.quest.tomestones ? this.quest.tomestones.icon : null,
+                name: this.quest.tomestones ? this.quest.tomestones.name : '',
                 n: this.quest.tomestones_n,
             },
             {
-                src: this.quest.bt ? "icons/beast_tribes/" + this.quest.bt.split(' ').join('').split(",").join('').toLowerCase() + "_currency.png" : null,
-                name: this.quest.bt_currency,
+                src: this.quest.bt_currency ? this.quest.bt_currency.icon : null,
+                name: this.quest.bt_currency ? this.quest.bt_currency.name : '',
                 n: this.quest.bt_currency_n
             },
             {
-                src: this.quest.bt ? "icons/beast_tribes/" + this.quest.bt.split(' ').join('').split(",").join('').toLowerCase() + ".png" : null,
+                src: this.quest.bt ? "icons/beast_tribes/" + this.quest.bt.split(' ').join('').split("'").join('').toLowerCase() + ".png" : null,
                 name: this.quest.bt + " Relations",
                 n: this.quest.bt_reputation
             },
