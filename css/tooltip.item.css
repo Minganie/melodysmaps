@@ -185,7 +185,8 @@
 .melsmaps-fishing-tt-weather {
 	margin: 0.5rem 0 0 1.5rem;
 }
-.melsmaps-fishing-tt-weather img {
+.melsmaps-fishing-tt-weather img,
+.melsmaps-fishing-tt-weather span {
 	float: left;
 	width: 1.2rem;
 	height: 1.2rem;
