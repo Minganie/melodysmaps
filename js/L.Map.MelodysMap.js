@@ -167,6 +167,71 @@ L.Map.MelodysMap = L.Map.extend({
                 $('#recipe-tooltip')
                     .css("display", "none");
             });
+			
+			// FISHING POPUP handler
+			this.on('popupopen', function(e) {
+				var div = $(e.popup._content).find('.melsmaps-fishing-popup');
+				if(div && div.length > 0) {
+					var clock = div.find('.melsmaps-fishing-clock');
+					var weather = div.find('.melsmaps-fishing-weather-watcher');
+					this.intervalId = setInterval(function() {
+						var h = gt.time.melodysGetTime();
+						clock.html(h);
+						var zone = weather.attr('data-melsmaps-zone');
+						if(zone.indexOf('Gridania') !== -1)
+							zone = 'Gridania';
+						var sky = gt.skywatcher.getViewModel()[zone];
+						weather.css('background', 'url("icons/weather/' + sky[1] + '.png") no-repeat 5px center');
+						weather.html(sky[1]);
+						var node = div.parent().parent().find('h1').first().text();
+						
+						// fishes
+						div.find('.melsmaps-fish').each(function(i, th) {
+							var f = $(th).attr('data-melsmaps-fish');
+							if(f.indexOf('Map') == -1) {
+								// console.log("Fish is " + f + " at " + node);
+								var info = gt.bell.fish.find(function(entry) {return entry.name===f && entry.title===node;});
+								if(info) {	// in case we disagree on the name of the node...
+									if(info.weather || info.during || info.transition) {
+										// console.log("For fish " + f + " there's a restriction");
+										var wok = true;
+										var tok = true;
+										var dok = true;
+										if(info.weather) {
+											wok = info.weather.includes(sky[1]);
+										}
+										if(info.transition) {
+											tok = info.transition.includes(sky[0]) && info.weather.includes(sky[1]);
+										}
+										if(info.during) {
+											var currentHour = parseInt(h.substring(0,2), 10);
+											if(info.during.end > info.during.start) {
+												dok = currentHour >= info.during.start && currentHour < info.during.end;
+											} else {
+												dok = currentHour >= info.during.start || currentHour < info.during.end;
+											}
+										}
+										if(wok && dok && tok) {
+											// Restrictions met
+											$(th).find('.melsmaps-fishing-light').addClass('green').removeClass('red');
+										} else {
+											$(th).find('.melsmaps-fishing-light').addClass('red').removeClass('green');
+										}
+									} else {
+										// No restrictions on fish
+										$(th).find('.melsmaps-fishing-light').addClass('green').removeClass('red');
+									}
+								}
+							}
+						});
+					}, 1000);
+				}
+			});
+			// Fishing popup handler
+			this.on('popupclose', function(e) {
+				if(this.intervalId)
+					clearInterval(this.intervalId);
+			});
         }, this);
     },
     

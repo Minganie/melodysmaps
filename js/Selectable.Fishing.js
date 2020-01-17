@@ -8,27 +8,93 @@ Selectable.Fishing = function(searchable) {
 Selectable.Fishing.prototype = $.extend({}, Selectable.Gathering.prototype, {
     
     _getPopupContent: function(popupable) {
-		var html = $('<table></table>');
+		var html = $('<div class="melsmaps-fishing-popup"></div>');
+		var conds = $('<div></div>').appendTo(html);
+		var time = $('<div class="melsmaps-fishing-clock"></div>').appendTo(conds);
+		var weather = $('<div class="melsmaps-fishing-weather-watcher" data-melsmaps-zone="' + popupable.zone + '"></div>').appendTo(conds);
+		var table = $('<table></table>').appendTo(html);
 		var ok = (popupable && popupable.baits && popupable.fishes && popupable.fishing_table);
+		var zone = popupable.zone;
+		var node = popupable.name;
 		
 		if(ok) {
 			// Header: target fish
             var thead = $('<thead></thead>')
-                .appendTo(html);
+                .appendTo(table);
             var trh = $('<tr></tr>')
                 .appendTo(thead);
             $('<th></th>')
                 .appendTo(trh);
 			for(var i in popupable.fishes) {
 				var fish = popupable.fishes[i];
-                var th = $('<th></th>')
+				var f = fish.name;
+				var info = gt.bell.fish.find(function(entry) {return entry.name===f && entry.title===node;});
+                var th = $('<th class="melsmaps-fish" data-melsmaps-fish="' + fish.name + '"></th>')
                     .appendTo(trh);
                 th.append(Selectable.getItemTooltippedImage(fish));
+				var light = $('<div class="melsmaps-fishing-light"></div>').appendTo(th);
+				if(info) {
+					var tt = $('<div class="melsmaps-fishing-conditions-tooltip"></div>');
+					var timeMarker = $('<div class="melsmaps-fishing-tt-time"></div>').appendTo(tt);
+					timeMarker.append($('<div></div>'));
+					if(info.during) {
+						if(info.during.end < info.during.start) {
+							// morning
+							var l1 = 0;
+							var w1 = info.during.end/4;
+							// night
+							var l2 = info.during.start/4;
+							var w2 = (24-info.during.start)/4;
+							var inter = $('<div><div style="height: 1rem; background-color: green; width: ' + w1 + 'rem; position: relative; left: ' + l1 + 'rem;"></div><div style="height: 1rem; background-color: green; width: ' + w2 + 'rem; position: relative; left: ' + l2 + 'rem; top: -1rem;"></div></div>');
+						} else {
+							var width = (info.during.end - info.during.start)/4;
+							var left = info.during.start/4;
+							var inter = $('<div><div style="height: 1rem; background-color: green; width: ' + width + 'rem; position: relative; left: ' + left + 'rem;"></div></div>');
+						}
+					} else {
+						var inter = $('<div><div style="height: 1rem; background-color: green; width: 6rem;"></div></div>');
+					}
+					timeMarker.append(inter);
+					var weatherMarker = $('<div class="melsmaps-fishing-tt-weather"></div>').appendTo(tt);
+					if(info.weather) {
+						if(info.transition) {
+							for(var i in info.transition) {
+								var name = info.transition[i];
+								weatherMarker.append($('<img src="icons/weather/' + name + '.png">'));
+							}
+							weatherMarker.append($('<span>&rarr;</span>'));
+						}
+						for(var i in info.weather) {
+							var name = info.weather[i];
+							weatherMarker.append($('<img src="icons/weather/' + name + '.png">'));
+						}
+					}
+					light.addClass('melsmaps-is-a-tooltip');
+					light.attr('data-melsmaps-tooltip', tt[0].outerHTML);
+					// console.log(tt[0].outerHTML);
+					if(info.folklore === 1) {
+						th.append($('<div class="melsmaps-fishing-folklore" title="Tome of Regional Folklore"></div>'));
+					}
+					if(info.snagging === 1) {
+						th.append($('<div class="melsmaps-fishing-snagging" title="Snagging"></div>'));
+					}
+					if(info.fishEyes === 1) {
+						th.append($('<div class="melsmaps-fishing-fisheyes" title="Fish Eyes"></div>'));
+					}
+					if(info.predator) {
+						for(var i in info.predator) {
+							var pred = info.predator[i];
+							var licon = gt.melsmaps.fishTranslator[pred.name];
+							$('<div class="melsmaps-fishing-predator" title="Predator: ' + pred.predatorAmount + 'x ' + pred.name + '"><img src="' + licon + '" width=24 height=24><p>'+pred.predatorAmount+'</p></div>')
+								.appendTo(th);
+						}
+					}
+				}
 			}
 			
 			// Body: bait and rates
             var tbody = $('<tbody></tbody>')
-                .appendTo(html);
+                .appendTo(table);
 			for(var i in popupable.baits) {
 				var tr = $('<tr></tr>')
                     .appendTo(tbody);
