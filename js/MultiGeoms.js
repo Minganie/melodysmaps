@@ -48,17 +48,19 @@ $.widget('melsmaps.multiGeoms', {
 			var features = hl[log][rank];
 			// console.log(features);
 			
-			var poly = L.namedPolygonLayer(features, {
-                name: log + ' (rank ' + rank + ')',
-                minZoom: 7,
-                maxZoom: 10,
-                inLegend: true,
-                polygonStyle: {},
-                legendGroup: 'Hunting Log',
-                nameClass: 'melsmaps-tooltip',
-                searchable: false
-            }).addTo(melsmap);
-			melsmap.flyToBounds(poly.getBounds());
+			for(var i in features) {
+				var feature = features[i];
+				var poly = L.namedPolygonLayer([feature], {
+					name: feature.name,
+					minZoom: 7,
+					maxZoom: 10,
+					inLegend: true,
+					polygonStyle: {},
+					legendGroup: log + ' (rank ' + rank + ')',
+					nameClass: 'melsmaps-tooltip',
+					searchable: false
+				}).addTo(melsmap);
+			}
 		});
 	}
 });
