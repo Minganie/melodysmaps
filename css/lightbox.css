@@ -23,7 +23,7 @@
     width: 19px;
     height: 20px;
     margin: 1em;
-    background: url('http://www.melodysmaps.com/icons/button.png');
+    background: url('../icons/button.png');
     float: right;
     border: 0;
 }

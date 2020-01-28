@@ -28,7 +28,7 @@
 }
 .melsmaps-item-title button {
 	background-color: rgba(0,0,0,0);
-	background-image: url("http://www.melodysmaps.com/icons/inactivetab.png");
+	background-image: url("../icons/inactivetab.png");
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
 	padding: 0.7em 2em;
