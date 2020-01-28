@@ -17,6 +17,16 @@ L.Layer.NamedLayer = L.Layer.extend({
     },
     
     initialize: function(features, options) {
+		var getCentroid = function (arr) {
+			var sumX = 0;
+			var sumY = 0;
+			for(var i in arr[0]) {
+				// console.log(arr[0][i]);
+				sumX += arr[0][i][0];
+				sumY += arr[0][i][1];
+			}
+			return [sumX/arr[0].length, sumY/arr[0].length];
+		}
         this._bounds = [[90,180], [-90,-180]];
         
         L.setOptions(this, options);
@@ -37,16 +47,31 @@ L.Layer.NamedLayer = L.Layer.extend({
             // console.log(feature.centroid);
             
             this.options.pointStyle.className = this.options.nameClass || this.options.pointStyle.className;
-            var point = L.marker(feature.centroid, this.options.pointStyle);
-            if(!this.options.searchable)
-                point.bindTooltip((feature.name ? feature.name : '' ).toString(), { 
-                    permanent: true, 
-                    direction: 'center',
-                    offset: [0, -10],
-                    className: this.options.pointStyle.className
-                });
-            
-            centroids.push(point);
+			if(feature.geom.length && feature.geom.length > 1) {
+				for(var j in feature.geom) {
+					var centroid = getCentroid(feature.geom[j]);
+					// console.log(centroid);
+					var point = L.marker(centroid, this.options.pointStyle);
+					if(!this.options.searchable)
+						point.bindTooltip((feature.name ? feature.name : '' ).toString(), { 
+							permanent: true, 
+							direction: 'center',
+							offset: [0, -10],
+							className: this.options.pointStyle.className
+						});
+					centroids.push(point);
+				}
+			} else {
+				var point = L.marker(feature.centroid, this.options.pointStyle);
+				if(!this.options.searchable)
+					point.bindTooltip((feature.name ? feature.name : '' ).toString(), { 
+						permanent: true, 
+						direction: 'center',
+						offset: [0, -10],
+						className: this.options.pointStyle.className
+					});
+				centroids.push(point);
+			}
             geoms.push(feature.geom);
         }
         
@@ -94,8 +119,15 @@ L.Layer.NamedLayer = L.Layer.extend({
 		// console.log('showOrHide');
 		// console.log(this);
         this._map = evt.target;
+		// if(this.options && this.options.name && this.options.name=="Wharf Rat") {
+			// console.log("minzoom: " + this.options.minZoom);
+			// console.log("maxzoom: " + this.options.maxZoom);
+			// console.log("checked: " + this.checked);
+			// console.log("curzoom: " + this._map.getZoom());
+		// }
         if(this._map.getZoom() <= this.options.maxZoom &&
-            this._map.getZoom() >= this.options.minZoom) {
+            this._map.getZoom() >= this.options.minZoom &&
+			this.checked !== false) {
 				// console.log('show');
 				// console.log(this.show);
                 this.show();

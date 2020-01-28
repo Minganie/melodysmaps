@@ -35,10 +35,6 @@ L.Control.MelodysLegend = L.Control.GroupedLayers.extend({
 			
 			input.className = 'leaflet-control-layers-selector';
 			input.defaultChecked = checked;
-			if(obj && obj.layer) {
-				// console.log(obj.layer._visible);
-				input.disabled = (obj.layer ? (obj.layer._visible !== true) : false);
-			}
 		  }
 		} else {
 		  input = this._createRadioElement('leaflet-base-layers', checked);
@@ -119,20 +115,58 @@ L.Control.MelodysLegend = L.Control.GroupedLayers.extend({
 			if (input.className === 'leaflet-control-layers-selector') {
 				obj = this._getLayer(input.layerId);
 				if (input.checked && !this._map.hasLayer(obj.layer)) {
+					obj.layer.checked=true;
 					this._map.addLayer(obj.layer);
 					// console.log(obj.layer.showOrHide);
 					// console.log(this._map);
 					if(obj.layer.showOrHide)
 						obj.layer.showOrHide({target: this._map});
 				} else if (!input.checked && this._map.hasLayer(obj.layer)) {
+					obj.layer.checked=false;
 					this._map.removeLayer(obj.layer);
 					if(obj.layer.hide)
 						obj.layer.hide();
+				} else if(!input.checked) {
+					obj.layer.checked = false;
 				}
 			}
 		}
 
 		this._handlingClick = false;
+	},
+	
+	_onGroupInputClick: function () {
+		// console.log("group input click");
+		var i, input, obj;
+
+		var this_legend = this.legend;
+		this_legend._handlingClick = true;
+
+		var inputs = this_legend._form.getElementsByTagName('input');
+		var inputsLen = inputs.length;
+
+		for (i = 0; i < inputsLen; i++) {
+			input = inputs[i];
+			// console.log(input);
+			if (input.groupID === this.groupID && input.className === 'leaflet-control-layers-selector') {
+				// console.log("input is part of this group?");
+				input.checked = this.checked;
+				obj = this_legend._getLayer(input.layerId);
+				if (input.checked && !this_legend._map.hasLayer(obj.layer)) {
+					// console.log("adding a layer");
+					obj.layer.checked = true;
+					this_legend._map.addLayer(obj.layer);
+				} else if (!input.checked && this_legend._map.hasLayer(obj.layer)) {
+					// console.log("removing a layer");
+					obj.layer.checked = false;
+					this_legend._map.removeLayer(obj.layer);
+				} else if(!input.checked) {
+					obj.layer.checked=false;
+				}
+			}
+		}
+
+		this_legend._handlingClick = false;
 	},
 
 	_onNameClick: function (e) {
@@ -143,12 +177,15 @@ L.Control.MelodysLegend = L.Control.GroupedLayers.extend({
         // console.log(lay.layer.getBounds);
         if(lay && lay.layer && !lay.layer._tiles && lay.layer.getBounds) {
             var bounds = lay.layer.getBounds();
+			var zeMap = this._map;
             this._map.once('zoomend', function(e) {
-                if(lay.layer.getLayers) {
-                    lay.layer.getLayers()[0].openPopup();
-                } else {
-                    lay.layer.openPopup();
-                }
+				if(zeMap.hasLayer(lay.layer) && lay.layer.getCenter) {
+					if(lay.layer.getLayers) {
+						lay.layer.getLayers()[0].openPopup();
+					} else {
+						lay.layer.openPopup();
+					}
+				}
             });
             this._map.flyToBounds(bounds);
         }
