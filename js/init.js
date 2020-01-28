@@ -2,57 +2,57 @@ function init(map) {
     // Global cause MappedDuty needs them too
     mapIcons = {
         merchant: L.icon({
-            iconUrl: 'https://melodysmaps.com/icons/map/merchant.png',
+            iconUrl: 'icons/map/merchant.png',
             iconSize: [32, 32]
         }),
         
         aetheryte: L.icon({
-            iconUrl: 'https://melodysmaps.com/icons/map/aetheryte.png',
+            iconUrl: 'icons/map/aetheryte.png',
             iconSize: [32, 32],
             tooltipAnchor: [16, -32]
         }),
         
         chocobo: L.icon({
-            iconUrl: 'https://melodysmaps.com/icons/map/chocobo.png',
+            iconUrl: 'icons/map/chocobo.png',
             iconSize: [32, 32]
         }),
         
         moogle: L.icon({
-            iconUrl: 'https://melodysmaps.com/icons/map/moogle.png',
+            iconUrl: 'icons/map/moogle.png',
             iconSize: [32, 32]
         }),
         
         current: L.icon({
-            iconUrl: 'https://melodysmaps.com/icons/map/current.png',
+            iconUrl: 'icons/map/current.png',
             iconSize: [32, 32]
         }),
         
         trial: L.icon({
-            iconUrl: 'https://melodysmaps.com/icons/map/trial.png',
+            iconUrl: 'icons/map/trial.png',
             iconSize: [28, 28],
             tooltipAnchor: [12, 0]
         }),
         
         dungeon: L.icon({
-            iconUrl: 'https://melodysmaps.com/icons/map/dungeon.png',
+            iconUrl: 'icons/map/dungeon.png',
             iconSize: [28, 28],
             tooltipAnchor: [12, 0]
         }),
         
         raid: L.icon({
-            iconUrl: 'https://melodysmaps.com/icons/map/raid.png',
+            iconUrl: 'icons/map/raid.png',
             iconSize: [28, 28],
             tooltipAnchor: [12, 0]
         }),
         
         boss: L.icon({
-            iconUrl: 'https://melodysmaps.com/icons/map/boss.png',
+            iconUrl: 'icons/map/boss.png',
             iconSize: [28, 28],
             tooltipAnchor: [12, 0]
         }),
         
         chest: L.icon({
-            iconUrl: 'https://melodysmaps.com/icons/map/chest.png',
+            iconUrl: 'icons/map/chest.png',
             iconSize: [28, 28],
             tooltipAnchor: [12, 0]
         })

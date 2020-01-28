@@ -85,7 +85,7 @@ $.widget("melsmaps.vistaBox", $.melsmaps.lightbox, {
             that.time.html(that._formatTime(vista));
             that.weather.html(that._formatWeather(vista));
             that.emote.html(that._formatEmote(vista));
-            that.img.attr('src', 'http://melodysmaps.com/icons/sightseeing/' + vista.name + '.png');
+            that.img.attr('src', 'icons/sightseeing/' + vista.name + '.png');
         });
         
         this.show();
@@ -119,7 +119,7 @@ $.widget("melsmaps.vistaBox", $.melsmaps.lightbox, {
     _formatTime: function(vista) {
         var html = '';
         if(vista.debut && vista.fin) {
-            html += '<img src="http://melodysmaps.com/icons/clock.png" class="melsmaps-vista-icon" alt="Clock icon" width=18 height=18" />';
+            html += '<img src="icons/clock.png" class="melsmaps-vista-icon" alt="Clock icon" width=18 height=18" />';
             html += '<span>' + vista.debut + ' - ' + vista.fin + '</span>';
         }
         return html;
@@ -131,7 +131,7 @@ $.widget("melsmaps.vistaBox", $.melsmaps.lightbox, {
             for(var i in vista.weather) {
                 var weather = vista.weather[i];
                 html += '<p>';
-                html += '<img src="http://melodysmaps.com/icons/weather/' + weather + '.png" class="melsmaps-vista-icon" alt="Weather icon" width=18 height=18/>';
+                html += '<img src="icons/weather/' + weather + '.png" class="melsmaps-vista-icon" alt="Weather icon" width=18 height=18/>';
                 html += '<span>' + weather + '</span>';
                 html += '</p>';
             }
@@ -142,7 +142,7 @@ $.widget("melsmaps.vistaBox", $.melsmaps.lightbox, {
     _formatEmote: function(vista) {
         var html = '';
         if(vista.emote.substring(1, vista.emote.length)) {
-            html += '<img src="http://melodysmaps.com/icons/emotes/' + vista.emote.substring(1, vista.emote.length) + '.png" class="melsmaps-vista-icon" alt="Emote icon" width=18 height=18 />';
+            html += '<img src="icons/emotes/' + vista.emote.substring(1, vista.emote.length) + '.png" class="melsmaps-vista-icon" alt="Emote icon" width=18 height=18 />';
             html += '<span>' + vista.emote + '</span>';
         }
         return html;

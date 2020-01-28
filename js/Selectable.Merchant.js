@@ -195,13 +195,13 @@ Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, 
 				.attr('title', 'Requires ' + requirement.name);
 			var generic_img = $('<img />')
 				.attr({
-					src: "http://www.melodysmaps.com/icons/traits/requires.png",
+					src: "icons/traits/requires.png",
 					height: (requirement && requirement.iconSize ? requirement.iconSize : 32),
 					width: (requirement && requirement.iconSize ? requirement.iconSize : 32)
 				});
 			var specific_img = $('<img />')
 				.attr({
-					src: "http://www.melodysmaps.com/" + requirement.icon,
+					src: requirement.icon,
 					height: (requirement && requirement.iconSize ? requirement.iconSize : 32),
 					width: (requirement && requirement.iconSize ? requirement.iconSize : 32)
 				});

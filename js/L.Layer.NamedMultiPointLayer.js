@@ -72,7 +72,7 @@ L.Layer.NamedMultiPointLayer = L.Layer.NamedLayer.extend({
     
     getLegendLabel: function() {
 		// console.log('getLegendLabel');
-        var url = 'http://melodysmaps.com/icons/map/none.png';
+        var url = 'https://melodysmaps.com/icons/map/none.png';
         if(this.options && this.options.pointStyle && this.options.pointStyle.icon &&
            this.options.pointStyle.icon.options && this.options.pointStyle.icon.options.iconUrl)
             url = this.options.pointStyle.icon.options.iconUrl;

@@ -42,49 +42,49 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
 		// GATHERING OR FISHING
 		var nodes = $('<div></div>')
 			.appendTo(left);
-		this._setSubtitle(nodes, 'http://melodysmaps.com/icons/sections/gathered.png', 'gathered at');
+		this._setSubtitle(nodes, 'icons/sections/gathered.png', 'gathered at');
 		this.nodes = $('<ul></ul>').appendTo(nodes);
 		
 		// BUYING AT MERCHANT
 		var merchants = $('<div></div>')
 			.appendTo(left);
-		this._setSubtitle(merchants, 'http://melodysmaps.com/icons/sections/bought.png', 'bought at');
+		this._setSubtitle(merchants, 'icons/sections/bought.png', 'bought at');
 		this.merchants = $('<ul></ul>').appendTo(merchants);
 			
 		// CRAFTING
 		var crafters = $('<div></div>')
 			.appendTo(left);
-		this._setSubtitle(crafters, 'http://melodysmaps.com/icons/sections/crafted.png', 'crafted by');
+		this._setSubtitle(crafters, 'icons/sections/crafted.png', 'crafted by');
 		this.crafters = $('<ul></ul>').appendTo(crafters);
         
         // HG
 		var hunting_grounds = $('<div></div>')
 			.appendTo(middle);
-		this._setSubtitle(hunting_grounds, 'http://melodysmaps.com/icons/sections/hunted.png', 'dropped off');
+		this._setSubtitle(hunting_grounds, 'icons/sections/hunted.png', 'dropped off');
 		this.hunting_grounds = $('<ul></ul>').appendTo(hunting_grounds);
         
         // DUTIES
 		var duties = $('<div></div>')
 			.appendTo(middle);
-		this._setSubtitle(duties, 'http://melodysmaps.com/icons/sections/dungeonned.png', 'looted in');
+		this._setSubtitle(duties, 'icons/sections/dungeonned.png', 'looted in');
 		this.duties = $('<ul></ul>').appendTo(duties);
         
         // LEVES
         var leves = $('<div></div>')
             .appendTo(middle);
-        this._setSubtitle(leves, 'http://melodysmaps.com/icons/sections/leved.png', 'rewarded for');
+        this._setSubtitle(leves, 'icons/sections/leved.png', 'rewarded for');
         this.leves = $('<ul></ul>').appendTo(leves);
         
         // TREASURE MAPS
 		var maps = $('<div></div>')
 			.appendTo(middle);
-		this._setSubtitle(maps, 'http://melodysmaps.com/icons/sections/treasured.png', 'found with');
+		this._setSubtitle(maps, 'icons/sections/treasured.png', 'found with');
 		this.maps = $('<ul></ul>').appendTo(maps);
         
         // USED IN
 		var uses = $('<div></div>')
 			.appendTo(right);
-		this._setSubtitle(uses, 'http://melodysmaps.com/icons/sections/reagent.png', 'used in');
+		this._setSubtitle(uses, 'icons/sections/reagent.png', 'used in');
 		this.uses = $('<ul></ul>').appendTo(uses);
 	},
 	
@@ -175,7 +175,7 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
                     var width = Math.round(weather.catches / maxWidth * pixels);
                     var tr = $('<tr></tr>').appendTo(wTable);
                     $('<td>' + weather.weather + '</td>').appendTo(tr);
-                    $('<td><img src="http://melodysmaps.com/icons/weather/' + weather.weather + '.png" alt="" width=24 height=24 /></td>').appendTo(tr);
+                    $('<td><img src="icons/weather/' + weather.weather + '.png" alt="" width=24 height=24 /></td>').appendTo(tr);
                     $('<td><div class="melsmaps-fishing-weather" style="width: ' + width + 'px;"></div></td>').appendTo(tr);
                 }
             }
@@ -215,7 +215,7 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
                 var map = sources.maps[i];
                 
                 var img = $('<img />')
-                    .attr('src', 'http://melodysmaps.com/icons/gold/treasure.png')
+                    .attr('src', 'icons/gold/treasure.png')
                     .attr('width', 24)
                     .attr('height', 24);
                 var li = $('<li></li>')
