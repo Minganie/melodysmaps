@@ -245,12 +245,13 @@ L.Map.MelodysMap = L.Map.extend({
 		var _dutyLayers = this._dutyLayers;
         
         if(layer && layer.options && layer.options.inLegend) {
-            // console.log("Add layer " + layer.options.name + 
-                // " (" + (layer instanceof L.TileLayer ? 'Tile' : 'Overlay') + ") to legend in " + 
-                // (layer.options.group ? layer.options.group : "default group"));
                 
             var label = (layer.getLegendLabel ? layer.getLegendLabel() : (layer.options.name || ''));
             var group = (layer.getLegendGroup ? layer.getLegendGroup() : (layer.options.group || 'Misc'));
+			
+			
+            // console.log("Add layer " + layer.options.name + 
+                // " (" + (layer instanceof L.TileLayer ? 'Tile' : 'Overlay') + ") to legend in " + group);
             
             if(!layer.isInLegend) {
                 layer.isInLegend = true;

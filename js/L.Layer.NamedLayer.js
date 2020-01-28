@@ -119,8 +119,15 @@ L.Layer.NamedLayer = L.Layer.extend({
 		// console.log('showOrHide');
 		// console.log(this);
         this._map = evt.target;
+		// if(this.options && this.options.name && this.options.name=="Wharf Rat") {
+			// console.log("minzoom: " + this.options.minZoom);
+			// console.log("maxzoom: " + this.options.maxZoom);
+			// console.log("checked: " + this.checked);
+			// console.log("curzoom: " + this._map.getZoom());
+		// }
         if(this._map.getZoom() <= this.options.maxZoom &&
-            this._map.getZoom() >= this.options.minZoom) {
+            this._map.getZoom() >= this.options.minZoom &&
+			this.checked !== false) {
 				// console.log('show');
 				// console.log(this.show);
                 this.show();
