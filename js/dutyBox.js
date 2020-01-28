@@ -87,13 +87,71 @@ $.widget("melsmaps.dutyBox", $.melsmaps.lightbox, {
     },
     
     _addEncounters: function(encounters) {
-        // console.log(encounters);
+		var BossPopup = function(duty, encounter) {
+			// console.log(duty);
+			// console.log(encounter);
+			this._duty = duty;
+			this._encounter = encounter;
+		};
+		var that = this;
+		BossPopup.prototype = $.extend({}, Selectable.HasPopup.prototype, {
+			_getPopupHeader: function() {
+				var hdiv = $('<div></div>');
+				var img = $('<img src="icons/monster/agressive/elite.png" alt="" width=30 height=30 />');
+				hdiv.append(img);
+				var span = $('<span></span>');
+				var h1 = $('<h1></h1>').html(this._encounter.encounter);
+				var sep = $('<div></div>').addClass('leaflet-control-layers-separator');
+				var subtitle = this._getPopupSubtitle();
+				span.append(h1)
+					.append(sep)
+					.append(subtitle);
+				hdiv.append(span);
+				
+				return hdiv;
+			},
+			_getPopupSubtitle: function() {
+				// console.log(this._duty);
+				var subtitle = $('<h2></h2>').html("Boss in " + this._duty.real_name + " (" + this._duty.mode + ")");
+				return subtitle;
+			},
+			_getPopupContent: function() {
+				var div = $('<div></div>');
+				var ul = $('<ul class="melsmaps-dungeon-boss-popup"></ul>').appendTo(div);
+				for(var i in this._encounter.tokens) {
+					var token = this._encounter.tokens[i];
+					var li = $('<li></li>');
+					$('<span></span>')
+						.html(token.qty + ' ')
+						.appendTo(li);
+					$('<img />')
+						.attr({
+							src: token.token.icon,
+							width: 24,
+							height: 24,
+							alt: token.token.name + ' icon'
+						})
+						.appendTo(li);
+					$('<span></span>')
+						.html(token.token.name)
+						.appendTo(li);
+					
+					ul.append(li);
+				}
+				div.append(that._makeItemList(this._encounter.items));
+				return div;
+			}
+		});
+		
         var points = [];
         for(var i in encounters) {
             var encounter = encounters[i];
             // console.log(encounter);
             if(encounter && encounter.items && encounter.geom && encounter.encounter) {
-                var popup = this._makeItemList(encounter.items)[0];
+				// console.log(this);
+				var boss = new BossPopup(this.duty._searchable, encounter);
+				// console.log(boss);
+                var popup = boss.getPopup({});
                 var p = L.marker(encounter.geom[0][0], { icon: mapIcons.boss });
                 p.bindTooltip(this._makeEncounterTooltip(encounter.encounter)[0], {
                     permanent: true,
@@ -120,7 +178,7 @@ $.widget("melsmaps.dutyBox", $.melsmaps.lightbox, {
     },
     
     _makeItemList: function(items) {
-        var html = $('<ul></ul>');
+        var html = $('<ul class="melsmaps-dungeon-boss-popup"></ul>');
         for(var i in items) {
             var item = items[i];
             // console.log(item);

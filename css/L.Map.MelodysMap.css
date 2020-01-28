@@ -170,6 +170,9 @@ ul.duty.trial li.mode {
 ul.duty.trial li.mode:nth-child(even) {
 	background-color: #2a292a;
 }
+ul.melsmaps-dungeon-boss-popup li img {
+	margin: 0 0.5rem 0 0;
+}
 /* Fishing */
 .melsmaps-fishing-popup table thead tr {
 	vertical-align: top;
