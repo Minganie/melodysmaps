@@ -78,7 +78,7 @@ $.widget("melsmaps.dutyBox", $.melsmaps.lightbox, {
             modname += mode.toLowerCase();
     
         // console.log("Ready to request tiles for " + modname);
-        var tiles = L.tileLayer('http://melodysmaps.com/duties/' + modname + '/{z}/{x}/{y}.png', {
+        var tiles = L.tileLayer('https://melodysmaps.com/duties/' + modname + '/{z}/{x}/{y}.png', {
             minZoom: 6,
             maxZoom: 10,
             tms: false
@@ -109,7 +109,7 @@ $.widget("melsmaps.dutyBox", $.melsmaps.lightbox, {
     _makeEncounterTooltip: function(name) {
         var icon = $('<img />')
             .attr({
-                src: 'http://www.melodysmaps.com/icons/monster/agressive/elite.png',
+                src: 'icons/monster/agressive/elite.png',
                 width: 24,
                 height: 24,
                 alt: 'Boss nameplate icon'

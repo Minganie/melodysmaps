@@ -58,7 +58,7 @@ Selectable.Spawn.prototype = $.extend({}, Selectable.DefaultPolygon.prototype, {
     },
     
     _getNameplateIconUrl: function(mob) {
-        return 'http://melodysmaps.com/icons/monster/' + 
+        return 'icons/monster/' + 
             (mob.agressive ? 'agressive/' : 'passive/') + 
             (mob.elite ? 'elite.png' : 'normal.png');
     },

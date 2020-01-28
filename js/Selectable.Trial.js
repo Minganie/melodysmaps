@@ -10,7 +10,7 @@ Selectable.Trial.prototype = $.extend({}, Selectable.HasPopup.prototype, {
             layer.options.inLegend = true;
             layer.getLegendGroup = function() {return group;};
             layer.getLegendLabel = function() {
-                return '<span><img src="http://melodysmaps.com/icons/map/trial.png" width="16" height="16" alt="' +
+                return '<span><img src="icons/map/trial.png" width="16" height="16" alt="' +
                 (name || '') + ' icon" class="melsmaps-legend-image" />' + 
                 (name || '') + '</span>';
             };
@@ -68,7 +68,7 @@ Selectable.Trial.prototype = $.extend({}, Selectable.HasPopup.prototype, {
                         .appendTo(encounter_li);
                     $('<img />')
                         .attr({
-                            src: 'http://www.melodysmaps.com/icons/map/boss.png',
+                            src: 'icons/map/boss.png',
                             width: 24,
                             height: 24,
                             alt: ''

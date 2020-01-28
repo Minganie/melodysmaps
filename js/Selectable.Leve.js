@@ -23,14 +23,14 @@ Selectable.Leve.prototype = $.extend({}, Selectable.prototype, {
                     part = 'flames';
                     break;
             }
-            extra = $('<img src="http://melodysmaps.com/icons/leves/' + part + '.png" alt="Grand company icon" width=28 height=36 />');
+            extra = $('<img src="icons/leves/' + part + '.png" alt="Grand company icon" width=28 height=36 />');
         }
         if(lev.type == 'Battlecraft' || lev.job == 'Disciple of War or Magic')
             part = 'battlecraft';
         else if(lev.type == 'Tradecraft' || lev.type == 'Fieldcraft')
             part = lev.job.toLowerCase();
         
-        var def_img = $('<img src="http://melodysmaps.com/icons/leves/' + part + '.png" alt="' + lev.job + ' leve icon" title="' + lev.job + ' leve" width=24 height=30 />');
+        var def_img = $('<img src="icons/leves/' + part + '.png" alt="' + lev.job + ' leve icon" title="' + lev.job + ' leve" width=24 height=30 />');
         var span = $('<span></span>')
             .append(extra)
             .append(def_img);
@@ -122,7 +122,7 @@ Selectable.Leve.Tooltip.Leve.prototype = {
         var html = $('<div></div>')
             .addClass('melsmaps-leve-tooltip-section');
         $('<h2></h2>')
-            .html('<img src="http://melodysmaps.com/icons/leves/levemete.png" width=32 height=32 alt="" />Levemete')
+            .html('<img src="icons/leves/levemete.png" width=32 height=32 alt="" />Levemete')
             .appendTo(html);
         $('<p></p>')
             .html('<a class="melsmaps-levemete-link" data-melsmaps-levemete="' + this.leve.levemete_name + '">' + this.leve.levemete_name + '</a>')
@@ -133,11 +133,11 @@ Selectable.Leve.Tooltip.Leve.prototype = {
         var html = $('<div></div>')
             .addClass('melsmaps-leve-tooltip-section melsmaps-leve-tooltip-currencies');
         $('<h2></h2>')
-            .html('<img src="http://melodysmaps.com/icons/leves/currency_reward.png" width=32 height=32 alt="" />Currency rewards')
+            .html('<img src="icons/leves/currency_reward.png" width=32 height=32 alt="" />Currency rewards')
             .appendTo(html);
-        html.append(this.leve.xp && this.leve.xp>0 ? '<span>' + this.leve.xp + '<img src="http://melodysmaps.com/icons/xp.png" alt="" width=24 height=24 /></span>' : '?');
-        html.append(this.leve.gil && this.leve.gil>0 ? '<span>' + this.leve.gil + '<img src="http://melodysmaps.com/icons/gil.png" alt="" width=24 height=24 /></span>' : '');
-        html.append(this.leve.seals && this.leve.seals>0 ? '<span>' + this.leve.seals + '<img src="http://melodysmaps.com/icons/flameseal.png" alt="" width=24 height=24 /></span>' : '');
+        html.append(this.leve.xp && this.leve.xp>0 ? '<span>' + this.leve.xp + '<img src="icons/xp.png" alt="" width=24 height=24 /></span>' : '?');
+        html.append(this.leve.gil && this.leve.gil>0 ? '<span>' + this.leve.gil + '<img src="icons/gil.png" alt="" width=24 height=24 /></span>' : '');
+        html.append(this.leve.seals && this.leve.seals>0 ? '<span>' + this.leve.seals + '<img src="icons/flameseal.png" alt="" width=24 height=24 /></span>' : '');
         return html;
     },
     _getNumberedEnemyList: function() {
@@ -160,7 +160,7 @@ Selectable.Leve.Tooltip.Leve.prototype = {
             html = $('<div></div>')
                 .addClass('melsmaps-leve-tooltip-section');
             $('<h2></h2>')
-                .html('<img src="http://melodysmaps.com/icons/leves/wanted_target.png" width=32 height=32 alt="" />Wanted target')
+                .html('<img src="icons/leves/wanted_target.png" width=32 height=32 alt="" />Wanted target')
                 .appendTo(html);
             $('<p></p>')
                 .html(this.leve.wanted)
@@ -213,7 +213,7 @@ Selectable.Leve.Tooltip.Leve.prototype = {
             .appendTo(main_wrapper_div);
         var img = $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/leves/objectives.png',
+                src: 'icons/leves/objectives.png',
                 width: 32,
                 height: 32,
                 alt: ''
@@ -228,7 +228,7 @@ Selectable.Leve.Tooltip.Leve.prototype = {
             .addClass('melsmaps-leve-tooltip-section melsmaps-leve-tooltip-rewards')
             .appendTo(wrapper_div);
         $('<h2></h2>')
-            .html('<img src="http://melodysmaps.com/icons/leves/item_rewards.png" width=32 height=32 alt="" />Item rewards')
+            .html('<img src="icons/leves/item_rewards.png" width=32 height=32 alt="" />Item rewards')
             .appendTo(reward_div);
         reward_div.append(this._getRewards());
 		return html;
@@ -243,7 +243,7 @@ Selectable.Leve.Tooltip.Benevolence.prototype = $.extend({}, Selectable.Leve.Too
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080040.tex.png',
+                src: 'icons/080000/080040.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -289,7 +289,7 @@ Selectable.Leve.Tooltip.Candor.prototype = $.extend({}, Selectable.Leve.Tooltip.
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080030.tex.png',
+                src: 'icons/080000/080030.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -312,7 +312,7 @@ Selectable.Leve.Tooltip.Charity.prototype = $.extend({}, Selectable.Leve.Tooltip
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080041.tex.png',
+                src: 'icons/080000/080041.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -340,7 +340,7 @@ Selectable.Leve.Tooltip.Concord.prototype = $.extend({}, Selectable.Leve.Tooltip
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080057.tex.png',
+                src: 'icons/080000/080057.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -366,7 +366,7 @@ Selectable.Leve.Tooltip.Confidence.prototype = $.extend({}, Selectable.Leve.Tool
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080055.tex.png',
+                src: 'icons/080000/080055.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -391,7 +391,7 @@ Selectable.Leve.Tooltip.Constancy.prototype = $.extend({}, Selectable.Leve.Toolt
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080033.tex.png',
+                src: 'icons/080000/080033.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -418,7 +418,7 @@ Selectable.Leve.Tooltip.Diligence.prototype = $.extend({}, Selectable.Leve.Toolt
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080025.tex.png',
+                src: 'icons/080000/080025.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -443,7 +443,7 @@ Selectable.Leve.Tooltip.Equity.prototype = $.extend({}, Selectable.Leve.Tooltip.
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080049.tex.png',
+                src: 'icons/080000/080049.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -486,7 +486,7 @@ Selectable.Leve.Tooltip.Ingenuity.prototype = $.extend({}, Selectable.Leve.Toolt
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080034.tex.png',
+                src: 'icons/080000/080034.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -519,7 +519,7 @@ Selectable.Leve.Tooltip.Justice.prototype = $.extend({}, Selectable.Leve.Tooltip
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080024.tex.png',
+                src: 'icons/080000/080024.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -547,7 +547,7 @@ Selectable.Leve.Tooltip.Munificence.prototype = $.extend({}, Selectable.Leve.Too
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080044.tex.png',
+                src: 'icons/080000/080044.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -569,7 +569,7 @@ Selectable.Leve.Tooltip.Piety.prototype = $.extend({}, Selectable.Leve.Tooltip.L
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080029.tex.png',
+                src: 'icons/080000/080029.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -603,7 +603,7 @@ Selectable.Leve.Tooltip.Promptitude.prototype = $.extend({}, Selectable.Leve.Too
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080036.tex.png',
+                src: 'icons/080000/080036.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -630,7 +630,7 @@ Selectable.Leve.Tooltip.Prudence.prototype = $.extend({}, Selectable.Leve.Toolti
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080037.tex.png',
+                src: 'icons/080000/080037.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -656,7 +656,7 @@ Selectable.Leve.Tooltip.Resolve.prototype = $.extend({}, Selectable.Leve.Tooltip
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080038.tex.png',
+                src: 'icons/080000/080038.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -682,7 +682,7 @@ Selectable.Leve.Tooltip.Sincerity.prototype = $.extend({}, Selectable.Leve.Toolt
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080045.tex.png',
+                src: 'icons/080000/080045.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -709,7 +709,7 @@ Selectable.Leve.Tooltip.Sympathy.prototype = $.extend({}, Selectable.Leve.Toolti
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080056.tex.png',
+                src: 'icons/080000/080056.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -735,7 +735,7 @@ Selectable.Leve.Tooltip.Temperance.prototype = $.extend({}, Selectable.Leve.Tool
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080026.tex.png',
+                src: 'icons/080000/080026.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -760,7 +760,7 @@ Selectable.Leve.Tooltip.Tenacity.prototype = $.extend({}, Selectable.Leve.Toolti
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080022.tex.png',
+                src: 'icons/080000/080022.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -786,7 +786,7 @@ Selectable.Leve.Tooltip.Unity.prototype = $.extend({}, Selectable.Leve.Tooltip.L
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080051.tex.png',
+                src: 'icons/080000/080051.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -811,7 +811,7 @@ Selectable.Leve.Tooltip.Valor.prototype = $.extend({}, Selectable.Leve.Tooltip.L
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080021.tex.png',
+                src: 'icons/080000/080021.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -837,7 +837,7 @@ Selectable.Leve.Tooltip.Veracity.prototype = $.extend({}, Selectable.Leve.Toolti
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080046.tex.png',
+                src: 'icons/080000/080046.tex.png',
                 alt: '',
                 width: 160,
                 height: 256
@@ -871,7 +871,7 @@ Selectable.Leve.Tooltip.Wisdom.prototype = $.extend({}, Selectable.Leve.Tooltip.
     _getCard: function() {
         return $('<img />')
             .attr({
-                src: 'http://melodysmaps.com/icons/080000/080023.tex.png',
+                src: 'icons/080000/080023.tex.png',
                 alt: '',
                 width: 160,
                 height: 256

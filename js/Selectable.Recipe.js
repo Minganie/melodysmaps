@@ -13,7 +13,7 @@ Selectable.Recipe.Source = {
     getLine: function(recipe) {
         var tt = Selectable.Recipe.Tooltip.get(recipe).getTooltip();
         var img = $('<img />')
-            .attr('src', 'http://melodysmaps.com/icons/disciplines/' + recipe.discipline.toLowerCase() + '.png')
+            .attr('src', 'icons/disciplines/' + recipe.discipline.toLowerCase() + '.png')
             .attr('width', 24)
             .attr('height', 24);
         var li = $('<li class="melsmaps-recipe-tooltip"></li>')

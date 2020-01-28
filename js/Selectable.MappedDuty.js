@@ -12,7 +12,7 @@ Selectable.MappedDuty.prototype = $.extend({}, Selectable.HasPopup.prototype, {
             layer.options.inLegend = true;
             layer.getLegendGroup = function() {return group;};
             layer.getLegendLabel = function() {
-                return '<span><img src="http://melodysmaps.com/icons/map/' + icon 
+                return '<span><img src="icons/map/' + icon 
                 + '.png" width="16" height="16" alt="' +
                 (name || '') + ' icon" class="melsmaps-legend-image" />' + 
                 (name || '') + '</span>';
