@@ -1,0 +1,1 @@
+https://xivapi.com/Map?page=6&columns=ID,MapFilenameId,MapFilename,PlaceName.Name
