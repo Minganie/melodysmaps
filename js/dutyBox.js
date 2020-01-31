@@ -73,7 +73,7 @@ $.widget("melsmaps.dutyBox", $.melsmaps.lightbox, {
     
     _setTiles: function(name, mode) {
         // console.log("Requesting " + name + " (" + mode + ")");
-        var modname = name.replace(/[\s-\(\)\.']/g, '').toLowerCase();
+        var modname = name.replace(/[\s-\(\)\.:']/g, '').toLowerCase();
         if(mode != 'Regular' && mode != 'Savage')
             modname += mode.toLowerCase();
     
