@@ -37,15 +37,26 @@ Selectable.Recipe.Tooltip.Recipe = function(recipe, className) {
 Selectable.Recipe.Tooltip.Recipe.prototype = {
     _addTop: function() {
         var div = $('<div class="melsmaps-recipe-top"></div>');
+		var iconDiv = $('<div class="melsmaps-recipe-icon"></div>')
+			.appendTo(div);
         $('<img alt="" width=128 height=128 />')
             .attr('src', this.recipe.licon)
-            .appendTo(div);
+            .appendTo(iconDiv);
+		if(this.recipe.always_collectible) {
+			$('<img alt="" src="icons/collectable.png" class="melsmaps-recipe-collectable-overlay" width=28 height=28 />')
+				.appendTo(iconDiv);
+		}
+		$('<div></div>')
+			.appendTo(iconDiv);
         var middle = $('<div></div>')
             .append($('<p>' + this.recipe.discipline + '</p>'))
             .appendTo(div);
         if(this.recipe.mastery)
             middle.append($('<p>' + this.recipe.mastery + '</p>'));
-        middle.append($('<p class="melsmaps-recipe-name">' + this.recipe.name + '</p>'));
+		var p = $('<p class="melsmaps-recipe-name">' + this.recipe.name + '</p>');
+		if(this.recipe.always_collectible)
+			p.append($('<img src="icons/collectable.png" width=14 height=14 alt="" />'));
+        middle.append(p);
         middle.append($('<p>' + this.recipe.cat + '</p>'));
         var stars = '';
         if(this.recipe.n_stars)
@@ -125,12 +136,14 @@ Selectable.Recipe.Tooltip.Recipe.prototype = {
             d.append($('<p>' + r.equipment.name + '</p>'));
         if(r.facility_access)
             d.append($('<p>' + r.facility_access + '</p>'));
+		if(r.always_collectible)
+			d.append($('<p>Always Synthesized as Collectable</p>'));
         return d;
     },
     _addDetails: function() {
         var div = $('<div class="melsmaps-recipe-block"></div>');
         div.append($('<h2>Recipe Details</h2>'));
-        var t = '<table><tr><td>Total Crafted <span>' + this.recipe.nb + '</span></td><td>Difficulty <span>' + this.recipe.difficulty + '</span></td></tr><tr><td>Durability <span>' + this.recipe.durability + '</span></td><td>Maximum Quality <span>' + this.recipe.max_quality + '</span></td></tr><tr><td>Quality <span>' + this.recipe.quality + '</span></td><td></td></tr></table>';
+        var t = '<table><tr><td>Total Crafted <span>' + this.recipe.nb + '</span></td><td>Difficulty <span>' + this.recipe.difficulty + '</span></td></tr><tr><td>Durability <span>' + this.recipe.durability + '</span></td><td>Maximum Quality <span>' + this.recipe.max_quality + '</span></td></tr><tr><td>Maximum Starting Quality <span>' + this.recipe.quality + '%</span></td><td></td></tr></table>';
         div.append($(t));
         if(this._hasConditions())
             this._makeConditions().appendTo(div);

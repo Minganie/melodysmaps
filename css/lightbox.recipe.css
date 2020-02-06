@@ -43,11 +43,21 @@
     padding: 1em;
     font-size: 12px;
 }
-.melsmaps-recipe-top > img {
+.melsmaps-recipe-top > div.melsmaps-recipe-icon {
+	position: relative;
     flex: 0 0 128px;
     margin-right: 1em;
 }
-.melsmaps-recipe-top > div {
+.melsmaps-recipe-top > div.melsmaps-recipe-icon > img {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+}
+.melsmaps-recipe-top > div.melsmaps-recipe-icon > div {
+	width: 128px;
+	height: 128px;
+}
+.melsmaps-recipe-top > div:nth-child(2) {
     flex: 3 0 50%;
 }
 .melsmaps-recipe-top > p {
@@ -60,6 +70,10 @@
 p.melsmaps-recipe-name {
     font-weight: bold;
     font-size: 14px;
+}
+p.melsmaps-recipe-name > img {
+	vertical-align: middle;
+	margin-left: 5px;
 }
 .melsmaps-recipe-block {
     background-color: #333333;
