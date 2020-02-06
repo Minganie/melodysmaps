@@ -46,6 +46,7 @@
 	background-image: url("../icons/inactivetab.png");
 	background-repeat: no-repeat;
 	background-size: 90% 100%;
+	background-position: center;
 	padding: 0.7em 2em;
     font-size: 0.8em;
     text-align: center;
@@ -53,7 +54,7 @@
 
 .melsmaps-duty-coi {
     background-color: rgba(0,0,0,0.2);
-    margin: 0.3em 1em 0.3em 0;
+    margin: 0.3em 1em;
     padding: 0.5em 0.1em 0.5em 0.5em;
     border-radius: 5px;
 }

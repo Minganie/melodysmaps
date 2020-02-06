@@ -190,13 +190,49 @@ $.widget("melsmaps.dutyBox", $.melsmaps.lightbox, {
     },
     
     _addChests: function(chests) {
+		var ChestPopup = function(duty, chest) {
+			// console.log(duty);
+			// console.log(chest);
+			this._duty = duty;
+			this._chest = chest;
+		};
+		var that = this;
+		ChestPopup.prototype = $.extend({}, Selectable.HasPopup.prototype, {
+			_getPopupHeader: function() {
+				var hdiv = $('<div></div>');
+				var img = $('<img src="icons/map/chest.png" alt="" width=30 height=30 />');
+				hdiv.append(img);
+				var span = $('<span></span>');
+				var h1 = $('<h1>Treasure Chest</h1>');
+				var sep = $('<div></div>').addClass('leaflet-control-layers-separator');
+				var subtitle = this._getPopupSubtitle();
+				span.append(h1)
+					.append(sep)
+					.append(subtitle);
+				hdiv.append(span);
+				
+				return hdiv;
+			},
+			_getPopupSubtitle: function() {
+				// console.log(this._chest);
+				var subtitle = $('<h2></h2>').html("Map Coordinates X: " + this._chest.x.toFixed(1) + " Y: " + this._chest.y.toFixed(1));
+				return subtitle;
+			},
+			_getPopupContent: function() {
+				var div = $('<div></div>');
+				div.append(that._makeItemList(this._chest.items));
+				return div;
+			}
+		});
+		
         var points = [];
         for(var i in chests) {
             var chest = chests[i];
             if(chest && chest.items && chest.geom && chest.x && chest.y) {
-                var popup = this._makeItemList(chest.items);
+				var zechestpopup = new ChestPopup(this.duty._searchable, chest);
+                var popup = zechestpopup.getPopup();
                 var p = L.marker(chest.geom[0][0], { icon: mapIcons.chest });
-                p.bindPopup(popup[0]);
+                p.bindPopup(popup);
                 points.push(p);
                 var xy = chest.x.toString() + chest.y.toString();
                 this._chestCache[xy] = p;
