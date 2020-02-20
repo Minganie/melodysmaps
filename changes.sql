@@ -62,6 +62,14 @@ CREATE TABLE enemy_drops (
 GRANT SELECT ON enemy_drops TO ffxivro;
 GRANT INSERT, UPDATE, DELETE ON enemy_drops TO ffxivrw;
 
+CREATE TABLE enemy_related_duties (
+	enemy text REFERENCES enemies(lid),
+	duty text REFERENCES duties_each(lid),
+	PRIMARY KEY (enemy, duty)
+);
+GRANT SELECT ON enemy_related_duties TO ffxivro;
+GRANT INSERT, UPDATE, DELETE ON enemy_related_duties TO ffxivrw;
+
 -- transfer other tables/views to use npcs and enemies instead of mobiles
 ALTER TABLE duty_encounter_bosses
 	DROP CONSTRAINT duty_encounter_bosses_boss_fkey,
