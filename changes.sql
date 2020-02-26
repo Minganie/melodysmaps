@@ -1,8 +1,5 @@
 INSERT INTO immaterials (name, icon) VALUES ('Experience', 'https://img.finalfantasyxiv.com/lds/h/8/GShCUkaKnehhJU3Ox2t4wFSFc4.png');
 
-DROP TABLE IF EXISTS npcs;
-DROP TABLE IF EXISTS enemies;
-
 -- split mobiles into npcs and enemies, cause npcs have one point, enemies have potentially several spawn polygons
 
 -- npcs
@@ -10,7 +7,6 @@ CREATE TABLE npcs AS
 SELECT
 	lid,
 	name,
-	category,
 	geom
 FROM mobiles;
 ALTER TABLE npcs ADD CONSTRAINT npcs_pkey PRIMARY KEY (lid);
@@ -37,8 +33,7 @@ GRANT INSERT, UPDATE, DELETE ON npc_related_quests TO ffxivrw;
 CREATE TABLE enemies AS
 SELECT
 	lid,
-	name,
-	category
+	name
 FROM mobiles;
 ALTER TABLE enemies ADD CONSTRAINT enemies_pkey PRIMARY KEY (lid);
 GRANT SELECT ON enemies TO ffxivro;
@@ -49,6 +44,7 @@ CREATE TABLE enemy_spawns (
 	zone text REFERENCES zones(name),
 	minlevel int NOT NULL,
 	maxlevel int NOT NULL,
+	conditional boolean NOT NULL,
 	PRIMARY KEY(enemy, zone)
 );
 GRANT SELECT ON enemy_spawns TO ffxivro;
@@ -450,7 +446,7 @@ AS $BODY$
 SELECT row_to_json(a) 
 FROM
 (
-	SELECT e.lid, e.name, e.category, ed.ed as enemy_drops, es.es as enemy_spawns
+	SELECT e.lid, e.name, 'Enemy' as category, ed.ed as enemy_drops, es.es as enemy_spawns
 	FROM enemies as e
 	LEFT JOIN (
 		SELECT e.lid, json_agg(ed.enemy) as ed
