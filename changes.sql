@@ -1,3 +1,5 @@
+ALTER TABLE items DROP CONSTRAINT items_name_ukey; -- because there's two spider crabs now, apparently. <sigh>
+
 INSERT INTO immaterials (name, icon) VALUES ('Experience', 'https://img.finalfantasyxiv.com/lds/h/8/GShCUkaKnehhJU3Ox2t4wFSFc4.png');
 
 -- split mobiles into npcs and enemies, cause npcs have one point, enemies have potentially several spawn polygons
@@ -41,14 +43,60 @@ GRANT INSERT, UPDATE, DELETE ON enemies TO ffxivrw;
 
 CREATE TABLE enemy_spawns (
 	enemy text REFERENCES enemies(lid),
-	zone text REFERENCES zones(name),
+	place text,
 	minlevel int NOT NULL,
 	maxlevel int NOT NULL,
 	conditional boolean NOT NULL,
-	PRIMARY KEY(enemy, zone)
+	PRIMARY KEY(enemy, place)
 );
 GRANT SELECT ON enemy_spawns TO ffxivro;
 GRANT INSERT, UPDATE, DELETE ON enemy_spawns TO ffxivrw;
+
+CREATE OR REPLACE VIEW ffxiv.zones_and_duties
+ AS
+ SELECT zones.name
+   FROM zones
+UNION
+ SELECT duties.name
+   FROM duties
+  WHERE duties.cat = 'Dungeon'::text OR duties.cat='Raid'::text OR duties.cat='Trial'::text
+  ORDER BY 1;
+GRANT SELECT ON TABLE ffxiv.zones_and_duties TO ffxivro;
+
+DROP TRIGGER IF EXISTS enemy_spawns_fkey ON enemy_spawns;
+DROP TRIGGER IF EXISTS hunting_log_kills_fkey ON ffxiv.hunting_log_kills;
+DROP FUNCTION IF EXISTS hunting_log_kills_fkey;
+CREATE OR REPLACE FUNCTION zone_or_duty_fkey()
+    RETURNS trigger
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE NOT LEAKPROOF
+AS $BODY$
+DECLARE
+	_name text;
+BEGIN
+	SELECT name INTO STRICT _name 
+	FROM zones_and_duties 
+	WHERE name=NEW.place;
+	RETURN NEW;
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+		RAISE EXCEPTION 'Can''t find zone or duty with name "%"', NEW.place;
+	WHEN TOO_MANY_ROWS THEN
+		RAISE EXCEPTION 'More than one zone or duty with name "%"', NEW.place;
+END;
+$BODY$;
+
+CREATE TRIGGER enemy_spawns_fkey
+    BEFORE INSERT OR UPDATE 
+    ON enemy_spawns
+    FOR EACH ROW
+    EXECUTE PROCEDURE zone_or_duty_fkey();
+CREATE TRIGGER hunting_log_kills_fkey
+    BEFORE INSERT OR UPDATE 
+    ON ffxiv.hunting_log_kills
+    FOR EACH ROW
+    EXECUTE PROCEDURE zone_or_duty_fkey();
 
 CREATE TABLE enemy_drops (
 	enemy text REFERENCES enemies(lid),
