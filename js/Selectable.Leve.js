@@ -130,13 +130,14 @@ Selectable.Leve.Tooltip.Leve.prototype = {
         return html;
     },
     _getCurrencies: function() {
+		// console.log(this.leve);
         var html = $('<div></div>')
             .addClass('melsmaps-leve-tooltip-section melsmaps-leve-tooltip-currencies');
         $('<h2></h2>')
             .html('<img src="icons/leves/currency_reward.png" width=32 height=32 alt="" />Currency rewards')
             .appendTo(html);
         html.append(this.leve.xp && this.leve.xp>0 ? '<span>' + this.leve.xp + '<img src="icons/xp.png" alt="" width=24 height=24 /></span>' : '?');
-        html.append(this.leve.gil && this.leve.gil>0 ? '<span>' + this.leve.gil + '<img src="icons/gil.png" alt="" width=24 height=24 /></span>' : '');
+        html.append(this.leve.gil && this.leve.gil>0 ? '<span>' + this.leve.gil + '<img src="icons/currency/gil.png" alt="" width=24 height=24 /></span>' : '');
         html.append(this.leve.seals && this.leve.seals>0 ? '<span>' + this.leve.seals + '<img src="icons/flameseal.png" alt="" width=24 height=24 /></span>' : '');
         return html;
     },

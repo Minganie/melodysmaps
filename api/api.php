@@ -282,26 +282,16 @@ if($conn = conn())
         // general NPC search)
         $npc = $_GET['npc'];
         if(is_numeric($npc)) {
-            $f = "get_npc_from_id";
+            $f = "get_xivdb_npc_from_id";
         } else {
-            $f = "get_npc";
+            $f = "get_xivdb_npc";
         }
         $sql = "SELECT $f(?)";
         $stmt = $conn->prepare($sql);
         $worked = $stmt->execute(array($npc));
         $result = format_response($worked, $stmt);
     }
-    
-    // Lodestone NPC
-    if(isset($_GET['lnpc']) && !empty($_GET['lnpc']))
-    {
-        $npc = $_GET['lnpc'];
-        $sql = "SELECT get_mobile(?)";
-        $stmt = $conn->prepare($sql);
-        $worked = $stmt->execute(array($npc));
-        $result = format_response($worked, $stmt);
-    }
-    
+        
     // LEVEMETE
     if(isset($_GET['levemete']) && !empty($_GET['levemete']))
     {
