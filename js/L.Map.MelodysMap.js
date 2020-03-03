@@ -171,7 +171,17 @@ L.Map.MelodysMap = L.Map.extend({
 			// FISHING POPUP handler
 			this.on('popupopen', function(e) {
 				var div = $(e.popup._content).find('.melsmaps-fishing-popup');
+				var fishConditions = {};
 				if(div && div.length > 0) {
+					// Cache the fish conditions
+					div.find('.melsmaps-fish').each(function(i, th) {
+						var fishlid = $(th).attr('data-melsmaps-fish');
+						fishConditions[fishlid] = api('fish', fishlid)
+							.done(function(conds) { return conds; })
+							.fail(function(x, t, e) {
+								console.error("Something happened while trying to fetch fishing conditions for " + f);
+							});
+					});
 					var clock = div.find('.melsmaps-fishing-clock');
 					var weather = div.find('.melsmaps-fishing-weather-watcher');
 					this.intervalId = setInterval(function() {
@@ -187,28 +197,26 @@ L.Map.MelodysMap = L.Map.extend({
 						
 						// fishes
 						div.find('.melsmaps-fish').each(function(i, th) {
-							var f = $(th).attr('data-melsmaps-fish');
-							if(f.indexOf('Map') == -1) {
-								// console.log("Fish is " + f + " at " + node);
-								var info = gt.bell.fish.find(function(entry) {return entry.name===f && entry.title===node;});
-								if(info) {	// in case we disagree on the name of the node...
-									if(info.weather || info.during || info.transition) {
+							(function(th) {
+								var fishlid = $(th).attr('data-melsmaps-fish');
+								fishConditions[fishlid].then(function(info) {
+									if(info.start_time || info.curr_weathers) {
 										// console.log("For fish " + f + " there's a restriction");
 										var wok = true;
 										var tok = true;
 										var dok = true;
-										if(info.weather) {
-											wok = info.weather.includes(sky[1]);
+										if(info.curr_weathers) {
+											wok = info.curr_weathers.includes(sky[1]);
 										}
-										if(info.transition) {
-											tok = info.transition.includes(sky[0]) && info.weather.includes(sky[1]);
+										if(info.prev_weathers) {
+											tok = info.prev_weathers.includes(sky[0]);
 										}
-										if(info.during) {
+										if(info.start_time && info.end_time) {
 											var currentHour = parseInt(h.substring(0,2), 10);
-											if(info.during.end > info.during.start) {
-												dok = currentHour >= info.during.start && currentHour < info.during.end;
+											if(info.end_time > info.start_time) {
+												dok = currentHour >= info.start_time && currentHour < info.end_time;
 											} else {
-												dok = currentHour >= info.during.start || currentHour < info.during.end;
+												dok = currentHour >= info.start_time || currentHour < info.end_time;
 											}
 										}
 										if(wok && dok && tok) {
@@ -221,8 +229,8 @@ L.Map.MelodysMap = L.Map.extend({
 										// No restrictions on fish
 										$(th).find('.melsmaps-fishing-light').addClass('green').removeClass('red');
 									}
-								}
-							}
+								});
+							})(th, sky, h);
 						});
 					}, 1000);
 				}

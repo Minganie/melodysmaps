@@ -6,6 +6,7 @@ api = function(type, id) {
         url: url,
         dataType: "json"
     }).then(function(data) {
+		if(data) {
         // console.log("API request just returned with data: ");
         // console.log(data);
         // console.log("API call answered after " + (new Date() - start) + " ms");
@@ -27,6 +28,9 @@ api = function(type, id) {
         // console.log("After touchup, data is: ");
         // console.log(data);
         // console.log("API call + data touchup took " + (new Date() - start) + " ms");
+		} else {
+			console.error("data was null");
+		}
 		return data;
 	});
 };

@@ -45,21 +45,11 @@
 	flex: 1;
     padding: 0.5em;
 }
-.melsmaps-item-fish-info table.melsmaps-fish-hours * {
-    text-align: center;
-    vertical-align: bottom;
-}
-.melsmaps-item-fish-info table.melsmaps-fish-weather * {
-    vertical-align: middle;
-}
-.melsmaps-item-fish-info table.melsmaps-fish-weather td:first-child{
-    text-align: right;
-}
-.melsmaps-item-fish-info table.melsmaps-fish-weather td:nth-child(2){
-    text-align: center;
-}
-.melsmaps-item-fish-info table.melsmaps-fish-weather td:nth-child(3){
-    text-align: left;
+.melsmaps-fishing-clock-container {
+	max-width: 300px;
+	width: 200px;
+	height: 200px;
+	text-align: left;
 }
 .melsmaps-item-fish-info > div:first-child {
     flex: 2;

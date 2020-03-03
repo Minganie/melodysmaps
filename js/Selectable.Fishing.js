@@ -27,69 +27,73 @@ Selectable.Fishing.prototype = $.extend({}, Selectable.Gathering.prototype, {
                 .appendTo(trh);
 			for(var i in popupable.fishes) {
 				var fish = popupable.fishes[i];
-				var f = fish.name;
-				var info = gt.bell.fish.find(function(entry) {return entry.name===f && entry.title===node;});
-                var th = $('<th class="melsmaps-fish" data-melsmaps-fish="' + fish.name + '"></th>')
+                var th = $('<th class="melsmaps-fish" data-melsmaps-fish="' + fish.lid + '"></th>')
                     .appendTo(trh);
                 th.append(Selectable.getItemTooltippedImage(fish));
 				var light = $('<div class="melsmaps-fishing-light"></div>').appendTo(th);
-				if(info) {
-					var tt = $('<div class="melsmaps-fishing-conditions-tooltip"></div>');
-					var timeMarker = $('<div class="melsmaps-fishing-tt-time"></div>').appendTo(tt);
-					timeMarker.append($('<div></div>'));
-					if(info.during) {
-						if(info.during.end < info.during.start) {
-							// morning
-							var l1 = 0;
-							var w1 = info.during.end/4;
-							// night
-							var l2 = info.during.start/4;
-							var w2 = (24-info.during.start)/4;
-							var inter = $('<div><div style="height: 1rem; background-color: green; width: ' + w1 + 'rem; position: relative; left: ' + l1 + 'rem;"></div><div style="height: 1rem; background-color: green; width: ' + w2 + 'rem; position: relative; left: ' + l2 + 'rem; top: -1rem;"></div></div>');
-						} else {
-							var width = (info.during.end - info.during.start)/4;
-							var left = info.during.start/4;
-							var inter = $('<div><div style="height: 1rem; background-color: green; width: ' + width + 'rem; position: relative; left: ' + left + 'rem;"></div></div>');
-						}
-					} else {
-						var inter = $('<div><div style="height: 1rem; background-color: green; width: 6rem;"></div></div>');
-					}
-					timeMarker.append(inter);
-					var weatherMarker = $('<div class="melsmaps-fishing-tt-weather"></div>').appendTo(tt);
-					if(info.weather) {
-						if(info.transition) {
-							for(var i in info.transition) {
-								var name = info.transition[i];
-								weatherMarker.append($('<img src="icons/weather/' + name + '.png">'));
+				(function(th, light, fish) {
+					api('fish', fish.lid)
+						.done(function(info) {
+							// console.log(info);
+							var tt = $('<div class="melsmaps-fishing-conditions-tooltip"></div>');
+							var timeMarker = $('<div class="melsmaps-fishing-tt-time"></div>').appendTo(tt);
+							timeMarker.append($('<div></div>'));
+							if(info.start_time && info.end_time) {
+								if(info.end_time < info.start_time) {
+									// morning
+									var l1 = 0;
+									var w1 = info.end_time/4;
+									// night
+									var l2 = info.start_time/4;
+									var w2 = (24-info.start_time)/4;
+									var inter = $('<div><div style="height: 1rem; background-color: green; width: ' + w1 + 'rem; position: relative; left: ' + l1 + 'rem;"></div><div style="height: 1rem; background-color: green; width: ' + w2 + 'rem; position: relative; left: ' + l2 + 'rem; top: -1rem;"></div></div>');
+								} else {
+									var width = (info.end_time - info.start_time)/4;
+									var left = info.start_time/4;
+									var inter = $('<div><div style="height: 1rem; background-color: green; width: ' + width + 'rem; position: relative; left: ' + left + 'rem;"></div></div>');
+								}
+							} else {
+								var inter = $('<div><div style="height: 1rem; background-color: green; width: 6rem;"></div></div>');
 							}
-							weatherMarker.append($('<span>&rarr;</span>'));
-						}
-						for(var i in info.weather) {
-							var name = info.weather[i];
-							weatherMarker.append($('<img src="icons/weather/' + name + '.png">'));
-						}
-					}
-					light.addClass('melsmaps-is-a-tooltip');
-					light.attr('data-melsmaps-tooltip', tt[0].outerHTML);
-					// console.log(tt[0].outerHTML);
-					if(info.folklore === 1) {
-						th.append($('<div class="melsmaps-fishing-folklore" title="Tome of Regional Folklore"></div>'));
-					}
-					if(info.snagging === 1) {
-						th.append($('<div class="melsmaps-fishing-snagging" title="Snagging"></div>'));
-					}
-					if(info.fishEyes === 1) {
-						th.append($('<div class="melsmaps-fishing-fisheyes" title="Fish Eyes"></div>'));
-					}
-					if(info.predator) {
-						for(var i in info.predator) {
-							var pred = info.predator[i];
-							var licon = gt.melsmaps.fishTranslator[pred.name];
-							$('<div class="melsmaps-fishing-predator" title="Predator: ' + pred.predatorAmount + 'x ' + pred.name + '"><img src="' + licon + '" width=24 height=24><p>'+pred.predatorAmount+'</p></div>')
-								.appendTo(th);
-						}
-					}
-				}
+							timeMarker.append(inter);
+							var weatherMarker = $('<div class="melsmaps-fishing-tt-weather"></div>').appendTo(tt);
+							if(info.curr_weathers) {
+								if(info.prev_weathers) {
+									for(var i in info.prev_weathers) {
+										var name = info.prev_weathers[i];
+										weatherMarker.append($('<img src="icons/weather/' + name + '.png">'));
+									}
+									weatherMarker.append($('<span>&rarr;</span>'));
+								}
+								for(var i in info.curr_weathers) {
+									var name = info.curr_weathers[i];
+									weatherMarker.append($('<img src="icons/weather/' + name + '.png">'));
+								}
+							}
+							light.addClass('melsmaps-is-a-tooltip');
+							light.attr('data-melsmaps-tooltip', tt[0].outerHTML);
+							// console.log(tt[0].outerHTML);
+							if(info.folklore) {
+								th.append($('<div class="melsmaps-fishing-folklore" title="Tome of Regional Folklore"></div>'));
+							}
+							if(info.snagging) {
+								th.append($('<div class="melsmaps-fishing-snagging" title="Snagging"></div>'));
+							}
+							if(info.fishEyes) {
+								th.append($('<div class="melsmaps-fishing-fisheyes" title="Fish Eyes"></div>'));
+							}
+							if(info.predator) {
+								for(var i in info.predator) {
+									var pred = info.predator[i];
+									$('<div class="melsmaps-fishing-predator" title="Predator: ' + pred.n + 'x ' + pred.prey.name + '"><img src="' + pred.prey.licon + '" width=24 height=24><p>'+pred.n+'</p></div>')
+										.appendTo(th);
+								}
+							}
+						})
+						.fail(function(jqXHR, textStatus, errorThrown) {
+							console.error("Something happened while fetching fishing conditions for " + fish.name);
+						});
+				})(th, light, fish);
 			}
 			
 			// Body: bait and rates

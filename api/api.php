@@ -31,7 +31,8 @@ function format_response($worked, $stmt)
     {
         // error_log('OK');
         $row = $stmt->fetch();
-        $rep = $row[0];
+		if($row != null && $row[0] != null)
+			$rep = $row[0];
     }
     else
     {
@@ -343,6 +344,15 @@ if($conn = conn())
 	{
 		$stmt = $conn->prepare("SELECT get_hunting_logs()");
         $worked = $stmt->execute();
+        $result = format_response($worked, $stmt);
+	}
+	
+	// FISH CONDITIONS
+	if(!empty($_GET['fish']))
+	{
+        $fish = $_GET['fish'];
+		$stmt = $conn->prepare("SELECT get_fish_conditions(?)");
+        $worked = $stmt->execute(array($fish));
         $result = format_response($worked, $stmt);
 	}
 }
