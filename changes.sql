@@ -77,3 +77,44 @@ FROM
 		LEFT JOIN pred ON conds.fishlid = pred.fishlid
 )a;
 $BODY$;
+
+CREATE OR REPLACE FUNCTION ffxiv.get_item_nodes(
+	itemlid text)
+    RETURNS json
+    LANGUAGE 'sql'
+    STABLE 
+AS $BODY$
+SELECT json_agg(node)
+FROM (
+    SELECT json_build_object(
+        'gid', n.gid,
+        'category', n.category,
+        'level', n.level,
+        'name', n.name,
+		'zone', (select zones.name from zones where st_contains(zones.geom, n.zegeom)),
+        'requirement', n.requirement,
+        'geom', n.geom,
+        'bounds', bounds,
+        'centroid', centroid,
+        'trail', trail,
+        'rate', to_char(rate*100, 'FM990D00')
+    ) as node
+    FROM (
+        SELECT n.gid,
+            get_category(n.category) as category,
+            n.level,
+            n.name,
+			n.geom as zegeom,
+            get_requirement(n.requires) as requirement,
+            get_vertices(n.geom) as geom,
+            get_bounds(n.geom) as bounds,
+            get_centroid_coords(n.geom) as centroid,
+            (find_best_rate(n.gid, $1)).trail as trail,
+            (find_best_rate(n.gid, $1)).rate as rate
+        FROM gathered_where AS gw
+            join nodes as n on gw.nodegid = n.gid
+        WHERE itemlid=$1
+        ORDER BY rate DESC
+    ) n
+) a;
+$BODY$;

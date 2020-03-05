@@ -1,4 +1,6 @@
 $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
+	_intervalId: 0,
+	
     _initLayout: function() {
         this.container.addClass('melsmaps-item-container');
         this.title = $('<h1></h1>')
@@ -30,6 +32,27 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
             this.hide();
         }, this));
     },
+	
+	show: function() {
+		this._super();
+		var that = this;
+		this._intervalId = setInterval(function() {
+			that.nodes.find('li.melsmaps-fishing-source').each(function(i, li) {
+				var conditions = $(li).data('fishing-conditions');
+				var zoneName = $(li).data('zone-name');
+				var light = $($(li).find('.melsmaps-fishing-light').get(0));
+				if(Fish.isFishable(conditions, zoneName)) {
+					light.addClass('green').removeClass('red');
+				} else {
+					light.addClass('red').removeClass('green');
+				}
+			});
+		}, 1000);
+	},
+	hide: function() {
+		this._super();
+		clearInterval(this._intervalId);
+	},
     
     _setSubtitles: function(sourcesContainer) {
 		var left = $('<div></div>')
@@ -149,157 +172,8 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
             that._reset();
             
             // SPECIAL SUPPLEMENTARY INFO FOR FISHES
-            var fishConditions = info.fish_conditions;
-            if(fishConditions) {
-				if(fishConditions.start_time !== null && fishConditions.end_time !== null) {
-					var ts = Date.now();
-					var canvas = $('<div class="melsmaps-fishing-clock-container"><canvas id="c' + ts + '"></canvas></div>')
-						.appendTo(that.fishContainer);
-					var ctx = document.getElementById('c' + ts).getContext('2d');
-					var clockData;
-					if(fishConditions.start_time < fishConditions.end_time) {
-						clockData = {
-							datasets: [{
-								data: [fishConditions.start_time, fishConditions.end_time-fishConditions.start_time, 24-fishConditions.end_time],
-								backgroundColor: ['black', 'green', 'black'],
-								borderWidth: 0,
-								label: 'Fishing clock'
-							}],
-							labels: [
-								"Not fishable 00:00 to " + fishConditions.start_time + ":00",
-								"Fishable " + fishConditions.start_time + ":00 to " + fishConditions.end_time + ":00",
-								"Not fishable " + fishConditions.end_time + ":00 to 24:00"
-							]
-						};
-					} else {
-						clockData = {
-							datasets: [{
-								data: [fishConditions.end_time, fishConditions.start_time-fishConditions.end_time, 24-fishConditions.start_time],
-								backgroundColor: ['green', 'black', 'green'],
-								borderWidth: 0,
-								label: 'Fishing clock'
-							}],
-							labels: [
-								"Fishable 00:00 to " + fishConditions.end_time + ":00",
-								"Not fishable " + fishConditions.end_time + ":00 to " + fishConditions.start_time + ":00",
-								"Fishable " + fishConditions.start_time + ":00 to 24:00",
-							]
-						};
-					}
-					var clock = new Chart(ctx, {
-						type: 'pie',
-						data: clockData,
-						options: {
-							responsive: true,
-							maintainAspectRatio: false,
-							animation: {
-								duration: 0
-							},
-							legend: {
-								display: false
-							}
-						}
-					});
-				}
-				if(fishConditions.snagging || fishConditions.folklore || fishConditions.fish_eyes || fishConditions.curr_weathers || fishConditions.predator) {
-					var div = $('<div></div>').appendTo(that.fishContainer);
-					if(fishConditions.snagging) {
-						div.append($('<div><p><img src="icons/fishing/snagging.png" width=24 height=24 alt="" style="vertical-align: middle; margin-right: 0.5rem;">Requires snagging</p></div>'));
-					}
-					if(fishConditions.folklore) {
-						div.append($('<div><p><img src="icons/fishing/folklore.png" width=24 height=24 alt="" style="vertical-align: middle; margin-right: 0.5rem;">Requires a tome of regional folklore</p></div>'));
-					}
-					if(fishConditions.fish_eyes) {
-						div.append($('<div><p><img src="icons/fishing/fisheyes.png" width=24 height=24 alt="" style="vertical-align: middle; margin-right: 0.5rem;">Requires Fish Eyes</p></div>'));
-					}
-					if(fishConditions.curr_weathers && fishConditions.prev_weathers) {
-						var s = '<div><p>';
-						var pws = '';
-						for(var i in fishConditions.prev_weathers) {
-							var w = fishConditions.prev_weathers[i];
-							s += '<img src="icons/weather/' + w + '.png" width=24 height=24 alt="" style="vertical-align: middle;">';
-							if(i == fishConditions.prev_weathers.length - 2) {
-								pws += w + ' or ';
-							} else if(i < fishConditions.prev_weathers.length - 2) {
-								pws += w + ', ';
-							} else {
-								pws += w;
-							}
-						}
-						s += '->';
-						var cws = '';
-						for(var i in fishConditions.curr_weathers) {
-							var w = fishConditions.curr_weathers[i];
-							s += '<img src="icons/weather/' + w + '.png" width=24 height=24 alt="" style="vertical-align: middle;">';
-							if(i == fishConditions.curr_weathers.length - 2) {
-								cws += w + ' or ';
-							} else if(i < fishConditions.curr_weathers.length - 2) {
-								cws += w + ', ';
-							} else {
-								cws += w;
-							}
-						}
-						s += '<span style="margin-left:0.5rem;">Only fishable during ' + cws + ' following ' + pws + '</span></p></div>';
-						div.append($(s));
-					} else if(fishConditions.curr_weathers) {
-						var s = '<div><p>';
-						var cws = '';
-						for(var i in fishConditions.curr_weathers) {
-							var w = fishConditions.curr_weathers[i];
-							s += '<img src="icons/weather/' + w + '.png" width=24 height=24 alt="" style="vertical-align: middle;">';
-							if(i == fishConditions.curr_weathers.length - 2) {
-								cws += w + ' or ';
-							} else if(i < fishConditions.curr_weathers.length - 2) {
-								cws += w + ', ';
-							} else {
-								cws += w;
-							}
-						}
-						s += '<span style="margin-left:0.5rem;">Only fishable during ' + cws + '</span></p></div>';
-						div.append($(s));
-					}
-					if(fishConditions.predator) {
-						var s = '<div>Must first fish:';
-						for(var i in fishConditions.predator) {
-							var prey = fishConditions.predator[i];
-							s += '<p style="margin-left: 1rem;">' + prey.n + 'x <img src="' + prey.prey.licon + '" width=24 height=24 alt="" style="vertical-align: middle; margin-right:0.5px"> ' + prey.prey.name + '</p>';
-						}
-						s += '</div>';
-						div.append($(s));
-					}
-				}
-				// Catchable from 8 to 14
-				// From weather after weather
-				// Snagging, fish eyes, folklore
-				// Predator
-                // HOURS
-                // var hoursDiv = $('<div></div>').appendTo(that.fishContainer);
-                // var table = $('<table class="melsmaps-fish-hours"></table>').appendTo(hoursDiv);
-                // $('<caption>Catches per hour</caption>').appendTo(table);
-                // var blockTr = $('<tr></tr>').appendTo(table);
-                // var txTr = $('<tr></tr>').appendTo(table);
-                // var maxHeight = Math.max(...fishConditions.hours);
-                // var pixels = 100;
-                // for(var i = 0; i < fishConditions.hours.length; i++) {
-                    // var height = Math.round(fishConditions.hours[i] / maxHeight * pixels);
-                    // $('<td><div class="melsmaps-fishing-hour" style="height: ' + height + 'px;"></div></td>').appendTo(blockTr);
-                    // $('<td>' + i + '</td>').appendTo(txTr);
-                // }
-                
-                // WEATHERS
-                // var weatherDiv = $('<div></div>').appendTo(that.fishContainer);
-                // var wTable = $('<table class="melsmaps-fish-weather"></table>').appendTo(weatherDiv);
-                // $('<caption>Weather conditions</caption>').appendTo(wTable);
-                // var maxWidth = Math.max.apply(Math, fishConditions.weathers.map(function(w) { return w.catches; }));
-                // for(var i = 0; i < fishConditions.weathers.length; i++) {
-                    // var weather = fishConditions.weathers[i];
-                    // var width = Math.round(weather.catches / maxWidth * pixels);
-                    // var tr = $('<tr></tr>').appendTo(wTable);
-                    // $('<td>' + weather.weather + '</td>').appendTo(tr);
-                    // $('<td><img src="icons/weather/' + weather.weather + '.png" alt="" width=24 height=24 /></td>').appendTo(tr);
-                    // $('<td><div class="melsmaps-fishing-weather" style="width: ' + width + 'px;"></div></td>').appendTo(tr);
-                // }
-            }
+			// console.log(info);
+            that._printFishingConditions(info.fish_conditions);
             
             // GATHERING
             for(var i in sources.nodes) {
@@ -390,5 +264,127 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
             });
         });
         this.hide();
+	},
+	
+	_printFishingConditions(fishConditions) {
+		if(fishConditions) {
+			if(fishConditions.start_time !== null && fishConditions.end_time !== null) {
+				var ts = Date.now();
+				var canvas = $('<div class="melsmaps-fishing-clock-container"><canvas id="c' + ts + '"></canvas></div>')
+					.appendTo(this.fishContainer);
+				var ctx = document.getElementById('c' + ts).getContext('2d');
+				var clockData;
+				if(fishConditions.start_time < fishConditions.end_time) {
+					clockData = {
+						datasets: [{
+							data: [fishConditions.start_time, fishConditions.end_time-fishConditions.start_time, 24-fishConditions.end_time],
+							backgroundColor: ['black', 'green', 'black'],
+							borderWidth: 0,
+							label: 'Fishing clock'
+						}],
+						labels: [
+							"Not fishable 00:00 to " + fishConditions.start_time + ":00",
+							"Fishable " + fishConditions.start_time + ":00 to " + fishConditions.end_time + ":00",
+							"Not fishable " + fishConditions.end_time + ":00 to 24:00"
+						]
+					};
+				} else {
+					clockData = {
+						datasets: [{
+							data: [fishConditions.end_time, fishConditions.start_time-fishConditions.end_time, 24-fishConditions.start_time],
+							backgroundColor: ['green', 'black', 'green'],
+							borderWidth: 0,
+							label: 'Fishing clock'
+						}],
+						labels: [
+							"Fishable 00:00 to " + fishConditions.end_time + ":00",
+							"Not fishable " + fishConditions.end_time + ":00 to " + fishConditions.start_time + ":00",
+							"Fishable " + fishConditions.start_time + ":00 to 24:00",
+						]
+					};
+				}
+				var clock = new Chart(ctx, {
+					type: 'pie',
+					data: clockData,
+					options: {
+						responsive: true,
+						maintainAspectRatio: false,
+						animation: {
+							duration: 0
+						},
+						legend: {
+							display: false
+						}
+					}
+				});
+			}
+			if(fishConditions.snagging || fishConditions.folklore || fishConditions.fish_eyes || fishConditions.curr_weathers || fishConditions.predator) {
+				var div = $('<div></div>').appendTo(this.fishContainer);
+				if(fishConditions.snagging) {
+					div.append($('<div><p><img src="icons/fishing/snagging.png" width=24 height=24 alt="" style="vertical-align: middle; margin-right: 0.5rem;">Requires snagging</p></div>'));
+				}
+				if(fishConditions.folklore) {
+					div.append($('<div><p><img src="icons/fishing/folklore.png" width=24 height=24 alt="" style="vertical-align: middle; margin-right: 0.5rem;">Requires a tome of regional folklore</p></div>'));
+				}
+				if(fishConditions.fish_eyes) {
+					div.append($('<div><p><img src="icons/fishing/fisheyes.png" width=24 height=24 alt="" style="vertical-align: middle; margin-right: 0.5rem;">Requires Fish Eyes</p></div>'));
+				}
+				if(fishConditions.curr_weathers && fishConditions.prev_weathers) {
+					var s = '<div><p>';
+					var pws = '';
+					for(var i in fishConditions.prev_weathers) {
+						var w = fishConditions.prev_weathers[i];
+						s += '<img src="icons/weather/' + w + '.png" width=24 height=24 alt="" style="vertical-align: middle;">';
+						if(i == fishConditions.prev_weathers.length - 2) {
+							pws += w + ' or ';
+						} else if(i < fishConditions.prev_weathers.length - 2) {
+							pws += w + ', ';
+						} else {
+							pws += w;
+						}
+					}
+					s += '->';
+					var cws = '';
+					for(var i in fishConditions.curr_weathers) {
+						var w = fishConditions.curr_weathers[i];
+						s += '<img src="icons/weather/' + w + '.png" width=24 height=24 alt="" style="vertical-align: middle;">';
+						if(i == fishConditions.curr_weathers.length - 2) {
+							cws += w + ' or ';
+						} else if(i < fishConditions.curr_weathers.length - 2) {
+							cws += w + ', ';
+						} else {
+							cws += w;
+						}
+					}
+					s += '<span style="margin-left:0.5rem;">Only fishable during ' + cws + ' following ' + pws + '</span></p></div>';
+					div.append($(s));
+				} else if(fishConditions.curr_weathers) {
+					var s = '<div><p>';
+					var cws = '';
+					for(var i in fishConditions.curr_weathers) {
+						var w = fishConditions.curr_weathers[i];
+						s += '<img src="icons/weather/' + w + '.png" width=24 height=24 alt="" style="vertical-align: middle;">';
+						if(i == fishConditions.curr_weathers.length - 2) {
+							cws += w + ' or ';
+						} else if(i < fishConditions.curr_weathers.length - 2) {
+							cws += w + ', ';
+						} else {
+							cws += w;
+						}
+					}
+					s += '<span style="margin-left:0.5rem;">Only fishable during ' + cws + '</span></p></div>';
+					div.append($(s));
+				}
+				if(fishConditions.predator) {
+					var s = '<div>Must first fish:';
+					for(var i in fishConditions.predator) {
+						var prey = fishConditions.predator[i];
+						s += '<p style="margin-left: 1rem;">' + prey.n + 'x <img src="' + prey.prey.licon + '" width=24 height=24 alt="" style="vertical-align: middle; margin-right:0.5px"> ' + prey.prey.name + '</p>';
+					}
+					s += '</div>';
+					div.append($(s));
+				}
+			}
+		}
 	}
 });

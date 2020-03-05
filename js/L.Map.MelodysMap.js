@@ -200,37 +200,14 @@ L.Map.MelodysMap = L.Map.extend({
 							(function(th) {
 								var fishlid = $(th).attr('data-melsmaps-fish');
 								fishConditions[fishlid].then(function(info) {
-									if(info.start_time || info.curr_weathers) {
-										// console.log("For fish " + f + " there's a restriction");
-										var wok = true;
-										var tok = true;
-										var dok = true;
-										if(info.curr_weathers) {
-											wok = info.curr_weathers.includes(sky[1]);
-										}
-										if(info.prev_weathers) {
-											tok = info.prev_weathers.includes(sky[0]);
-										}
-										if(info.start_time && info.end_time) {
-											var currentHour = parseInt(h.substring(0,2), 10);
-											if(info.end_time > info.start_time) {
-												dok = currentHour >= info.start_time && currentHour < info.end_time;
-											} else {
-												dok = currentHour >= info.start_time || currentHour < info.end_time;
-											}
-										}
-										if(wok && dok && tok) {
-											// Restrictions met
-											$(th).find('.melsmaps-fishing-light').addClass('green').removeClass('red');
-										} else {
-											$(th).find('.melsmaps-fishing-light').addClass('red').removeClass('green');
-										}
-									} else {
-										// No restrictions on fish
+									if(Fish.isFishable(info, zone)) {
+										// Restrictions met
 										$(th).find('.melsmaps-fishing-light').addClass('green').removeClass('red');
+									} else {
+										$(th).find('.melsmaps-fishing-light').addClass('red').removeClass('green');
 									}
 								});
-							})(th, sky, h);
+							})(th, zone);
 						});
 					}, 1000);
 				}

@@ -71,6 +71,10 @@
     color: #f0e4cb;
     padding: 0 0 0 1em;
 }
+.melsmaps-item-source-link > .melsmaps-fishing-light {
+	display: inline-block;
+	vertical-align: middle;
+}
 .melsmaps-fishing-hour {
     display: inline-block;
     width: 1em;
