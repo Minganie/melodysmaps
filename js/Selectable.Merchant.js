@@ -39,7 +39,7 @@ Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, 
 	
     _getPopupSubtitle: function(popupable) {
         return $('<h2></h2>')
-            .append(popupable && popupable.zone ? popupable.zone : '?')
+            .append(popupable && popupable.zone_names ? popupable.zone_names : '?')
             .append(' Merchant');
     },
     
