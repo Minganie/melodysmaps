@@ -148,13 +148,15 @@ Selectable.Fishing.Source = {
             .append(a)
             .attr('title', 'Click to pan to the node');
         li.data('selectable', Selectable.get(node));
-		li.data('fishing-conditions', item.fish_conditions);
 		li.data('zone-name', node.zone);
-		if(Fish.isFishable(item.fish_conditions, node.zone)) {
-			light.addClass('green').removeClass('red');
-		} else {
-			light.addClass('red').removeClass('green');
-		}
+        if(item && item.fish_conditions) {
+            li.data('fishing-conditions', item.fish_conditions);
+            if(Fish.isFishable(item.fish_conditions, node.zone)) {
+                light.addClass('green').removeClass('red');
+            } else {
+                light.addClass('red').removeClass('green');
+            }
+        }
         return li;
     }
 };
