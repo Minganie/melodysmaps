@@ -51,7 +51,7 @@ Selectable.Fishing.prototype = $.extend({}, Selectable.Gathering.prototype, {
 							if(conditions.snagging) {
 								th.append($('<div class="melsmaps-fishing-snagging" title="Snagging"></div>'));
 							}
-							if(conditions.fishEyes) {
+							if(conditions.fish_eyes) {
 								th.append($('<div class="melsmaps-fishing-fisheyes" title="Fish Eyes"></div>'));
 							}
 							if(conditions.predator) {
