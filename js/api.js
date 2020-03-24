@@ -59,7 +59,10 @@ api.item.sources = function(lid) {
                         source.nodes[k].category = new Category(source.nodes[k].category);
                     }
                 }
+                if(source && source.requirement)
+                    source.requirement = new Requirement(source.requirement);
 			}
+            // console.log(typessources);
 		}
 		return typessources;
 	});
