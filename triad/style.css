@@ -1,0 +1,181 @@
+body {
+    position: absolute;
+    border: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: grey;
+}
+body > div {
+    margin: 0;
+    padding: 0;
+}
+.wide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+div.intro {
+    padding: 1rem;
+}
+.left {
+    width: 50%;
+    height: 100%;
+    position: absolute;
+    overflow: auto;
+}
+.right {
+    width: 50%;
+    height: 100%;
+    position: absolute;
+    left: 50%;
+    overflow: auto;
+}
+.board {
+    width: 310px;
+    margin: 1rem;
+    float: left;
+}
+.board:after,
+.wide > div:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.board > div {
+    float: left;
+    width: 100px;
+    height: 128px;
+    position: relative;
+    background: url('empty.png');
+}
+.board > div > div {
+    position: absolute;
+    width: 100px;
+    height: 128px;
+    top: 0;
+    left: 0;
+}
+.board > div > div:before {
+    font-size: 50px;
+    position: absolute;
+    left: 70px;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+.bahamut {
+    background: url("Bahamut.png");
+}
+.bomb {
+    background: url("Bomb.png");
+}
+.gilgamesh {
+    background: url("Gilgamesh.png");
+}
+.godbert {
+    background: url("Godbert.png");
+}
+.hildibrand {
+    background: url("Hildibrand.png");
+}
+.minfilia {
+    background: url("Minfilia.png");
+}
+.morbol {
+    background: url("Morbol.png");
+}
+.moogle {
+    background: url("Moogle.png");
+}
+.sylph {
+    background: url("Sylph.png");
+}
+.titan {
+    background: url("Titan.png");
+}
+.urianger {
+    background: url("Urianger.png");
+}
+.yshtola {
+    background: url("Y'shtola.png");
+}
+.me {
+    color: blue;
+}
+.board.combo div.finisher:after {
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 128px;
+    background: url("finisher.png");
+    opacity: 0.4;
+}
+.board.combo div.other:after {
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 128px;
+    background-color: rgba(255, 130, 0, 0.3);
+}
+.board.combo div.sometimes:after {
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 128px;
+    background-color: rgba(255, 0, 0, 0.3);
+}
+.board .lose:after {
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 128px;
+    background-color: rgba(255, 0, 0, 0.2);
+}
+.other {
+    color: red;
+}
+.one:before {
+    content: "1";
+}
+.two:before {
+    content: "2";
+}
+.three:before {
+    content: "3";
+}
+.four:before {
+    content: "4";
+}
+.five:before {
+    content: "5";
+}
+.six:before {
+    content: "6";
+}
+.seven:before {
+    content: "7";
+}
+.eight:before {
+    content: "8";
+}
+.nine:before {
+    content: "9";
+}
+.legend {
+    width: 1rem;
+    height: 1rem;
+    display: inline-block;
+    margin: 0 0.5rem;
+}
+.legend.finisher {
+    background-color: rgba(255, 148, 255, 0.2);
+}
+.legend.sometimes {
+    background-color: rgba(255, 0, 0, 0.2);
+}
+.legend.other {
+    background-color: rgba(255, 130, 0, 0.2);
+}
