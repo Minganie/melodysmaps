@@ -1,0 +1,223 @@
+body {
+    position: absolute;
+    border: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: grey;
+    color: black;
+}
+body > div {
+    margin: 0;
+    padding: 0;
+}
+body > div.me {
+    width: 50%;
+    height: 90%;
+    position: absolute;
+    overflow: auto;
+    background-color: rgba(150, 150, 200, 0.2);
+}
+body > footer.foot {
+    padding: 1rem;
+    width: 50%;
+    height: 10%;
+    position: absolute;
+    top: 90%;
+    overflow: auto;
+}
+body > footer.foot a {
+    padding: 0.5rem;
+    text-decoration: none;
+    color: black;
+    background-color: #cccccc;
+    border-radius: 5px;
+    border: 1px solid black;
+}
+body > footer.foot h1 {
+    float: right;
+    margin: 1.5rem 2.1rem;
+}
+body > div.other {
+    width: 50%;
+    height: 100%;
+    position: absolute;
+    left: 50%;
+    overflow: auto;
+    background-color: rgba(200, 150, 150, 0.4);
+}
+.board-wrapper {
+    width: 310px;
+    padding: 1rem;
+    float: left;
+}
+.board {
+    width: 310px;
+    margin: 1rem 0;
+}
+.board-wrapper:after,
+.wide > div:after,
+body > footer.foot:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.board > div { /* tile */
+    float: left;
+    width: 100px;
+    height: 128px;
+    position: relative;
+    background: url('empty.png');
+}
+.board > div > div { /* card */
+    position: absolute;
+    width: 100px;
+    height: 128px;
+    top: 0;
+    left: 0;
+}
+
+
+/* Turn text */
+.board > div > div:before {
+    font-size: 50px;
+    position: absolute;
+    left: 65px;
+    bottom: 0;
+    background: radial-gradient(white 0%, transparent 70%);
+    text-shadow: 0px 0px 4px white;
+    padding: 0 5px;
+}
+.board .ME {
+    color: blue;
+}
+.board .OTHER {
+    color: red;
+}
+.board .lose:after {
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 128px;
+    background-color: rgba(255, 0, 0, 0.2);
+}
+
+
+/* combos page */
+.board.combo div.finisher:after {
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 128px;
+    background: url("finisher.png");
+    opacity: 0.4;
+}
+.board.combo div.OTHER:after {
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 128px;
+    background-color: rgba(255, 130, 0, 0.3);
+}
+.board.combo div.sometimes:after {
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 128px;
+    background-color: rgba(255, 0, 0, 0.3);
+}
+
+
+/* landing page */
+.wide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+div.intro {
+    padding: 1rem;
+}
+.legend {
+    width: 1rem;
+    height: 1rem;
+    display: inline-block;
+    margin: 0 0.5rem;
+}
+.legend.finisher {
+    background-color: rgba(255, 148, 255, 0.2);
+}
+.legend.sometimes {
+    background-color: rgba(255, 0, 0, 0.2);
+}
+.legend.OTHER {
+    background-color: rgba(255, 130, 0, 0.2);
+}
+
+
+/* card images and turns # text */
+.bahamut {
+    background: url("Bahamut.png");
+}
+.bomb {
+    background: url("Bomb.png");
+}
+.gilgamesh {
+    background: url("Gilgamesh.png");
+}
+.godbert {
+    background: url("Godbert.png");
+}
+.hildibrand {
+    background: url("Hildibrand.png");
+}
+.minfilia {
+    background: url("Minfilia.png");
+}
+.morbol {
+    background: url("Morbol.png");
+}
+.moogle {
+    background: url("Moogle.png");
+}
+.sylph {
+    background: url("Sylph.png");
+}
+.titan {
+    background: url("Titan.png");
+}
+.urianger {
+    background: url("Urianger.png");
+}
+.yshtola {
+    background: url("Y'shtola.png");
+}
+.t1:before {
+    content: "1";
+}
+.t2:before {
+    content: "2";
+}
+.t3:before {
+    content: "3";
+}
+.t4:before {
+    content: "4";
+}
+.t5:before {
+    content: "5";
+}
+.t6:before {
+    content: "6";
+}
+.t7:before {
+    content: "7";
+}
+.t8:before {
+    content: "8";
+}
+.t9:before {
+    content: "9";
+}

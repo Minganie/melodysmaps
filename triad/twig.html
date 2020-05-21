@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Triad - {{play.name}}</title>
+        <link rel="stylesheet" href="style2.css">
+{% set tiles = ['NW', 'N', 'NE', 'W', 'C', 'E', 'SW', 'S', 'SE'] %}
+{% set leftBoards = play.leftBoards %}
+{% set rightBoards = play.rightBoards %}
+    </head>
+    <body>
+        <div class="me">
+            {% for board in leftBoards %}
+            <div class="board-wrapper">
+                <div class="board">
+                {% for ti in tiles %}
+                {% set tile = board.board[ti] %}
+                    <div class="#{{ti}}"><div class="{{tile.card ? tile.card.name|lower ~ ' ' ~ tile.card.player ~ ' t' ~ tile.turn: ''}}"></div></div>
+                {% endfor %}
+                </div>
+                <h1>{{board.name}}</h1>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="other">
+            {% for board in rightBoards %}
+            <div class="board-wrapper">
+                {% if board.link %}
+                <a href="{{board.link}}">
+                {% endif %}
+                <div class="board">
+                {% for ti in tiles %}
+                {% set tile = board.board[ti] %}
+                    <div class="#{{ti}}"><div class="{{tile.card ? tile.card.name|lower ~ ' ' ~ tile.card.player ~ ' t' ~ tile.turn : ''}}"></div></div>
+                {% endfor %}
+                </div>
+                {% if board.link %}
+                </a>
+                {% endif %}
+                <h1>{{board.name}}</h1>
+                <p>{{board.comment ?? ''}}</p>
+            </div>
+            {% endfor %}
+        </div>
+        <footer class="foot">
+            <a href="./">&lt;= Back to the beginning</a>
+            <a href="combos.html">Look at all combos for inspiration</a>
+            <h1>{{play.name}}</h1>
+        </footer>
+    </body>
+</html>
