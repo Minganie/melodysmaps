@@ -1,0 +1,33 @@
+body > div.me {
+    width: 50%;
+    height: 90%;
+    position: absolute;
+    overflow: auto;
+    background-color: rgba(150, 150, 200, 0.2);
+}
+body > footer.foot {
+    padding: 1rem;
+    width: 50%;
+    height: 10%;
+    position: absolute;
+    top: 90%;
+    overflow: auto;
+}
+
+body > footer.foot h1 {
+    float: right;
+    margin: 1.5rem 2.1rem;
+}
+body > div.other {
+    width: 50%;
+    height: 100%;
+    position: absolute;
+    left: 50%;
+    overflow: auto;
+    background-color: rgba(200, 150, 150, 0.4);
+}
+body > footer.foot:after {
+    content: "";
+    display: table;
+    clear: both;
+}

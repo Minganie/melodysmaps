@@ -2,16 +2,21 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$loader = new \Twig\Loader\FilesystemLoader(__DIR__);
+$loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/views/');
 $twig = new \Twig\Environment($loader, [
-    'debug' => true,
-    'cache' => __DIR__ . '/cache',
+    'debug' => true
 ]);
 $twig->addExtension(new \Twig\Extension\DebugExtension());
 
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) use ($twig) {
-    $r->get('/melodysmaps/triad/', function() use ($twig) {
-        $string = file_get_contents(__DIR__ . '/plays/Caribou.json');
+    $r->get('/triad/', function() use ($twig) {
+        echo $twig->render('intro.twig');
+    });
+    $r->get('/triad/combos', function() use ($twig) {
+        echo $twig->render('combos.twig');
+    });
+    $r->get('/triad/{play}', function($vars) use ($twig) {
+        $string = file_get_contents(__DIR__ . "/plays/{$vars['play']}.json");
         $play = json_decode($string, true);
         foreach($play['leftBoards'] as $i => $board) {
             $string = file_get_contents(__DIR__ . "/boards/$board.json");
@@ -21,8 +26,8 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) u
             $string = file_get_contents(__DIR__ . "/boards/$board.json");
             $play['rightBoards'][$i] = json_decode($string, true);
         }
-        error_log(print_r($play, true));
-        echo $twig->render('twig.html', ['play' => $play]);
+        // error_log(print_r($play, true));
+        echo $twig->render('play.twig', ['play' => $play]);
     });
 });
 

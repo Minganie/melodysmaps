@@ -1,0 +1,35 @@
+/* landing page */
+.wide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+.wide > div:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+img {
+    padding: 10px;
+    border-radius: 5px;
+    background-color: white;
+}
+div.intro {
+    padding: 1rem;
+    font-size: 1.2rem;
+}
+.single-card > div {
+    display: inline-block;
+    width: 100px;
+    height: 128px;
+    vertical-align: middle;
+}
+.single-card > p {
+    margin-left: 1rem;
+    display: inline-block;
+    vertical-align: middle;
+}
+a.button {
+    margin-left: 1rem;
+}

@@ -1,0 +1,38 @@
+.legend {
+    width: 1rem;
+    height: 1rem;
+    display: inline-block;
+    margin: 0 0.5rem;
+}
+.legend.finisher {
+    background-color: rgba(255, 148, 255, 0.2);
+}
+.legend.sometimes {
+    background-color: rgba(255, 0, 0, 0.2);
+}
+.legend.OTHER {
+    background-color: rgba(255, 130, 0, 0.2);
+}
+
+/* combos page */
+.board.combo div.finisher:after {
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 128px;
+    background-color: rgba(255, 148, 255, 0.4);
+}
+.board.combo div.OTHER:after {
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 128px;
+    background-color: rgba(255, 130, 0, 0.3);
+}
+.board.combo div.sometimes:after {
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 128px;
+    background-color: rgba(255, 0, 0, 0.3);
+}

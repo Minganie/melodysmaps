@@ -1,0 +1,117 @@
+.board-wrapper {
+    width: 310px;
+    padding: 1rem;
+    float: left;
+}
+.board {
+    width: 310px;
+    margin: 1rem 0;
+}
+.board-wrapper:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.board > div { /* tile */
+    float: left;
+    width: 100px;
+    height: 128px;
+    position: relative;
+    background: url("../cards/empty.png");
+}
+.board > div > div { /* card */
+    position: absolute;
+    width: 100px;
+    height: 128px;
+    top: 0;
+    left: 0;
+}
+
+/* Turn text */
+.board > div > div:before {
+    font-size: 50px;
+    position: absolute;
+    left: 65px;
+    bottom: 0;
+    background: radial-gradient(white 0%, transparent 70%);
+    text-shadow: 0px 0px 4px white;
+    padding: 0 5px;
+}
+.board .ME {
+    color: blue;
+}
+.board .OTHER {
+    color: red;
+}
+.board .lose:after {
+    content: "";
+    position: absolute;
+    width: 100px;
+    height: 128px;
+    background-color: rgba(255, 0, 0, 0.2);
+}
+
+/* card images and turns # text */
+.bahamut {
+    background: url("../cards/Bahamut.png");
+}
+.bomb {
+    background: url("../cards/Bomb.png");
+}
+.gilgamesh {
+    background: url("../cards/Gilgamesh.png");
+}
+.godbert {
+    background: url("../cards/Godbert.png");
+}
+.hildibrand {
+    background: url("../cards/Hildibrand.png");
+}
+.minfilia {
+    background: url("../cards/Minfilia.png");
+}
+.morbol {
+    background: url("../cards/Morbol.png");
+}
+.moogle {
+    background: url("../cards/Moogle.png");
+}
+.sylph {
+    background: url("../cards/Sylph.png");
+}
+.titan {
+    background: url("../cards/Titan.png");
+}
+.urianger {
+    background: url("../cards/Urianger.png");
+}
+.y\'shtola {
+    background: url("../cards/Y'shtola.png");
+}
+.t1:before {
+    content: "1";
+}
+.t2:before {
+    content: "2";
+}
+.t3:before {
+    content: "3";
+}
+.t4:before {
+    content: "4";
+}
+.t5:before {
+    content: "5";
+}
+.t6:before {
+    content: "6";
+}
+.t7:before {
+    content: "7";
+}
+.t8:before {
+    content: "8";
+}
+.t9:before {
+    content: "9";
+}
