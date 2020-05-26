@@ -147,7 +147,7 @@ $.widget("melsmaps.dutyBox", $.melsmaps.lightbox, {
         for(var i in encounters) {
             var encounter = encounters[i];
             // console.log(encounter);
-            if(encounter && encounter.items && encounter.geom && encounter.encounter) {
+            if(encounter && encounter.geom && encounter.encounter) {
 				// console.log(this);
 				var boss = new BossPopup(this.duty._searchable, encounter);
 				// console.log(boss);
