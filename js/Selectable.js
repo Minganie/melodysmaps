@@ -195,6 +195,9 @@ Selectable = {
             case 'Quest':
                 t = new Selectable.Quest(null);
                 break;
+            case 'Sightseeing':
+                t = new Selectable.Sightseeing(null);
+                break;
             default:
                 console.error("Can't find which kind of full select-able category '" + searchable.category.getName() + "' is.");
         }

@@ -1,7 +1,8 @@
 $.widget('melsmaps.multiGeoms', {
 	_create: function() {
-		this.options.categories = ['Hunting Logs'];
+		this.options.categories = ['Hunting Logs', 'Sightseeing Logs'];
 		this.huntingLogs = {};
+        this.sightseeingLogs = {};
         this.element.addClass('melsmaps-slide-out');
 		for(var i in this.options.categories) {
 			var cat = this.options.categories[i];
@@ -11,6 +12,7 @@ $.widget('melsmaps.multiGeoms', {
 			switch(cat) {
 				case 'Hunting Logs':
 					var that = this;
+                    (function(ul) {
 					api('hunting_logs')
 					.fail(function(jqXHR, textStatus, errorThrown) {
 						console.error("api call failed " + textStatus);
@@ -34,13 +36,33 @@ $.widget('melsmaps.multiGeoms', {
 							}
 						}
 					});
+                    })(ul);
 				break;
+                case 'Sightseeing Logs':
+                    var that = this;
+                    (function(ul) {
+                    api('sightseeing_logs')
+                    .fail(function(jqXHR, textStatus, errorThrown) {
+						console.error("api call failed " + textStatus);
+						console.error(errorThrown);
+						console.error(jqXHR);
+					})
+                    .then(function(ssls) {
+                        for(var log in ssls) {
+                            that.sightseeingLogs[log] = ssls[log];
+                            var li = $('<li class="melsmaps-sightseeing-log-link">' + log + '</li>')
+                                .appendTo(ul);
+                        }
+                    });
+                    })(ul);
+                break;
 				default:
 					console.error('Unsupported multi geom category: ' + cat);
 			}
 			this.element.append(div);
 		}
 		var hl = this.huntingLogs;
+        var ssl = this.sightseeingLogs;
 		this.element.on('click', '.melsmaps-hunting-log-link', function() {
 			// console.log("hunting log was clicked");
 			var rank = $(this).find('span').html();
@@ -62,5 +84,32 @@ $.widget('melsmaps.multiGeoms', {
 				}).addTo(melsmap);
 			}
 		});
+        
+		this.element.on('click', '.melsmaps-sightseeing-log-link', function() {
+            var segmentName = $(this).text();
+            var segment = ssl[segmentName];
+            for(var i in segment) {
+                var feature = segment[i];
+                var point = L.namedPointLayer([feature], {
+					name: feature.label,
+					minZoom: 7,
+					maxZoom: 10,
+					inLegend: true,
+                    pointStyle: {
+                        icon: mapIcons.sightseeing,
+                        className: 'aetheryte-names'
+                    },
+					legendGroup: segmentName,
+					nameClass: 'melsmaps-tooltip',
+					searchable: false
+				}).addTo(melsmap);
+                (function(feat, layer) {
+                    var ss = Selectable.getFull(feat);
+                    ss._full.then(function(full) {
+                        layer.bindPopup(ss.getPopup(full));
+                    });
+                })(feature, point);
+            }
+        });
 	}
 });

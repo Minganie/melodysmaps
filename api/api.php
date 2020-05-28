@@ -345,6 +345,14 @@ if($conn = conn())
         $worked = $stmt->execute(array($fish));
         $result = format_response($worked, $stmt);
 	}
+    
+    // SIGHTSEEING LOGS LIST
+	if(!empty($_GET['sightseeing_logs']))
+	{
+		$stmt = $conn->prepare("SELECT get_vistas()");
+        $worked = $stmt->execute();
+        $result = format_response($worked, $stmt);
+	}
 }
 
 echo $result;

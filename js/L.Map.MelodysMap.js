@@ -6,6 +6,10 @@ L.Map.MelodysMap = L.Map.extend({
         
         L.Map.prototype.initialize.call(this, el, options);
         
+        setInterval(function() {
+            $(map).trigger('tick', gt.time.melodysGetTime());
+        }, 5000);
+        
         this.whenReady(function() {
             this._layerControl = L.melodysLegend({}, {}, {collapsed: false, groupCheckboxes: true});
             this.addControl(this._layerControl);

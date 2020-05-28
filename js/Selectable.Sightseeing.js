@@ -3,6 +3,17 @@ Selectable.Sightseeing = function(searchable) {
     if(searchable && searchable.real_name) {
         this._full = api("vistas", searchable.real_name);
     }
+    var ss = this;
+    $(map).on('tick', function(e, time) {
+        ss._full.then(function(sightseeing) {
+            var img = $(map).find('img.melsmaps-legend-image[alt="' + sightseeing.label + ' icon"]');
+            if(ss.isSeeable(sightseeing, time)) {
+                img.attr('src', 'icons/map/sightseeing_on.png');
+            } else {
+                img.attr('src', 'icons/map/sightseeing_off.png');
+            }
+        });
+    });
 }
 Selectable.Sightseeing.prototype = $.extend({}, Selectable.DefaultPoint.prototype, {
     onSelect: function() {
@@ -51,5 +62,33 @@ Selectable.Sightseeing.prototype = $.extend({}, Selectable.DefaultPoint.prototyp
         html.append(plug._formatWeather(popupable));
         html.append(plug._formatEmote(popupable));
         return html;
+    },
+    
+    isSeeable: function(sightseeing, time) {
+        var zone = sightseeing.zone;
+        if(zone.indexOf('Gridania') !== -1)
+            zone = 'Gridania';
+        var sky = gt.skywatcher.getViewModel()[zone];
+        
+        // time
+        var tok = true;
+        if(sightseeing.debut && sightseeing.fin) {
+            var currentHour = parseInt(time.substring(0,2), 10);
+            var debut = parseInt(sightseeing.debut.substring(0,2), 10);
+            var fin = parseInt(sightseeing.fin.substring(0,2), 10);
+            if(fin > debut) {
+                tok = currentHour >= debut && currentHour < fin;
+            } else {
+                tok = currentHour >= debut || currentHour < fin;
+            }
+        }
+        
+        // weather
+        var wok = true;
+        if(sightseeing.weather) {
+            wok = sightseeing.weather.includes(sky[1]);
+        }
+        
+        return tok && wok;
     }
 });
