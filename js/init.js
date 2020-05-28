@@ -55,6 +55,12 @@ function init(map) {
             iconUrl: 'icons/map/chest.png',
             iconSize: [28, 28],
             tooltipAnchor: [12, 0]
+        }),
+        
+        sightseeing: L.icon({
+            iconUrl: 'icons/map/sightseeing.png',
+            iconSize: [28, 28],
+            tooltipAnchor: [14, 14]
         })
     };
     
