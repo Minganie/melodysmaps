@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="utf-8">
-    <title>Items</title>
+    <title>Recipes</title>
     
     <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
@@ -104,87 +104,92 @@
     <!-- Tooltips -->
     <link rel="stylesheet" href="css/tooltip.item.css" />
     <link rel="stylesheet" href="css/tooltip.leve.css" />
-</head>
-<body>
+ </head>
+  <body>
     <div id="map">
-    <ul></ul>
+        <ul></ul>
     </div>
-    <div id="item-tooltip"></div>
+    <div id="recipe-tooltip"></div>
     <script>
     $(document).ready(function() {
-var lids = ["fffc4e40644", "ff64db94fce", "fe184c7b6e2", "ffe527ffb78", "ff028de882e", "ffa84141658", "ff685e53937", "ffdbb6da652", "e03b11ff284"];
-for(var i in lids) {
-    var lid = lids[i];
-    api("items", lid).then(function(item) {
-        <!-- console.log("got an item"); -->
-        <!-- console.log(item); -->
-        var li = Selectable.getItemTooltippedImage(item);
-        $('#map>ul').append(li);
-    });
-}
+        var lids = ["fca929efbac", "80a72bead39", "44d3af4b4e0", "c34fa97a3ea", "fe73e5cdc28", "a4e6fc31e12", "4da6d36ceba", "dbb3329387e"];
+        for(var i in lids) {
+            var lid = lids[i];
+            var li = $('<li></li>')
+                .attr('data-melsmaps-recipe-lid', lid)
+                .addClass('melsmaps-is-a-recipe-tooltip')
+                .html(lid);
+            $('#map>ul').append(li);
+        }
+        
+        // TOOLTIP HANDLERS
+        function setTooltipText(evt, id) {
+            // console.log(evt);
+            var tt = evt.currentTarget.attributes['data-melsmaps-tooltip'].nodeValue;
+            // console.log(tt);
+            $(id).html(tt);
+        }
 
-// TOOLTIP HANDLERS
-function setTooltipText(evt, id) {
-    // console.log(evt);
-    var tt = evt.currentTarget.attributes['data-melsmaps-tooltip'].nodeValue;
-    // console.log(tt);
-    $(id).html(tt);
-}
+        function moveTooltip(evt, id) {
+            var pos = getPos(evt, id);
+            var trans = "translate(" + pos.x + "px, " + pos.y + "px)";
+            $(id)
+                .css("transform", trans)
+                .css("display", "block");
+        }
 
-function moveTooltip(evt, id) {
-    var pos = getPos(evt, id);
-    var trans = "translate(" + pos.x + "px, " + pos.y + "px)";
-    $(id)
-        .css("transform", trans)
-        .css("display", "block");
-}
-
-function getPos(evt, id) {
-    function isMouseInX(x, left, right) {
-        return left < x && x < right;
-    }
-    function isMouseInY(y, top, bottom) {
-        return top < y && y < bottom;
-    }
-    var x = evt.originalEvent.clientX;
-    var y = evt.originalEvent.clientY;
-    var maxx = $(document).width();
-    var maxy = $(document).height();
-    var twidth = $(id).width();
-    var theight = $(id).height();
-    
-    // Is the tooltip going to overflow the window? push right and down
-    var truex = Math.min(x, maxx - twidth);
-    var truey = Math.min(y, maxy - theight);
-    
-    var left = false;
-    var above = false;
-    
-    if(isMouseInX(x, truex, truex+twidth)) {
-        // console.log("Moving the tooltip to the left of the cursor");
-        truex = Math.max(0, x-twidth-10);
-        left = true;
-    }
-    if(isMouseInY(y, truey, truey+theight)) {
-        // console.log("Moving the tooltip to above the cursor");
-        truey = Math.max(0, y-theight-10);
-        above = true;
-    }
-    // console.log("Final position: (" + truex + ", " + truey + ")");
-    return {
-        x: truex + (left ? -10 : 10),
-        y: truey + (above ? -10 : 10)
-    }
-}
-$('#map').on('mouseenter', '.melsmaps-is-a-tooltip', function(evt) {
-    setTooltipText(evt, '#item-tooltip');
-    moveTooltip(evt, '#item-tooltip');
-});
-$('#map').on('mouseleave', '.melsmaps-is-a-tooltip', function(evt) {
-    $('#item-tooltip')
-        .css("display", "none");
-});
+        function getPos(evt, id) {
+            function isMouseInX(x, left, right) {
+                return left < x && x < right;
+            }
+            function isMouseInY(y, top, bottom) {
+                return top < y && y < bottom;
+            }
+            var x = evt.originalEvent.clientX;
+            var y = evt.originalEvent.clientY;
+            var maxx = $(document).width();
+            var maxy = $(document).height();
+            var twidth = $(id).width();
+            var theight = $(id).height();
+            
+            // Is the tooltip going to overflow the window? push right and down
+            var truex = Math.min(x, maxx - twidth);
+            var truey = Math.min(y, maxy - theight);
+            
+            var left = false;
+            var above = false;
+            
+            if(isMouseInX(x, truex, truex+twidth)) {
+                // console.log("Moving the tooltip to the left of the cursor");
+                truex = Math.max(0, x-twidth-10);
+                left = true;
+            }
+            if(isMouseInY(y, truey, truey+theight)) {
+                // console.log("Moving the tooltip to above the cursor");
+                truey = Math.max(0, y-theight-10);
+                above = true;
+            }
+            // console.log("Final position: (" + truex + ", " + truey + ")");
+            return {
+                x: truex + (left ? -10 : 10),
+                y: truey + (above ? -10 : 10)
+            }
+        }
+        $('#map').on('mouseenter', '.melsmaps-is-a-recipe-tooltip', function(evt) {
+            var lid = evt.currentTarget.attributes['data-melsmaps-recipe-lid'].nodeValue;
+            api("recipes", lid).then(function(recipe) {
+                <!-- console.log("got a recipe"); -->
+                var tt = Selectable.getRecipeTooltip(recipe);
+                <!-- console.log(tt); -->
+                $('#recipe-tooltip').html(tt);
+                moveTooltip(evt, '#recipe-tooltip');
+            });
+        });
+        $('#map').on('mouseleave', '.melsmaps-is-a-recipe-tooltip', function(evt) {
+            $('#recipe-tooltip')
+                .css("display", "none");
+        });
     });
     </script>
-</body>
+  </body>
 </html>
