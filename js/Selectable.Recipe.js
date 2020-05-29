@@ -104,7 +104,8 @@ Selectable.Recipe.Tooltip.Recipe.prototype = {
             || r.req_contr_qs || r.req_craft_qs || r.aspect 
             || r.specialist
             || !r.has_qs || !r.has_hq || r.has_coll
-            || r.no_xp || r.equipment || r.facility_access;
+            || r.no_xp || r.equipment || r.facility_access
+            || r.expert || r.always_collectible;
     },
     _makeConditions: function() {
         var r = this.recipe;
@@ -138,6 +139,8 @@ Selectable.Recipe.Tooltip.Recipe.prototype = {
             d.append($('<p>' + r.facility_access + '</p>'));
 		if(r.always_collectible)
 			d.append($('<p>Always Synthesized as Collectable</p>'));
+		if(r.expert)
+			d.append($('<p>Expert recipe</p>'));
         return d;
     },
     _addDetails: function() {
