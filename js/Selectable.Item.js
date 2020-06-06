@@ -4,7 +4,7 @@ Selectable.Item = function(searchable) {
         this._info = api.item.info(searchable.lid);
         this._sources = api.item.sources(searchable.lid);
     }
-}
+};
 Selectable.Item.prototype = $.extend({}, Selectable.prototype, {
     onSelect: function() {
         $('#item').itemBox("instance").setItem(this);
@@ -28,6 +28,8 @@ Selectable.Item.Tooltip = {
             return new Selectable.Item.Tooltip.Bait(item);
         if(item.lcat3 == 'Seafood')
             return new Selectable.Item.Tooltip.Material(item);
+        if(item.lcat3 == 'Triple Triad Card')
+            return new Selectable.Item.Tooltip.Card(item);
         if(item.lcat2 == 'Materials' || item.lcat2 == 'Other')
             return new Selectable.Item.Tooltip.Material(item);
         else {
@@ -38,7 +40,7 @@ Selectable.Item.Tooltip = {
 
 Selectable.Item.Tooltip.Item = function(item) {
 	this.item = item;
-}
+};
 Selectable.Item.Tooltip.Item.prototype = {
 	
 	getTooltipHeader: function() {
@@ -411,10 +413,10 @@ Selectable.Item.Tooltip.Item.prototype = {
             // .attr('height', 24)
             // .attr('alt', this.item.name + ' icon');
     // }
-}
+};
 Selectable.Item.Tooltip.Weapon = function(item) {
 	Selectable.Item.Tooltip.Item.call(this, item);
-}
+};
 Selectable.Item.Tooltip.Weapon.prototype = $.extend({}, Selectable.Item.Tooltip.Item.prototype, {
 	
 	getCaracteristics: function() {
@@ -471,7 +473,7 @@ Selectable.Item.Tooltip.Weapon.prototype = $.extend({}, Selectable.Item.Tooltip.
 
 Selectable.Item.Tooltip.Armor = function(item) {
 	Selectable.Item.Tooltip.Item.call(this, item);
-}
+};
 Selectable.Item.Tooltip.Armor.prototype = $.extend({}, Selectable.Item.Tooltip.Item.prototype, {
 	
 	getCaracteristics: function() {
@@ -527,7 +529,7 @@ Selectable.Item.Tooltip.Armor.prototype = $.extend({}, Selectable.Item.Tooltip.I
 
 Selectable.Item.Tooltip.Bait = function(item) {
 	Selectable.Item.Tooltip.Item.call(this, item);
-}
+};
 Selectable.Item.Tooltip.Bait.prototype = $.extend({}, Selectable.Item.Tooltip.Item.prototype, {
 	getTooltip: function() {
         var ilvl = this.getTooltipIlvl();
@@ -547,7 +549,7 @@ Selectable.Item.Tooltip.Bait.prototype = $.extend({}, Selectable.Item.Tooltip.It
 
 Selectable.Item.Tooltip.Consumable = function(item) {
 	Selectable.Item.Tooltip.Item.call(this, item);
-}
+};
 Selectable.Item.Tooltip.Consumable.prototype = $.extend({}, Selectable.Item.Tooltip.Item.prototype, {
 	getRecast: function() {
 		var html = null;
@@ -603,7 +605,7 @@ Selectable.Item.Tooltip.Consumable.prototype = $.extend({}, Selectable.Item.Tool
 
 Selectable.Item.Tooltip.Materia = function(item) {
 	Selectable.Item.Tooltip.Item.call(this, item);
-}
+};
 Selectable.Item.Tooltip.Materia.prototype = $.extend({}, Selectable.Item.Tooltip.Item.prototype, {
 	getRequirements: function() {
 		var html = $('<div></div>')
@@ -639,7 +641,7 @@ Selectable.Item.Tooltip.Materia.prototype = $.extend({}, Selectable.Item.Tooltip
 
 Selectable.Item.Tooltip.Material = function(item) {
 	Selectable.Item.Tooltip.Item.call(this, item);
-}
+};
 Selectable.Item.Tooltip.Material.prototype = $.extend({}, Selectable.Item.Tooltip.Item.prototype, {
 	getTooltip: function() {
         var ilvl = this.getTooltipIlvl();
@@ -659,7 +661,7 @@ Selectable.Item.Tooltip.Material.prototype = $.extend({}, Selectable.Item.Toolti
 
 Selectable.Item.Tooltip.Shield = function(item) {
 	Selectable.Item.Tooltip.Item.call(this, item);
-}
+};
 Selectable.Item.Tooltip.Shield.prototype = $.extend({}, Selectable.Item.Tooltip.Item.prototype, {
 	getCaracteristics: function() {
         var html = $('<table></table>')
@@ -715,7 +717,7 @@ Selectable.Item.Tooltip.Shield.prototype = $.extend({}, Selectable.Item.Tooltip.
 
 Selectable.Item.Tooltip.SoulCrystal = function(item) {
 	Selectable.Item.Tooltip.Item.call(this, item);
-}
+};
 Selectable.Item.Tooltip.SoulCrystal.prototype = $.extend({}, Selectable.Item.Tooltip.Item.prototype, {
 	getTooltip: function() {
         var ilvl = this.getTooltipIlvl();
@@ -732,4 +734,44 @@ Selectable.Item.Tooltip.SoulCrystal.prototype = $.extend({}, Selectable.Item.Too
 		html.append(this.getMarket());
 		return html[0];
 	}
+});
+
+
+
+Selectable.Item.Tooltip.Card = function(item) {
+	Selectable.Item.Tooltip.Item.call(this, item);
+};
+Selectable.Item.Tooltip.Card.prototype = $.extend({}, Selectable.Item.Tooltip.Material.prototype, {
+    getCard: function() {
+        var html = null;
+        if(this.item.card) {
+            html = $('<div class="melsmaps-item-tooltip-card"></div>');
+            // console.log(this.item.card);
+            html.append($('<div class="card-rarity stars' + this.item.card.stars + '"></div>'));
+            html.append($('<img src="icons/triad/' + this.item.card.icon + '" width=104 height=128>'));
+            html.append($('<div class="north">' + (this.item.card.north == 10 ? 'A' : this.item.card.north) + '</div>'));
+            html.append($('<div class="east">' + (this.item.card.east == 10 ? 'A' : this.item.card.east) + '</div>'));
+            html.append($('<div class="south">' + (this.item.card.south == 10 ? 'A' : this.item.card.south) + '</div>'));
+            html.append($('<div class="west">' + (this.item.card.west == 10 ? 'A' : this.item.card.west) + '</div>'));
+            if(this.item.card.card_type) {
+                html.append($('<div class="card-type ' + this.item.card.card_type + '"></div>'));
+            }
+        }
+        return html;
+    },
+    getTooltip: function() {
+        var ilvl = this.getTooltipIlvl();
+		var note = this.getNote();
+		var crafting = this.getCrafting();
+        
+		var html = $('<div></div>')
+            .addClass('melsmaps-item-tooltip-wrapper');
+		html.append(this.getTooltipHeader());
+		(ilvl ? html.append(ilvl) : null);
+		(note ? html.append(note) : null);
+		(crafting ? html.append(crafting) : null);
+        html.append(this.getCard());
+		html.append(this.getMarket());
+		return html[0];
+    }
 });

@@ -105,10 +105,15 @@
     margin: 0 0.5em 0 0;
 }
 div.req {
+    background: url("../icons/traits/requires.png") 2px center no-repeat;
 	border: 1px solid #f4d588;
 	color: #f4d588;
 	border-radius: 5px;
+    padding: 0 0.5rem 0 36px;
     margin: 0.5em 0.1em;
+}
+div.req p {
+    margin: 0.5rem 0;
 }
 div.req span {
 	margin: 1em 0.5em;
@@ -355,4 +360,57 @@ ul.melsmaps-dungeon-boss-popup li img {
 .leaflet-popup-content .melsmaps-merchant-popup table td:nth-child(5),
 .leaflet-popup-content .melsmaps-merchant-popup table td:nth-child(6) {
 	text-align: left;
+}
+
+/* Triad */
+.melsmaps-triad-rewards,
+.melsmaps-triad-deck {
+    border-top: 2px solid #262626;
+    margin: 1em 0;
+}
+.melsmaps-triad-rewards h2,
+.melsmaps-triad-deck h2,
+.melsmaps-triad-match h2 {
+    margin: 0.2em 0;
+    font-size: 1em;
+    color: #ccbca1;
+}
+.melsmaps-triad-rewards > .melsmaps-item-tooltip-card,
+.melsmaps-triad-deck > .melsmaps-item-tooltip-card {
+    display: inline-block;
+}
+.melsmaps-triad-deck-always-present {
+    background-color: green;
+}
+.melsmaps-triad-rules > span {
+    margin: 0 1rem;
+}
+.melsmaps-triad-match-mpg:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.melsmaps-triad-match-mpg > div {
+    width: 50%;
+}
+.melsmaps-triad-match-withdraw {
+    float: left;
+    position: relative;
+}
+.melsmaps-triad-match-withdraw > p{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.melsmaps-triad-match-deposit {
+    float: right;
+}
+.melsmaps-triad-match table {
+    width: 100%;
+}
+.leaflet-popup-content .melsmaps-triad-match table td {
+    width: 50%;
+    border: none;
+    background: none;
+    text-align: left;
 }

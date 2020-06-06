@@ -196,3 +196,78 @@
 	display: table;
 	clear: both;
 }
+.melsmaps-item-tooltip-card {
+    width: 104px;
+    height: 128px;
+    margin: auto;
+    position: relative;
+}
+.melsmaps-item-tooltip-card .north,
+.melsmaps-item-tooltip-card .east,
+.melsmaps-item-tooltip-card .south,
+.melsmaps-item-tooltip-card .west {
+    position: absolute;
+    font-size: 16px;
+    font-weight: 600;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 2px;
+}
+.melsmaps-item-tooltip-card .north {
+    top: 10px;
+    left: 46px;
+}
+.melsmaps-item-tooltip-card .east {
+    right: 15px;
+    top: 54px;
+}
+.melsmaps-item-tooltip-card .south {
+    bottom: 10px;
+    left: 46px;
+}
+.melsmaps-item-tooltip-card .west {
+    left: 15px;
+    top: 54px;
+}
+.melsmaps-item-tooltip-card .card-type {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 20px;
+    height: 20px;
+}
+.melsmaps-item-tooltip-card .card-type {
+}
+.melsmaps-item-tooltip-card .card-type.Garlean {
+    background: url("../icons/triad/garlean.png");
+}
+.melsmaps-item-tooltip-card .card-type.Beastman {
+    background: url("../icons/triad/beastman.png");
+}
+.melsmaps-item-tooltip-card .card-type.Scion {
+    background: url("../icons/triad/scion.png");
+}
+.melsmaps-item-tooltip-card .card-type.Primal {
+    background: url("../icons/triad/primal.png");
+}
+.melsmaps-item-tooltip-card .card-rarity {
+    position: absolute;
+    top: 7px;
+    left: 7px;
+    width: 27px;
+    height: 26px;
+}
+.melsmaps-item-tooltip-card .card-rarity.stars1 {
+    background: url("../icons/triad/stars1.png");
+}
+.melsmaps-item-tooltip-card .card-rarity.stars2 {
+    background: url("../icons/triad/stars2.png");
+}
+.melsmaps-item-tooltip-card .card-rarity.stars3 {
+    background: url("../icons/triad/stars3.png");
+}
+.melsmaps-item-tooltip-card .card-rarity.stars4 {
+    background: url("../icons/triad/stars4.png");
+}
+.melsmaps-item-tooltip-card .card-rarity.stars5 {
+    background: url("../icons/triad/stars5.png");
+}

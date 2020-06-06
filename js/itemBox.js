@@ -104,6 +104,12 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
 		this._setSubtitle(maps, 'icons/sections/treasured.png', 'found with');
 		this.maps = $('<ul></ul>').appendTo(maps);
         
+        // TRIAD MATCHES
+		var triads = $('<div></div>')
+			.appendTo(right);
+        this._setSubtitle(triads, 'icons/sections/leved.png', 'won from');
+        this.triads = $('<ul></ul>').appendTo(triads);
+        
         // USED IN
 		var uses = $('<div></div>')
 			.appendTo(right);
@@ -148,6 +154,7 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
         this.maps.empty();
         this.uses.empty();
         this.leves.empty();
+        this.triads.empty();
     },
     
     _setTitle: function() {
@@ -169,6 +176,8 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
             var hoursDiv = $('<div></div>').appendTo(that.fishContainer).html('There was a problem loading data... Sorry!');
         })
         .done(function(info, sources) {
+            // console.log(sources);
+            
             that._reset();
             
             // SPECIAL SUPPLEMENTARY INFO FOR FISHES
@@ -239,6 +248,11 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
                 var li = Selectable.getSourceLine(sources.leves[i]);
                 that.leves.append(li);
             }
+            // triad matches
+            for(var i in sources.triad) {
+                var li = Selectable.getSourceLine(sources.triad[i]);
+                that.triads.append(li);
+            }
             
         });
 	},
@@ -260,6 +274,9 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
                 $(li).data('selectable')._addToMap(name);
             });
             that.maps.find('li.melsmaps-item-source-link').each(function(i, li) {
+                $(li).data('selectable')._addToMap(name);
+            });
+            that.triads.find('li').each(function(i, li) {
                 $(li).data('selectable')._addToMap(name);
             });
         });
