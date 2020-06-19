@@ -48,7 +48,7 @@ UPDATE triad_cards SET icon='082147.tex.png' WHERE name='Nero tol Scaeva';
 UPDATE triad_cards SET icon='082148.tex.png' WHERE name='Papalymo & Yda';
 UPDATE triad_cards SET icon='082149.tex.png' WHERE name='Y''shtola';
 UPDATE triad_cards SET icon='082150.tex.png' WHERE name='Urianger';
-UPDATE triad_cards SET icon='082151.tex.png' WHERE name='The Ultima Weapon';
+UPDATE triad_cards SET icon='082151.tex.png' WHERE name='Ultima Weapon';
 UPDATE triad_cards SET icon='082152.tex.png' WHERE name='Odin';
 UPDATE triad_cards SET icon='082153.tex.png' WHERE name='Ramuh';
 UPDATE triad_cards SET icon='082154.tex.png' WHERE name='Leviathan';
