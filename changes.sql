@@ -141,8 +141,8 @@ CREATE TABLE lottery(
     drop_rate real,
     PRIMARY KEY(lottery, item)
 );
-GRANT SELECT ON lottery_types TO ffxivro;
-GRANT INSERT, UPDATE, DELETE ON lottery_types TO ffxivrw;
+GRANT SELECT ON lottery TO ffxivro;
+GRANT INSERT, UPDATE, DELETE ON lottery TO ffxivrw;
 
 CREATE TABLE triad_categories (
     name text PRIMARY KEY
@@ -218,6 +218,7 @@ CREATE TABLE triad_npc_rules (
     rule text REFERENCES triad_rules(name)
 );
 GRANT SELECT ON triad_npc_rules TO ffxivro;
+GRANT USAGE ON triad_npc_rules_id_seq TO public;
 GRANT INSERT, UPDATE, DELETE ON triad_npc_rules TO ffxivrw;
 
 CREATE TABLE triad_npc_rewards (
