@@ -353,6 +353,15 @@ if($conn = conn())
         $worked = $stmt->execute();
         $result = format_response($worked, $stmt);
 	}
+    
+    // TRIAD NPCs
+    if(!empty($_GET['triad_npc']))
+    {
+        $npc = $_GET['triad_npc'];
+		$stmt = $conn->prepare("SELECT get_triad_npc(?)");
+        $worked = $stmt->execute(array($npc));
+        $result = format_response($worked, $stmt);
+    }
 }
 
 echo $result;

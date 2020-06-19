@@ -91,6 +91,8 @@ Selectable = {
 				return Selectable.Duty.Source.getLine(source);
             case 'Leve':
                 return Selectable.Leve.Source.getLine(source);
+            case 'Triad NPC':
+                return Selectable.Triad.Npc.Source.getLine(source);
             default:
                 console.error("Can't find which kind of item source category '" + source.category.getName() + "' is.");
         }
@@ -136,6 +138,8 @@ Selectable = {
                 return new Selectable.Quest(searchable);
             case 'Recipe':
                 return new Selectable.Recipe(searchable);
+            case 'Triad NPC':
+                return new Selectable.Triad.Npc(searchable);
             default:
                 console.error("Can't find which kind of select-able category '" + searchable.category.getName() + "' is.");
         }
@@ -197,6 +201,9 @@ Selectable = {
                 break;
             case 'Sightseeing':
                 t = new Selectable.Sightseeing(null);
+                break;
+            case 'Triad NPC':
+                t = new Selectable.Triad.Npc(null);
                 break;
             default:
                 console.error("Can't find which kind of full select-able category '" + searchable.category.getName() + "' is.");

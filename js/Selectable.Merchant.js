@@ -193,12 +193,6 @@ Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, 
 			var html = $('<div></div>')
 				.addClass('req')
 				.attr('title', 'Requires ' + requirement.name);
-			var generic_img = $('<img />')
-				.attr({
-					src: "icons/traits/requires.png",
-					height: (requirement && requirement.iconSize ? requirement.iconSize : 32),
-					width: (requirement && requirement.iconSize ? requirement.iconSize : 32)
-				});
 			var specific_img = $('<img />')
 				.attr({
 					src: requirement.icon,
@@ -207,8 +201,7 @@ Selectable.Merchant.prototype = $.extend({}, Selectable.DefaultPoint.prototype, 
 				});
 			var span = $('<span></span>')
 				.html(requirement.name);
-			html.append(generic_img)
-				.append(specific_img)
+			html.append(specific_img)
 				.append(span);
 		}
 		return html;

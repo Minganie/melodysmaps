@@ -22,6 +22,9 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
 		this.fishContainer = $('<div></div>')
 			.addClass('melsmaps-item-fish-info')
 			.appendTo(this.container);
+        this.cardContainer = $('<div></div>')
+            .addClass('melsmaps-item-card-info')
+            .appendTo(this.container);
 		var sourcesContainer = $('<div></div>')
 			.addClass('melsmaps-item-sources')
 			.appendTo(this.container);
@@ -104,6 +107,12 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
 		this._setSubtitle(maps, 'icons/sections/treasured.png', 'found with');
 		this.maps = $('<ul></ul>').appendTo(maps);
         
+        // TRIAD MATCHES
+		var triads = $('<div></div>')
+			.appendTo(right);
+        this._setSubtitle(triads, 'icons/sections/leved.png', 'won from');
+        this.triads = $('<ul></ul>').appendTo(triads);
+        
         // USED IN
 		var uses = $('<div></div>')
 			.appendTo(right);
@@ -140,6 +149,7 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
     
     _reset: function() {
         this.fishContainer.empty();
+        this.cardContainer.empty();
         this.nodes.empty();
         this.merchants.empty();
         this.crafters.empty();
@@ -148,6 +158,7 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
         this.maps.empty();
         this.uses.empty();
         this.leves.empty();
+        this.triads.empty();
     },
     
     _setTitle: function() {
@@ -169,11 +180,14 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
             var hoursDiv = $('<div></div>').appendTo(that.fishContainer).html('There was a problem loading data... Sorry!');
         })
         .done(function(info, sources) {
+            // console.log(sources);
+            
             that._reset();
             
             // SPECIAL SUPPLEMENTARY INFO FOR FISHES
 			// console.log(info);
             that._printFishingConditions(info.fish_conditions);
+            that._printTriadCard(info.card);
             
             // GATHERING
             for(var i in sources.nodes) {
@@ -239,6 +253,20 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
                 var li = Selectable.getSourceLine(sources.leves[i]);
                 that.leves.append(li);
             }
+            // Triple Triad sources
+            // console.log(sources.triad);
+            if(sources.triad.first_deck) {
+                that.triads.append($('<p>Part of the initial Triple Triad deck</p>'));
+            }
+            if(sources.triad.tournament) {
+                that.triads.append($('<p>1st to 3rd prizes in Triple Triad Tournament: ' + sources.triad.tournament + '</p>'));
+            }
+            if(sources.triad.npcs && sources.triad.npcs.length > 0 && sources.triad.npcs[0]) {
+                for(var i in sources.triad.npcs) {
+                    var li = Selectable.getSourceLine(sources.triad.npcs[i]);
+                    that.triads.append(li);
+                }
+            }
             
         });
 	},
@@ -260,6 +288,9 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
                 $(li).data('selectable')._addToMap(name);
             });
             that.maps.find('li.melsmaps-item-source-link').each(function(i, li) {
+                $(li).data('selectable')._addToMap(name);
+            });
+            that.triads.find('li').each(function(i, li) {
                 $(li).data('selectable')._addToMap(name);
             });
         });
@@ -386,5 +417,12 @@ $.widget('melsmaps.itemBox', $.melsmaps.lightbox, {
 				}
 			}
 		}
-	}
+	},
+    
+    _printTriadCard(card) {
+        if(card) {
+            var tt = Selectable.Triad.Card.Tooltip.get(card);
+            this.cardContainer.append(tt.getCard());
+        }
+    }
 });

@@ -10,12 +10,6 @@ Requirement = function(requirement) {
                 var html = $('<div></div>')
                     .addClass('req')
                     .attr('title', 'Requires ' + requirement.name + ', a level ' + requirement.level + ' ' + type);
-                var generic_img = $('<img />')
-                    .attr({
-                        src: "icons/traits/requires.png",
-                        height: (requirement && requirement.iconSize ? requirement.iconSize : 32),
-                        width: (requirement && requirement.iconSize ? requirement.iconSize : 32)
-                    });
                 var specific_img = $('<img />')
                     .attr({
                         src: requirement.icon,
@@ -24,7 +18,7 @@ Requirement = function(requirement) {
                     });
                 var span = $('<span></span>')
                     .html(requirement.name);
-                return html.append(generic_img)
+                return html
                     .append(specific_img)
                     .append(span);
             } else
